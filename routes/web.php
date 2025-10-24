@@ -147,6 +147,21 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 
+    /*************** Notices & Events *****************/
+    Route::resource('notices', 'NoticeController');
+    Route::resource('events', 'SchoolEventController');
+    Route::get('events/calendar/data', 'SchoolEventController@calendar')->name('events.calendar');
+
+    /*************** Study Materials *****************/
+    Route::resource('study-materials', 'StudyMaterialController');
+    Route::get('study-materials/{studyMaterial}/download', 'StudyMaterialController@download')->name('study-materials.download');
+
+    /*************** Book Requests *****************/
+    Route::resource('book-requests', 'BookRequestController');
+    Route::put('book-requests/{bookRequest}/approve', 'BookRequestController@approve')->name('book-requests.approve');
+    Route::put('book-requests/{bookRequest}/reject', 'BookRequestController@reject')->name('book-requests.reject');
+    Route::put('book-requests/{bookRequest}/return', 'BookRequestController@returnBook')->name('book-requests.return');
+
     /************************ AJAX ****************************/
     Route::group(['prefix' => 'ajax'], function() {
         Route::get('get_lga/{state_id}', 'AjaxController@get_lga')->name('get_lga');
