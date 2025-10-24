@@ -152,6 +152,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('events', 'SchoolEventController');
     Route::get('events/calendar/data', 'SchoolEventController@calendar')->name('events.calendar');
 
+    /*************** Books *****************/
+    Route::resource('books', 'BookController');
+
     /*************** Study Materials *****************/
     Route::resource('study-materials', 'StudyMaterialController');
     Route::get('study-materials/{studyMaterial}/download', 'StudyMaterialController@download')->name('study-materials.download');

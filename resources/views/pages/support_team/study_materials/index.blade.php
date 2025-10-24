@@ -61,7 +61,7 @@
                             </div>
                             <div class="flex-1">
                                 <h6 class="mb-1">{{ $material->title }}</h6>
-                                <p class="text-muted mb-2 small">{{ Str::limit($material->description, 80) }}</p>
+                                <p class="text-muted mb-2 small">{{ \Illuminate\Support\Str::limit($material->description, 80) }}</p>
                                 
                                 <div class="mb-2">
                                     @if($material->myClass)
