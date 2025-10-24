@@ -1,40 +1,42 @@
-## **Laravel School Management System** 
+## **School-Management-System** 
 
-**LAVSMS** is developed for educational institutions like schools and colleges built on Laravel 8
+**School-Management-System** est une application développée pour les établissements d’enseignement tels que les écoles et les collèges.
+Elle est construite sur le framework Laravel 8 et offre une plateforme complète de gestion académique.
 
 **SCREENSHOTS** 
 
-**Dashboard**
+**Tableau de bord**
 <img src="https://i.ibb.co/D4T0z6T/dashboard.png" alt="dashboard" border="0">
 
-**Login**
+**Connexion (Login)**
 <img src="https://i.ibb.co/Rh1Bfwk/login.png" alt="login" border="0">
 
-**Student Marksheet**
+**Bulletin de notes (Marksheet)**
 <img src="https://i.ibb.co/GCgv5ZR/marksheet.png" alt="marksheet" border="0">
 
-**System Settings**
+**Paramètres du système**
 <img src="https://i.ibb.co/Kmrhw69/system-settings.png" alt="system-settings" border="0">
 
-**Print Marksheet**
+**Impression du bulletin**
 <div style="clear: both"> </div>
 <img src="https://i.ibb.co/5c1GHCj/capture-20210530-115521-crop.png" alt="print-marksheet">
 
-**Print Tabulation Sheet & Marksheet**
+**Impression de la feuille de tabulation et du bulletin**
 <img src="https://i.ibb.co/QmscPfn/capture-20210530-115802.png" alt="tabulation-sheet" border="0">
 
 <hr />  
 
-There are 7 types of user accounts. They include:
+L’application gère 7 types de comptes utilisateurs, à savoir :
  
-Administrators (Super Admin & Admin)
-- Librarian
-- Accountant
-- Teacher
-- Student
+- Super Administrateur
+- Administrateur
+- Bibliothécaire
+- Comptable
+- Enseignant
+- Élève
 - Parent
 
-**Requirements** 
+**Prérequis** 
 
 Check Laravel 8 Requirements https://laravel.com/docs/8.x
 
@@ -44,8 +46,8 @@ Check Laravel 8 Requirements https://laravel.com/docs/8.x
 - Migrate Database (php artisan migrate)
 - Database seed (php artisan db:seed)
 
-**Login Credentials**
-After seeding. Login details as follows:
+**Identifiants de connexion (par défaut)**
+près avoir exécuté le seeder, les identifiants de connexion sont les suivants :
 
 | Account Type  | Username | Email | Password |
 | ------------- | -------- | ----- | -------- |
@@ -56,68 +58,94 @@ After seeding. Login details as follows:
 |  Accountant | accountant | accountant@accountant.com | cj |
 |  Student | student | student@student.com | cj |
 
-#### **FUNCTIONS OF ACCOUNTS** 
+#### **Fonctionnalités par rôle utilisateur** 
 
-**-- SUPER ADMIN**
-- Only Super Admin can delete any record
-- Create any user account
+**-- 🧑‍💼 Super Administrateur**
+- Seul le Super Admin peut supprimer n’importe quel enregistrement
+- Peut créer n’importe quel compte utilisateur
  
-**-- Administrators (Super Admin & Admin)**
+**-- 🏫 Administrateurs (Super Admin & Admin)**
 
-- Manage students class/sections
-- View marksheet of students
-- Create, Edit and manage all user accounts & profiles
-- Create, Edit and manage Exams & Grades
-- Create, Edit and manage Subjects
-- Manage noticeboard of school
-- Notices are visible in calendar in dashboard
-- Edit system settings
-- Manage Payments & fees
+- Gérer les élèves, classes et sections
 
-**-- ACCOUNTANT**
-- Manage Payments & fees
-- Print Payment Receipts
+- Consulter les bulletins de notes des élèves
 
-**-- LIBRARIAN**
-- Manage Books in the Library
+- Créer, modifier et gérer tous les comptes utilisateurs
 
-**-- TEACHER**
-- Manage Own Class/Section
-- Manage Exam Records for own Subjects
-- Manage Timetable if Assigned as Class Teacher
-- Manage own profile
-- Upload Study Materials
+- Créer, modifier et gérer les examens et les notes
 
-**-- STUDENT**
-- View teacher profile
-- View own class subjects
-- View own marks and class timetable
-- View Payments
-- View library and book status
-- View noticeboard and school events in calendar
-- Manage own profile
+- Créer, modifier et gérer les matières
 
-**-- PARENT**
-- View teacher profile
-- View own child's marksheet (Download/Print PDF)
-- View own child's Timetable
-- View own child's payments
-- View noticeboard and school events in calendar
-- Manage own profile
+- Gérer le tableau d’affichage (notices, annonces, événements)
 
-### **Contributing**
+- Modifier les paramètres du système
 
-Your Contributions & suggestions are welcomed. Please use Pull Request
+- Gérer les paiements et les frais scolaires
 
-### **Security Vulnerabilities**
+💰 Comptable
 
-If you discover a security vulnerability within LAV_SMS, please send an e-mail to CJ Inspired via cjay.pub@gmail.com. All security vulnerabilities will be promptly addressed.
+- Gérer les paiements et frais scolaires
 
-***Please Note*** that some sections of this project are in the work-in-progress stage and would be updated soon. These include:
+- Imprimer les reçus de paiement
 
-- The Noticeboard/Calendar in the Dashboard Area
-- Librarian/Acountant user pages
-- Library Resources/Study Materials Upload for Students
+📚 Bibliothécaire
 
-### **Contact [CJ INSPIRED]**
-- Phone : +2347068149559
+- Gérer les livres et ressources de la bibliothèque
+
+👨‍🏫 Enseignant
+
+- Gérer sa propre classe et ses sections
+
+- Gérer les résultats des examens pour ses matières
+
+- Gérer son emploi du temps (si assigné comme professeur principal)
+
+- Gérer son profil
+
+- Télécharger des supports pédagogiques
+
+👨‍🎓 Élève
+
+- Consulter le profil des enseignants
+
+- Voir ses matières et horaires de cours
+
+- Consulter ses notes et bulletins
+
+- Voir ses paiements et l’état de ses livres à la bibliothèque
+
+- Voir le tableau d’affichage et le calendrier des événements
+
+- Gérer son profil personnel
+
+👨‍👩‍👦 Parent
+
+- Consulter le profil des enseignants
+
+- Consulter et imprimer le bulletin de son enfant (PDF)
+
+- Voir les paiements de son enfant
+
+- Consulter le tableau d’affichage et le calendrier des événements
+
+- Gérer son profil personnel
+### **Contribution**
+
+Les contributions et suggestions sont les bienvenues.
+Veuillez soumettre vos propositions via une Pull Request sur le dépôt du projet.
+
+### **Vulnérabilités de sécurité**
+
+Si vous découvrez une faille de sécurité dans LAVSMS, veuillez envoyer un e-mail à Bédi Tshitsho à l’adresse : tshitshob@gmail.com. Toutes les vulnérabilités signalées seront corrigées rapidement.
+
+***⚠️ Remarque importante*** Veuillez noter que certaines sections de ce projet sont encore en cours de développement et seront mises à jour prochainement.
+Les parties concernées incluent :
+
+- Le tableau d’affichage et le calendrier dans la zone du tableau de bord
+
+- Les pages utilisateur du bibliothécaire et du comptable
+
+- Le module de gestion des ressources de la bibliothèque et le téléchargement des supports pédagogiques pour les élèves
+
+### **Contact [Bédi]**
+- Téléphone : +243812380589
