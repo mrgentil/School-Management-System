@@ -10,6 +10,7 @@
     <title>{{ config('app.name', 'MrGentil ACADEMY') }}</title>
 
     @include('partials.login.inc_top')
+    <script src="{{ asset('js/app.js') }}" defer></script>
 </head>
 
 <body>

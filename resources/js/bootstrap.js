@@ -1,4 +1,4 @@
-
+import Echo from 'laravel-echo';
 window._ = require('lodash');
 window.Popper = require('popper.js').default;
 
@@ -37,6 +37,15 @@ if (token) {
 } else {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
+
+window.Pusher = require('pusher-js');
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: process.env.MIX_PUSHER_APP_KEY,
+    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+    forceTLS: true
+});
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

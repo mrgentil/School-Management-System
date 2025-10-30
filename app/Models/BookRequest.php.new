@@ -1,0 +1,133 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Book;
+
+class BookRequest extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'book_id',
+        'student_id',
+        'request_date',
+        'expected_return_date',
+        'actual_return_date',
+        'status',
+        'remarks',
+        'approved_by'
+    ];
+    
+    protected $dates = [
+        'request_date',
+        'expected_return_date',
+        'actual_return_date',
+        'created_at',
+        'updated_at'
+    ];
+
+    protected $casts = [
+        'request_date' => 'datetime',
+        'expected_return_date' => 'datetime',
+        'actual_return_date' => 'datetime',
+    ];
+
+    protected $appends = ['badge_class', 'statut_formate'];
+
+    // Relation avec le livre demandé
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
+    }
+    
+    // Relation avec l'étudiant qui a fait la demande
+    public function student()
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
+    
+    // Relation avec l'utilisateur qui a approuvé la demande (peut être un bibliothécaire)
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    // Scopes pour filtrer les demandes
+    public function scopeEnAttente($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApprouvees($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRefusees($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+    
+    public function scopeEmpruntees($query)
+    {
+        return $query->where('status', 'borrowed');
+    }
+    
+    public function scopeRetournees($query)
+    {
+        return $query->where('status', 'returned');
+    }
+
+    // Méthodes pour gérer le statut
+    public function marquerCommeApprouve($approvedById, $remarks = null)
+    {
+        $this->update([
+            'status' => 'approved',
+            'remarks' => $remarks,
+            'approved_by' => $approvedById,
+            'request_date' => now()
+        ]);
+    }
+
+    public function marquerCommeRefuse($approvedById, $raison)
+    {
+        $this->update([
+            'status' => 'rejected',
+            'remarks' => $raison,
+            'approved_by' => $approvedById,
+            'request_date' => now()
+        ]);
+    }
+
+    // Méthode pour obtenir la classe CSS du badge de statut
+    public function getBadgeClassAttribute()
+    {
+        $classes = [
+            'pending' => 'bg-warning',
+            'approved' => 'bg-success',
+            'rejected' => 'bg-danger',
+            'borrowed' => 'bg-info',
+            'returned' => 'bg-secondary'
+        ];
+        
+        return $classes[$this->status] ?? 'bg-secondary';
+    }
+
+    // Méthode pour obtenir le texte du statut formaté
+    public function getStatutFormateAttribute()
+    {
+        $statuts = [
+            'pending' => 'En attente',
+            'approved' => 'Approuvé',
+            'rejected' => 'Refusé',
+            'borrowed' => 'Emprunté',
+            'returned' => 'Retourné'
+        ];
+        
+        return $statuts[$this->status] ?? 'Inconnu';
+    }
+}

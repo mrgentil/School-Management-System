@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
+use Illuminate\Support\Str;
 use App\Models\BloodGroup;
 use App\Models\Lga;
 use App\Models\Nationality;
@@ -38,6 +39,11 @@ class User extends Authenticatable
     public function student_record()
     {
         return $this->hasOne(StudentRecord::class);
+    }
+    
+    public function student()
+    {
+        return $this->hasOne(\App\Models\Student::class, 'user_id');
     }
 
     public function lga()

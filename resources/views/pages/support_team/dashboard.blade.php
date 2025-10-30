@@ -1,4 +1,5 @@
 @extends('layouts.master')
+@php use Illuminate\Support\Str; @endphp
 @section('page_title', 'Mon tableau de bord')
 @section('content')
 

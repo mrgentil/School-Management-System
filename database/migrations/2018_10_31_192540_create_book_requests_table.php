@@ -14,13 +14,17 @@ class CreateBookRequestsTable extends Migration
     public function up()
     {
         Schema::create('book_requests', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('book_id');
-            $table->unsignedInteger('user_id');
-            $table->string('start_date');
-            $table->string('end_date');
-            $table->string('returned')->default(0);
-            $table->string('status')->nullable();
+            $table->id();
+            $table->string('titre');
+            $table->string('auteur');
+            $table->string('isbn')->nullable();
+            $table->text('description')->nullable();
+            $table->enum('statut', ['en_attente', 'approuve', 'refuse'])->default('en_attente');
+            $table->text('reponse')->nullable();
+            $table->foreignId('etudiant_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('bibliothecaire_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('date_demande')->useCurrent();
+            $table->timestamp('date_traitement')->nullable();
             $table->timestamps();
         });
     }

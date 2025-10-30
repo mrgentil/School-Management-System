@@ -28,5 +28,17 @@ class DatabaseSeeder extends Seeder
         $this->call(SectionsTableSeeder::class);
         $this->call(StudentRecordsTableSeeder::class);
         $this->call(SkillsTableSeeder::class);
+        
+        // Nouveaux seeders pour les étudiants, devoirs et paiements
+        $this->call(PaymentTableSeeder::class); // Doit être avant PaymentSeeder
+        $this->call(StudentSeeder::class);
+        $this->call(AssignmentSeeder::class);
+        $this->call(AssignmentSubmissionSeeder::class);
+        $this->call(PaymentSeeder::class);
+        
+        // Nouveaux seeders pour les données de test
+        $this->call(AttendanceSeeder::class);
+        $this->call(LibrarySeeder::class);
+        $this->call(SchoolEventSeeder::class);
     }
 }
