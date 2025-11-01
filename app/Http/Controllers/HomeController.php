@@ -37,6 +37,11 @@ class HomeController extends Controller
 
     public function dashboard()
     {
+        // Rediriger les étudiants vers leur dashboard spécifique
+        if (auth()->check() && auth()->user()->user_type === 'student') {
+            return redirect()->route('student.dashboard');
+        }
+        
         $d=[];
         if(Qs::userIsTeamSAT()){
             $d['users'] = $this->user->getAll();

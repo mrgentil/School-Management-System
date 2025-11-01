@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     /*************** Support Team *****************/
     Route::group(['namespace' => 'SupportTeam',], function(){
-        
+
         // Gestion des demandes de livres
         Route::group(['prefix' => 'book-requests', 'as' => 'book-requests.'], function() {
             Route::get('/', [\App\Http\Controllers\SupportTeam\BookRequestController::class, 'index'])->name('index');
@@ -35,7 +35,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/{bookRequest}/reject', [\App\Http\Controllers\SupportTeam\BookRequestController::class, 'reject'])->name('reject');
             Route::delete('/{bookRequest}', [\App\Http\Controllers\SupportTeam\BookRequestController::class, 'destroy'])->name('destroy');
         });
-        
+
 
         /*************** Students *****************/
         Route::group(['prefix' => 'students'], function(){
@@ -206,72 +206,7 @@ Route::group(['namespace' => 'App\Http\Controllers\SuperAdmin','middleware' => '
 
 });
 
-/************************ STUDENT ****************************/
-Route::group(['namespace' => 'App\\Http\\Controllers\\Student', 'middleware' => 'student', 'prefix' => 'student'], function(){
 
-    // Library Routes
-    Route::group(['prefix' => 'library'], function(){
-        Route::get('/', 'LibraryController@index')->name('student.library.index');
-        Route::get('/book/{book}', 'LibraryController@show')->name('student.library.show');
-        Route::post('/request/{book}', 'LibraryController@requestBook')->name('student.library.request');
-        Route::get('/my-requests', 'LibraryController@myRequests')->name('student.library.requests');
-    });
-
-    // Study Materials Routes
-    Route::group(['prefix' => 'materials'], function(){
-        Route::get('/', 'MaterialController@index')->name('student.materials.index');
-        Route::get('/show/{material}', 'MaterialController@show')->name('student.materials.show');
-        Route::get('/download/{material}', 'MaterialController@download')->name('student.materials.download');
-    });
-
-    // Finance Routes
-    Route::group(['prefix' => 'finance'], function() {
-        // Dashboard
-        Route::get('/', 'FinanceController@dashboard')->name('student.finance.dashboard');
-        
-        // Payments
-        Route::get('/payments', 'FinanceController@payments')->name('student.finance.payments');
-        Route::get('/payments/print', 'FinanceController@printPayments')->name('student.finance.payments.print');
-        
-        // Receipts
-        Route::get('/receipts', 'FinanceController@receipts')->name('student.finance.receipts');
-        Route::get('/receipts/print', 'FinanceController@printReceipts')->name('student.finance.receipts.print');
-        Route::get('/receipts/{id}', 'FinanceController@showReceipt')->name('student.finance.receipt');
-        Route::get('/receipts/{id}/download', 'FinanceController@downloadReceipt')->name('student.finance.receipt.download');
-        Route::get('/receipts/{id}/details', 'FinanceController@receiptDetails')->name('student.finance.receipt.details');
-        Route::get('/receipts/{id}/print', 'FinanceController@printSingleReceipt')->name('student.finance.receipt.print');
-        
-        // Make Payment
-        Route::post('/payments/{id}/pay', 'FinanceController@makePayment')->name('student.finance.pay');
-    });
-
-    // Attendance Routes
-    Route::group(['prefix' => 'attendance'], function(){
-        Route::get('/', 'AttendanceController@index')->name('student.attendance.index');
-        Route::get('/calendar', 'AttendanceController@calendar')->name('student.attendance.calendar');
-    });
-
-    // Assignment Routes
-    Route::group(['prefix' => 'assignments'], function(){
-        Route::get('/', 'AssignmentController@index')->name('student.assignments.index');
-        Route::get('/show/{assignment}', 'AssignmentController@show')->name('student.assignments.show');
-        Route::post('/submit/{assignment}', 'AssignmentController@submit')->name('student.assignments.submit');
-        Route::get('/download/{assignment}', 'AssignmentController@downloadFile')->name('student.assignments.download');
-    });
-
-    // Messages Routes
-    Route::group(['prefix' => 'messages'], function(){
-        Route::get('/', 'MessageController@inbox')->name('student.messages.inbox');
-        Route::get('/show/{message}', 'MessageController@show')->name('student.messages.show');
-        Route::get('/compose', 'MessageController@compose')->name('student.messages.compose');
-        Route::post('/send', 'MessageController@send')->name('student.messages.send');
-        Route::get('/reply/{message}', 'MessageController@reply')->name('student.messages.reply');
-        Route::get('/download/{message}', 'MessageController@downloadAttachment')->name('student.messages.download');
-        Route::post('/mark-read/{message}', 'MessageController@markAsRead')->name('student.messages.mark_read');
-        Route::get('/unread-count', 'MessageController@getUnreadCount')->name('student.messages.unread_count');
-    });
-
-});
 
 /************************ PARENT ****************************/
 Route::group(['namespace' => 'App\Http\Controllers\MyParent','middleware' => 'my_parent',], function(){

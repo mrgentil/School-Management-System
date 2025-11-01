@@ -12,20 +12,15 @@ class BookRequest extends Model
         'book_id',
         'student_id',
         'status',
-        'reponse',
+        'request_date',
         'approved_by',
-        'date_demande',
-        'date_traitement',
-        'is_notified',
-        'notification_type',
         'expected_return_date',
         'actual_return_date',
         'remarks'
     ];
 
     protected $dates = [
-        'date_demande',
-        'date_traitement',
+        'request_date',
         'expected_return_date',
         'actual_return_date',
         'created_at',
@@ -33,11 +28,9 @@ class BookRequest extends Model
     ];
 
     protected $casts = [
-        'date_demande' => 'datetime',
-        'date_traitement' => 'datetime',
+        'request_date' => 'datetime',
         'expected_return_date' => 'date',
         'actual_return_date' => 'date',
-        'is_notified' => 'boolean'
     ];
 
     /**

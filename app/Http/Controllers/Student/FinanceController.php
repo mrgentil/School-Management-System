@@ -160,4 +160,81 @@ class FinanceController extends Controller
 
         return view('pages.student.finance.show_receipt', compact('receipt'));
     }
+
+    /**
+     * Télécharger un reçu en PDF
+     */
+    public function downloadReceipt($id)
+    {
+        $student = auth()->user()->student;
+        
+        if (!$student) {
+            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+        }
+
+        $receipt = $student->receipts()
+            ->with(['payment', 'student.user'])
+            ->findOrFail($id);
+
+        // Générer le PDF
+        $pdf = \PDF::loadView('pages.student.finance.receipt_pdf', compact('receipt'));
+        
+        // Nom du fichier
+        $filename = 'recu_' . $receipt->id . '_' . date('Y-m-d') . '.pdf';
+        
+        // Télécharger le PDF
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Imprimer un reçu
+     */
+    public function printReceipt($id)
+    {
+        $student = auth()->user()->student;
+        
+        if (!$student) {
+            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+        }
+
+        $receipt = $student->receipts()
+            ->with(['payment', 'student.user'])
+            ->findOrFail($id);
+
+        // Afficher la vue d'impression
+        return view('pages.student.finance.receipt_print', compact('receipt'));
+    }
+
+    /**
+     * Télécharger tous les reçus de l'année en PDF
+     */
+    public function downloadAllReceipts(Request $request)
+    {
+        $student = auth()->user()->student;
+        
+        if (!$student) {
+            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+        }
+
+        $year = $request->input('year', date('Y'));
+        
+        $receipts = $student->receipts()
+            ->with(['payment'])
+            ->whereYear('created_at', $year)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($receipts->isEmpty()) {
+            return back()->with('error', 'Aucun reçu trouvé pour cette année.');
+        }
+
+        // Générer le PDF avec tous les reçus
+        $pdf = \PDF::loadView('pages.student.finance.receipts_all_pdf', compact('receipts', 'year', 'student'));
+        
+        // Nom du fichier
+        $filename = 'reçus_' . $year . '_' . $student->user->name . '.pdf';
+        
+        // Télécharger le PDF
+        return $pdf->download($filename);
+    }
 }

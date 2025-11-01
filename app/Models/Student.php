@@ -65,4 +65,22 @@ class Student extends Model
             'assignment_id'
         )->withPivot('submission', 'submitted_at', 'marks', 'feedback');
     }
+
+    /**
+     * Accesseur pour my_class_id (alias de class_id)
+     */
+    public function getMyClassIdAttribute()
+    {
+        return $this->class_id;
+    }
+
+    /**
+     * Accesseur pour section_id depuis student_records
+     */
+    public function getSectionIdAttribute()
+    {
+        // Récupérer depuis student_records si disponible
+        $record = \App\Models\StudentRecord::where('user_id', $this->user_id)->first();
+        return $record ? $record->section_id : $this->attributes['section_id'] ?? null;
+    }
 }

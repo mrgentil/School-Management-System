@@ -135,7 +135,7 @@
 
                     <!-- Messagerie -->
                     <li class="nav-item">
-                        <a href="{{ route('student.messages.inbox') }}" class="nav-link {{ Route::is('student.messages.*') ? 'active' : '' }}">
+                        <a href="{{ route('student.messages.index') }}" class="nav-link {{ Route::is('student.messages.*') ? 'active' : '' }}">
                             <i class="icon-bubbles4"></i>
                             <span>Messagerie</span>
                         </a>

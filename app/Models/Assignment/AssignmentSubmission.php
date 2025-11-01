@@ -3,17 +3,18 @@
 namespace App\Models\Assignment;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AssignmentSubmission extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
         'assignment_id', 'student_id', 'submission', 'submitted_at', 'marks', 'feedback'
     ];
 
-    protected $dates = ['submitted_at', 'deleted_at'];
+    protected $dates = ['submitted_at'];
+
+    protected $casts = [
+        'submitted_at' => 'datetime',
+    ];
 
     public function assignment()
     {

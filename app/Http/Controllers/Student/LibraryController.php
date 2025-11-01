@@ -15,60 +15,80 @@ class LibraryController extends Controller
     {
         $search = $request->input('search');
         $book_type = $request->input('book_type');
-        
-        $query = Book::where('available', true);
-        
+
+        // Récupérer tous les livres (pas seulement les disponibles)
+        $query = Book::query();
+
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('author', 'like', "%{$search}%");
             });
         }
-        
+
         if ($book_type) {
             $query->where('book_type', $book_type);
         }
-        
+
         $books = $query->orderBy('name')->paginate(15);
-        
-        // Récupérer les demandes de l'utilisateur connecté
-        $my_requests = collect();
+
+        // Récupérer les demandes de l'utilisateur connecté pour déterminer le statut de chaque livre
+        $userRequests = collect();
+        $bookStatuses = collect();
+
         if (auth()->check() && auth()->user()->user_type === 'student') {
-            $my_requests = \App\Models\BookRequest::where('student_id', auth()->id())
+            $userRequests = \App\Models\BookRequest::where('student_id', auth()->id())
                 ->with('book')
                 ->orderBy('created_at', 'desc')
                 ->take(5)
                 ->get();
+
+            // Créer un mapping des statuts par livre
+            $allUserRequests = \App\Models\BookRequest::where('student_id', auth()->id())
+                ->whereIn('status', [
+                    BookRequest::STATUS_PENDING,
+                    BookRequest::STATUS_APPROVED,
+                    BookRequest::STATUS_BORROWED,
+                    BookRequest::STATUS_RETURNED
+                ])
+                ->get()
+                ->keyBy('book_id');
+
+            // Déterminer le statut pour chaque livre affiché
+            foreach ($books as $book) {
+                $status = $this->getBookStatusForUser($book, $allUserRequests->get($book->id));
+                $bookStatuses->put($book->id, $status);
+            }
         }
-        
+
         // Initialiser book_type s'il n'est pas défini
         $book_type = $book_type ?? '';
 
-        return view('pages.student.library.index', compact('books', 'search', 'book_type', 'my_requests'));
+        return view('pages.student.library.index', compact('books', 'search', 'book_type', 'userRequests', 'bookStatuses'));
     }
 
     public function search(Request $request)
     {
         $search = $request->input('search');
         $book_type = $request->input('book_type', '');
-        
+
         $query = Book::where('available', true);
-        
+
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('author', 'like', "%{$search}%");
             });
         }
-        
+
         if ($book_type) {
             $query->where('book_type', $book_type);
         }
-        
+
         $books = $query->orderBy('name')
                      ->paginate(15)
                      ->appends($request->query());
-        
+
         // Récupérer les demandes de l'utilisateur connecté
         $my_requests = collect();
         if (auth()->check() && auth()->user()->user_type === 'student') {
@@ -117,13 +137,9 @@ class LibraryController extends Controller
 
         // Vérifier si l'utilisateur est connecté
         if (!auth()->check()) {
-            $message = 'Utilisateur non connecté';
-            \Log::warning($message);
-            return response()->json([
-                'success' => false,
-                'message' => 'Veuillez vous connecter pour effectuer cette action.',
-                'debug' => $message
-            ], 401);
+            \Log::warning('Utilisateur non connecté');
+            return redirect()->route('login')
+                ->with('error', 'Veuillez vous connecter pour effectuer cette action.');
         }
 
         try {
@@ -131,15 +147,9 @@ class LibraryController extends Controller
 
             // Vérifier si le livre est disponible
             if (!$book->available) {
-                $message = "Livre non disponible. Statut: " . ($book->available ? 'disponible' : 'indisponible');
-                \Log::warning($message, ['book' => $book->toArray()]);
-                
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Désolé, ce livre n\'est plus disponible pour le moment.',
-                    'debug' => $message,
-                    'book_status' => $book->available ? 'available' : 'unavailable'
-                ], 400);
+                \Log::warning("Livre non disponible", ['book_id' => $book->id]);
+
+                return back()->with('error', 'Désolé, ce livre n\'est plus disponible pour le moment.');
             }
 
             // Vérifier si l'utilisateur a déjà une demande en attente pour ce livre
@@ -150,26 +160,22 @@ class LibraryController extends Controller
                     BookRequest::STATUS_APPROVED,
                     BookRequest::STATUS_BORROWED
                 ])
-                ->exists();
+                ->first();
 
             if ($existingRequest) {
-                $message = 'Demande existante pour ce livre et cet utilisateur';
-                \Log::info($message, [
+                \Log::info('Demande existante pour ce livre', [
                     'user_id' => auth()->id(),
-                    'book_id' => $book->id
+                    'book_id' => $book->id,
+                    'status' => $existingRequest->status
                 ]);
-                
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vous avez déjà une demande en attente pour ce livre.',
-                    'debug' => $message
-                ], 400);
+
+                return back()->with('warning', 'Vous avez déjà une demande en attente pour ce livre.');
             }
 
             try {
                 // Calculer la date de retour attendue (par exemple, 14 jours plus tard)
                 $expectedReturnDate = now()->addDays(14);
-                
+
                 // Log des données avant création
                 $requestData = [
                     'student_id' => auth()->id(),
@@ -180,13 +186,13 @@ class LibraryController extends Controller
                     'remarks' => 'Demande initiale de prêt',
                     'approved_by' => null
                 ];
-                
+
                 \Log::info('Données de la demande à créer:', $requestData);
-                
+
                 // Créer une instance de BookRequest pour accéder aux propriétés
                 $bookRequestModel = new BookRequest();
                 \Log::info('Modèle BookRequest fillable:', $bookRequestModel->getFillable());
-                
+
                 // Créer la demande d'emprunt
                 $bookRequest = BookRequest::create($requestData);
                 \Log::info('Demande créée avec succès:', $bookRequest->toArray());
@@ -195,79 +201,32 @@ class LibraryController extends Controller
                     'book_id' => $book->id,
                     'user_id' => auth()->id()
                 ]);
-                
-                // Désactivation temporaire de l'envoi d'email
-                // TODO: Configurer SMTP pour activer les notifications par email
-                \Log::info('Notification par email désactivée. À configurer dans .env');
-                
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Votre demande d\'emprunt a été enregistrée avec succès.',
-                    'request_id' => $bookRequest->id,
-                    'book_id' => $book->id,
-                    'status' => BookRequest::STATUS_PENDING,
-                    'status_text' => BookRequest::getStatuses()[BookRequest::STATUS_PENDING] ?? 'Inconnu',
-                    'badge_class' => $bookRequest->badge_class
-                ]);
+
+                // Marquer le livre comme non disponible
+                $book->update(['available' => false]);
+
+                DB::commit();
+
+                // Rediriger avec message de succès
+                return redirect()->route('student.library.requests')
+                    ->with('success', 'Votre demande d\'emprunt a été enregistrée avec succès. Vous serez notifié dès qu\'elle sera traitée.');
             } catch (\Exception $e) {
+                DB::rollBack();
+
                 $errorMessage = $e->getMessage();
-                $errorTrace = $e->getTraceAsString();
-                $errorCode = $e->getCode();
-                
+
                 \Log::error('ERREUR LORS DE LA CRÉATION DE LA DEMANDE', [
                     'error' => $errorMessage,
-                    'code' => $errorCode,
                     'file' => $e->getFile(),
                     'line' => $e->getLine(),
-                    'trace' => $errorTrace,
                     'request_data' => $requestData ?? null,
                     'user' => auth()->user() ? auth()->user()->id : null,
                     'book' => $book->id ?? null
                 ]);
-                
-                $response = [
-                    'success' => false,
-                    'message' => 'Une erreur est survenue lors de la création de la demande.',
-                    'error' => $errorMessage,
-                    'error_details' => [
-                        'code' => $errorCode,
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'trace' => config('app.debug') ? $errorTrace : null
-                    ]
-                ];
-                
-                \Log::info('Réponse d\'erreur envoyée:', $response);
-                
-                return response()->json($response, 500);
+
+                // Rediriger avec message d'erreur (pas de JSON)
+                return back()->with('error', 'Une erreur est survenue lors de la création de votre demande. Veuillez réessayer.');
             }
-
-            // Marquer le livre comme réservé (non disponible pour les autres demandes)
-            $book->update(['available' => false]);
-
-            // Envoyer une notification à l'étudiant
-            auth()->user()->notify(new \App\Notifications\BookRequestNotification(
-                $bookRequest,
-                $book,
-                'pending'
-            ));
-
-            // Notifier l'administrateur ou le bibliothécaire
-            $admin = \App\Models\User::where('user_type', 'admin')->first();
-            if ($admin) {
-                $admin->notify(new \App\Notifications\BookRequestNotification(
-                    $bookRequest,
-                    $book,
-                    'pending',
-                    auth()->user()
-                ));
-            }
-
-            DB::commit();
-
-            return back()->with([
-                'success' => 'Votre demande d\'emprunt a été enregistrée avec succès. Vous serez notifié par email dès qu\'elle sera traitée.'
-            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -287,5 +246,75 @@ class LibraryController extends Controller
             ->paginate(15);
 
         return view('pages.student.library.requests', compact('requests'));
+    }
+
+    /**
+     * Détermine le statut d'un livre pour un utilisateur spécifique
+     */
+    private function getBookStatusForUser(Book $book, ?BookRequest $userRequest = null)
+    {
+        if ($userRequest) {
+            switch ($userRequest->status) {
+                case BookRequest::STATUS_PENDING:
+                    return [
+                        'status' => 'pending',
+                        'text' => 'Demande en attente',
+                        'badge_class' => 'badge-warning',
+                        'can_request' => false,
+                        'action_text' => 'Demande en cours'
+                    ];
+                case BookRequest::STATUS_APPROVED:
+                    return [
+                        'status' => 'approved',
+                        'text' => 'Demande approuvée',
+                        'badge_class' => 'badge-success',
+                        'can_request' => false,
+                        'action_text' => 'Prêt à emprunter'
+                    ];
+                case BookRequest::STATUS_BORROWED:
+                    return [
+                        'status' => 'borrowed',
+                        'text' => 'Emprunté',
+                        'badge_class' => 'badge-info',
+                        'can_request' => false,
+                        'action_text' => 'En votre possession'
+                    ];
+                case BookRequest::STATUS_RETURNED:
+                    return [
+                        'status' => 'returned',
+                        'text' => 'Retourné',
+                        'badge_class' => 'badge-secondary',
+                        'can_request' => true,
+                        'action_text' => 'Demander à nouveau'
+                    ];
+                case BookRequest::STATUS_REJECTED:
+                    return [
+                        'status' => 'rejected',
+                        'text' => 'Demande rejetée',
+                        'badge_class' => 'badge-danger',
+                        'can_request' => true,
+                        'action_text' => 'Demander à nouveau'
+                    ];
+            }
+        }
+
+        // Si pas de demande active, vérifier la disponibilité générale
+        if ($book->available) {
+            return [
+                'status' => 'available',
+                'text' => 'Disponible',
+                'badge_class' => 'badge-success',
+                'can_request' => true,
+                'action_text' => 'Demander ce livre'
+            ];
+        } else {
+            return [
+                'status' => 'unavailable',
+                'text' => 'Non disponible',
+                'badge_class' => 'badge-danger',
+                'can_request' => false,
+                'action_text' => 'Indisponible'
+            ];
+        }
     }
 }
