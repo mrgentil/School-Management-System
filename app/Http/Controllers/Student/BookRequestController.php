@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookRequest;
+use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookRequestController extends Controller
 {
@@ -16,11 +18,12 @@ class BookRequestController extends Controller
      */
     public function index()
     {
-        $demandes = BookRequest::where('etudiant_id', Auth::id())
+        $requests = BookRequest::where('student_id', Auth::id())
+            ->with('book')
             ->latest()
-            ->paginate(10);
+            ->paginate(15);
 
-        return view('pages.student.book_requests.index', compact('demandes'));
+        return view('pages.student.book_requests.index', compact('requests'));
     }
 
     /**
@@ -30,7 +33,11 @@ class BookRequestController extends Controller
      */
     public function create()
     {
-        return view('pages.student.book_requests.create');
+        $books = Book::where('available', true)
+            ->orderBy('name')
+            ->get();
+            
+        return view('pages.student.book_requests.create', compact('books'));
     }
 
     /**
@@ -41,54 +48,53 @@ class BookRequestController extends Controller
      */
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'book_id' => 'required|exists:books,id',
+            'remarks' => 'nullable|string|max:500',
+        ]);
+        
+        DB::beginTransaction();
+        
         try {
-            // Afficher les données de la requête directement dans le navigateur
-            dd([
-                'request_data' => $request->all(),
-                'user' => Auth::user(),
-                'validation_rules' => [
-                    'titre' => 'required|string|max:255',
-                    'auteur' => 'required|string|max:255',
-                    'isbn' => 'nullable|string|max:20',
-                    'description' => 'nullable|string',
-                ]
-            ]);
-            
-            $validated = $request->validate([
-                'titre' => 'required|string|max:255',
-                'auteur' => 'required|string|max:255',
-                'isbn' => 'nullable|string|max:20',
-                'description' => 'nullable|string',
-            ]);
-            
-            // Vérification de l'utilisateur connecté
-            if (!Auth::check()) {
-                return back()->with('error', 'Vous devez être connecté pour effectuer cette action.');
+            // Vérifier si l'utilisateur a déjà une demande en attente pour ce livre
+            $existingRequest = BookRequest::where('student_id', Auth::id())
+                ->where('book_id', $validated['book_id'])
+                ->whereIn('status', [
+                    BookRequest::STATUS_PENDING,
+                    BookRequest::STATUS_APPROVED,
+                    BookRequest::STATUS_BORROWED
+                ])
+                ->exists();
+
+            if ($existingRequest) {
+                return back()->with('error', 'Vous avez déjà une demande en cours pour ce livre.');
             }
-            
-            // Création de la demande
-            $demande = BookRequest::create([
-                'titre' => $validated['titre'],
-                'auteur' => $validated['auteur'],
-                'isbn' => $validated['isbn'] ?? null,
-                'description' => $validated['description'] ?? null,
-                'etudiant_id' => Auth::id(),
-                'statut' => 'en_attente',
-                'date_demande' => now(),
+
+            // Créer la demande
+            $bookRequest = BookRequest::create([
+                'student_id' => Auth::id(),
+                'book_id' => $validated['book_id'],
+                'status' => BookRequest::STATUS_PENDING,
+                'remarks' => $validated['remarks'] ?? null,
+                'expected_return_date' => now()->addDays(14),
             ]);
+
+            // Marquer le livre comme non disponible
+            Book::where('id', $validated['book_id'])->update(['available' => false]);
+
+            DB::commit();
             
             return redirect()
-                ->route('student.book-requests.index')
+                ->route('student.library.requests.index')
                 ->with('success', 'Votre demande de livre a été soumise avec succès.');
                 
         } catch (\Exception $e) {
-            // Afficher l'erreur directement dans le navigateur
-            dd([
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            DB::rollBack();
+            \Log::error('Erreur lors de la création de la demande de livre: ' . $e->getMessage());
+            
+            return back()
+                ->with('error', 'Une erreur est survenue lors de la soumission de votre demande.')
+                ->withInput();
         }
     }
 
@@ -100,33 +106,54 @@ class BookRequestController extends Controller
      */
     public function show($id)
     {
-        $demande = BookRequest::where('etudiant_id', Auth::id())
+        $request = BookRequest::where('student_id', Auth::id())
+            ->with('book')
             ->findOrFail($id);
 
-        return view('pages.student.book_requests.show', compact('demande'));
+        return view('pages.student.book_requests.show', compact('request'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Annuler une demande de livre
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function edit($id)
+    public function cancel($id)
     {
-        //
-    }
+        DB::beginTransaction();
+        
+        try {
+            $bookRequest = BookRequest::where('student_id', Auth::id())
+                ->findOrFail($id);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
+            // Vérifier si la demande peut être annulée
+            if (!$bookRequest->canBeCancelled()) {
+                return back()->with('error', 'Cette demande ne peut pas être annulée.');
+            }
+
+            // Annuler la demande
+            $bookRequest->status = BookRequest::STATUS_REJECTED;
+            $bookRequest->remarks = ($bookRequest->remarks ?? '') . "\n[Annulée par l'étudiant le " . now()->format('d/m/Y à H:i') . "]";
+            $bookRequest->save();
+
+            // Rendre le livre disponible si la demande était approuvée
+            if ($bookRequest->book && in_array($bookRequest->status, [BookRequest::STATUS_PENDING, BookRequest::STATUS_APPROVED])) {
+                $bookRequest->book->update(['available' => true]);
+            }
+
+            DB::commit();
+            
+            return redirect()
+                ->route('student.library.requests.index')
+                ->with('success', 'Votre demande a été annulée avec succès.');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Erreur lors de l\'annulation de la demande: ' . $e->getMessage());
+            
+            return back()->with('error', 'Une erreur est survenue lors de l\'annulation de votre demande.');
+        }
     }
 
     /**
@@ -137,6 +164,7 @@ class BookRequestController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // Rediriger vers la méthode cancel
+        return $this->cancel($id);
     }
 }

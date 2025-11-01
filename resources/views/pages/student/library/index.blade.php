@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('page_title', 'Bibliothèque')
-@php 
+@php
     use Illuminate\Support\Str;
     use App\Models\BookRequest;
 @endphp
@@ -18,6 +18,13 @@
 <div class="alert alert-danger alert-dismissible">
     <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
     {{ session('error') }}
+</div>
+@endif
+
+@if(session('warning'))
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+    {{ session('warning') }}
 </div>
 @endif
 
@@ -51,7 +58,7 @@
                     <button type="submit" class="btn btn-primary"><i class="icon-search4"></i> Rechercher</button>
                 </div>
                 <div class="col-md-3 text-right">
-                    <a href="{{ route('student.library.requests') }}" class="btn btn-info">
+                    <a href="{{ route('student.library.requests.index') }}" class="btn btn-info">
                         <i class="icon-list"></i> Mes Demandes
                     </a>
                 </div>
@@ -70,7 +77,7 @@
                             <i class="fas fa-book fa-4x text-muted"></i>
                         </div>
                     @endif
-                    
+
                     <div class="card-body">
                         <h5 class="card-title">{{ $book->name }}</h5>
                         <p class="card-text">
@@ -85,25 +92,35 @@
                         </p>
                     </div>
                     <div class="card-footer bg-white d-flex justify-content-between align-items-center">
-                        <span class="badge {{ $book->available ? 'badge-success' : 'badge-danger' }}">
-                            {{ $book->available ? 'Disponible' : 'Emprunté' }}
+                        @php
+                            $bookStatus = $bookStatuses->get($book->id, [
+                                'status' => 'unavailable',
+                                'text' => 'Non disponible',
+                                'badge_class' => 'badge-danger',
+                                'can_request' => false,
+                                'action_text' => 'Indisponible'
+                            ]);
+                        @endphp
+                        <span class="badge {{ $bookStatus['badge_class'] }}">
+                            {{ $bookStatus['text'] }}
                         </span>
                         <div class="text-center mt-3">
                             <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#bookDetails{{ $book->id }}">
                                 <i class="icon-info22 mr-2"></i> Détails
                             </a>
-                            @if($book->available)
+                            @if($bookStatus['can_request'])
                             <form id="request-form-{{ $book->id }}" action="{{ route('student.library.books.request', $book) }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-success ml-2" 
+                                <button type="submit" class="btn btn-success ml-2"
                                     onclick="return confirm('Êtes-vous sûr de vouloir demander ce livre ?')">
-                                    <i class="icon-plus-circle2 mr-2"></i> Demander ce livre
+                                    <i class="icon-plus-circle2 mr-2"></i> {{ $bookStatus['action_text'] }}
                                 </button>
                             </form>
                             <div id="debug-{{ $book->id }}" class="small text-muted mt-1"></div>
                             @else
                             <button class="btn btn-secondary ml-2" disabled>
-                                <i class="icon-cross2 mr-2"></i> Non disponible
+                                <i class="icon-{{ $bookStatus['status'] === 'pending' ? 'clock' : ($bookStatus['status'] === 'borrowed' ? 'check' : 'cross2') }} mr-2"></i>
+                                {{ $bookStatus['action_text'] }}
                             </button>
                             @endif
                         </div>
@@ -147,7 +164,7 @@
                             </div>
                             <div class="modal-footer">
                                 @if($book->available)
-                                    <form action="{{ route('student.library.request', $book) }}" method="POST" class="mr-2">
+                                    <form action="{{ route('student.library.books.request', $book) }}" method="POST" class="mr-2">
                                         @csrf
                                         <button type="submit" class="btn btn-primary">
                                             <i class="fas fa-hand-holding"></i> Demander ce livre
@@ -220,7 +237,7 @@
 </div>
 
 <!-- My Recent Requests -->
-@if(count($my_requests) > 0)
+@if(count($userRequests) > 0)
     <div class="card mt-4">
         <div class="card-header header-elements-inline">
             <h6 class="card-title">Mes demandes récentes</h6>
@@ -238,7 +255,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($my_requests as $request)
+                    @foreach($userRequests as $request)
                     <tr>
                         <td>{{ $request->book->name ?? 'Livre inconnu' }}</td>
                         <td>{{ $request->book->author ?? '-' }}</td>
@@ -255,7 +272,7 @@
                                     <span class="badge badge-danger ml-1">En retard</span>
                                 @endif
                             @else
-                                - 
+                                -
                             @endif
                         </td>
                         <td>
@@ -263,18 +280,18 @@
                                 <form action="{{ route('student.library.books.return', $request) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="btn btn-sm btn-success" 
+                                    <button type="submit" class="btn btn-sm btn-success"
                                             onclick="return confirm('Êtes-vous sûr de vouloir marquer ce livre comme retourné ?')">
                                         <i class="icon-checkmark"></i> Marquer comme retourné
                                     </button>
                                 </form>
                             @endif
-                            
+
                             @if($request->canBeCancelled())
                                 <form action="{{ route('student.library.requests.cancel', $request) }}" method="POST" class="d-inline ml-1">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" 
+                                    <button type="submit" class="btn btn-sm btn-danger"
                                             onclick="return confirm('Êtes-vous sûr de vouloir annuler cette demande ?')">
                                         <i class="icon-cross"></i> Annuler
                                     </button>
@@ -287,7 +304,7 @@
             </table>
         </div>
         <div class="card-footer text-right">
-            <a href="{{ route('student.library.requests') }}" class="btn btn-primary">
+            <a href="{{ route('student.library.requests.index') }}" class="btn btn-primary">
                 <i class="icon-list"></i> Voir toutes mes demandes
             </a>
         </div>
@@ -326,7 +343,7 @@
         requestForms.forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 Swal.fire({
                     title: 'Confirmer la demande',
                     text: 'Êtes-vous sûr de vouloir demander ce livre ?',
@@ -352,11 +369,11 @@
     // Gestion de la soumission du formulaire de demande de livre
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM entièrement chargé');
-        
+
         // Vérifier si les boutons sont bien sélectionnés
         const buttons = document.querySelectorAll('.request-book-btn');
         console.log('Boutons trouvés:', buttons.length);
-        
+
         // Afficher les informations de débogage pour chaque bouton
         buttons.forEach((btn, index) => {
             console.log(`Bouton ${index + 1}:`, {
@@ -364,7 +381,7 @@
                 title: btn.dataset.bookTitle,
                 form: btn.closest('form').action
             });
-            
+
             // Afficher les informations de débogage à côté de chaque bouton
             const debugDiv = document.getElementById(`debug-${btn.dataset.bookId}`);
             if (debugDiv) {
@@ -372,18 +389,18 @@
             }
         });
         const requestForms = document.querySelectorAll('form[action*="/library/books/"]');
-        
+
         requestForms.forEach(form => {
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
+
                 const submitButton = this.querySelector('button[type="submit"]');
                 const originalButtonText = submitButton.innerHTML;
-                
+
                 // Désactiver le bouton pendant la soumission
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<i class="icon-spinner4 spinner mr-2"></i> Traitement...';
-                
+
                 try {
                     // Logs de débogage détaillés
                     console.log('=== DÉBUT DE LA REQUÊTE ===');
@@ -396,7 +413,7 @@
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     });
-                
+
                 const response = await fetch(this.action, {
                         method: 'POST',
                         headers: {
@@ -406,12 +423,12 @@
                         },
                         body: new FormData(this)
                     });
-                    
+
                     const data = await response.json().catch(e => {
                         console.error('Erreur lors du parsing de la réponse JSON:', e);
                         return { success: false, message: 'Erreur de traitement de la réponse du serveur' };
                     });
-                    
+
                     console.log('=== RÉPONSE DU SERVEUR ===');
                     console.log('Status:', response.status, response.statusText);
                     console.log('Headers:');
@@ -419,12 +436,12 @@
                         console.log(`  ${key}: ${value}`);
                     });
                     console.log('Données de la réponse:', data);
-                    
+
                     // Afficher les erreurs de validation si elles existent
                     if (data.errors) {
                         console.error('Erreurs de validation:', data.errors);
                     }
-                    
+
                     if (response.ok) {
                         // Afficher un message de succès
                         Swal.fire({
@@ -433,7 +450,7 @@
                             icon: 'success',
                             confirmButtonColor: '#4f46e5'
                         });
-                        
+
                         // Mettre à jour l'interface utilisateur avec les données de la réponse
                         const card = this.closest('.card');
                         if (card) {
@@ -447,7 +464,7 @@
                                 // Mettre à jour le texte du statut
                                 badge.textContent = data.status_text || 'En attente';
                             }
-                            
+
                             // Remplacer le formulaire par un message de statut
                             const buttonContainer = this.closest('.text-center');
                             if (buttonContainer) {
@@ -459,7 +476,7 @@
                                     </div>
                                 `;
                             }
-                            
+
                             // Si le livre est maintenant emprunté, mettre à jour le statut de disponibilité
                             if (data.status === 'borrowed' || data.status === 'approved') {
                                 const availabilityBadge = card.querySelector('.availability-badge');
@@ -477,7 +494,7 @@
                             icon: 'error',
                             confirmButtonColor: '#4f46e5'
                         });
-                        
+
                         // Réactiver le bouton
                         submitButton.disabled = false;
                         submitButton.innerHTML = originalButtonText;
@@ -494,7 +511,7 @@
                         icon: 'error',
                         confirmButtonColor: '#4f46e5'
                     });
-                    
+
                     // Réactiver le bouton en cas d'erreur
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
@@ -531,34 +548,47 @@
 @endpush
 @endif
 
+@if(session('warning'))
+@push('scripts')
+    <script>
+        Swal.fire({
+            title: 'Attention !',
+            text: '{{ session('warning') }}',
+            icon: 'warning',
+            confirmButtonColor: '#4f46e5'
+        });
+    </script>
+@endpush
+@endif
+
 @push('scripts')
 <script>
     // Script de débogage
     document.addEventListener('DOMContentLoaded', function() {
         console.log('=== DÉBOGAGE BIBLIOTHÈQUE ===');
-        
+
         // Vérifier jQuery
         console.log('jQuery chargé:', typeof jQuery !== 'undefined' ? 'Oui' : 'Non');
-        
+
         // Vérifier SweetAlert2
         console.log('SweetAlert2 chargé:', typeof Swal !== 'undefined' ? 'Oui' : 'Non');
-        
+
         // Vérifier les formulaires
         const forms = document.querySelectorAll('form[action*="/library/books/"]');
         console.log('Formulaires trouvés:', forms.length);
-        
+
         forms.forEach((form, index) => {
             console.log(`Formulaire ${index + 1}:`, {
                 action: form.action,
                 method: form.method,
                 elements: form.elements.length
             });
-            
+
             // Ajouter un ID unique si non présent
             if (!form.id) {
                 form.id = `book-form-${index}`;
             }
-            
+
             // Vérifier le bouton de soumission
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) {
@@ -572,11 +602,11 @@
                 console.warn(`Aucun bouton de soumission trouvé pour le formulaire ${index + 1}`);
             }
         });
-        
+
         // Vérifier les boutons de demande
         const requestBtns = document.querySelectorAll('.request-book-btn');
         console.log('Boutons de demande trouvés:', requestBtns.length);
-        
+
         requestBtns.forEach((btn, index) => {
             console.log(`Bouton ${index + 1}:`, {
                 id: btn.id,

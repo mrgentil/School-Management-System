@@ -28,6 +28,36 @@ class LoginController extends Controller
     protected $redirectTo = '/home';
 
     /**
+     * Get the post-login redirect path based on user type.
+     *
+     * @return string
+     */
+    public function redirectTo()
+    {
+        // Rediriger selon le type d'utilisateur
+        if (auth()->check()) {
+            $userType = auth()->user()->user_type;
+            
+            switch ($userType) {
+                case 'student':
+                    return '/student/dashboard';
+                case 'teacher':
+                    return '/dashboard';
+                case 'admin':
+                    return '/dashboard';
+                case 'super_admin':
+                    return '/dashboard';
+                case 'parent':
+                    return '/dashboard';
+                default:
+                    return '/dashboard';
+            }
+        }
+        
+        return $this->redirectTo;
+    }
+
+    /**
      * Create a new controller instance.
      *
      * @return void$field
