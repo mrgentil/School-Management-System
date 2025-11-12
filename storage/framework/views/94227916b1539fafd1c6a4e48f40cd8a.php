@@ -1,32 +1,34 @@
-@extends('layouts.master')
-@section('page_title', 'Bibliothèque')
-@php
+<?php $__env->startSection('page_title', 'Bibliothèque'); ?>
+<?php
     use Illuminate\Support\Str;
     use App\Models\BookRequest;
-@endphp
+?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-@if(session('success'))
+<?php if(session('success')): ?>
 <div class="alert alert-success alert-dismissible">
     <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-    {{ session('success') }}
-</div>
-@endif
+    <?php echo e(session('success')); ?>
 
-@if(session('error'))
+</div>
+<?php endif; ?>
+
+<?php if(session('error')): ?>
 <div class="alert alert-danger alert-dismissible">
     <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-    {{ session('error') }}
-</div>
-@endif
+    <?php echo e(session('error')); ?>
 
-@if(session('warning'))
+</div>
+<?php endif; ?>
+
+<?php if(session('warning')): ?>
 <div class="alert alert-warning alert-dismissible">
     <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-    {{ session('warning') }}
+    <?php echo e(session('warning')); ?>
+
 </div>
-@endif
+<?php endif; ?>
 
 <div class="card">
     <div class="card-header header-elements-inline bg-teal-400">
@@ -35,7 +37,7 @@
             Bibliothèque Numérique
         </h6>
         <div class="header-elements">
-            <a href="{{ route('student.library.requests.index') }}" class="btn btn-light btn-sm">
+            <a href="<?php echo e(route('student.library.requests.index')); ?>" class="btn btn-light btn-sm">
                 <i class="icon-list mr-2"></i> Mes Demandes
             </a>
         </div>
@@ -53,7 +55,7 @@
                                     <i class="icon-search4 text-white"></i>
                                 </span>
                             </span>
-                            <input type="text" name="search" class="form-control form-control-lg" placeholder="Rechercher par titre, auteur, ISBN..." value="{{ $search }}">
+                            <input type="text" name="search" class="form-control form-control-lg" placeholder="Rechercher par titre, auteur, ISBN..." value="<?php echo e($search); ?>">
                         </div>
                     </div>
                 </div>
@@ -61,10 +63,10 @@
                     <div class="form-group mb-0">
                         <select name="book_type" class="form-control form-control-lg select">
                             <option value="">📚 Tous les types</option>
-                            <option value="textbook" {{ $book_type == 'textbook' ? 'selected' : '' }}>📖 Manuel scolaire</option>
-                            <option value="reference" {{ $book_type == 'reference' ? 'selected' : '' }}>📕 Référence</option>
-                            <option value="fiction" {{ $book_type == 'fiction' ? 'selected' : '' }}>📗 Fiction</option>
-                            <option value="non-fiction" {{ $book_type == 'non-fiction' ? 'selected' : '' }}>📘 Non-fiction</option>
+                            <option value="textbook" <?php echo e($book_type == 'textbook' ? 'selected' : ''); ?>>📖 Manuel scolaire</option>
+                            <option value="reference" <?php echo e($book_type == 'reference' ? 'selected' : ''); ?>>📕 Référence</option>
+                            <option value="fiction" <?php echo e($book_type == 'fiction' ? 'selected' : ''); ?>>📗 Fiction</option>
+                            <option value="non-fiction" <?php echo e($book_type == 'non-fiction' ? 'selected' : ''); ?>>📘 Non-fiction</option>
                         </select>
                     </div>
                 </div>
@@ -74,7 +76,7 @@
                     </button>
                 </div>
                 <div class="col-md-2">
-                    <a href="{{ route('student.library.index') }}" class="btn btn-light btn-lg btn-block">
+                    <a href="<?php echo e(route('student.library.index')); ?>" class="btn btn-light btn-lg btn-block">
                         <i class="icon-reset mr-2"></i> Réinitialiser
                     </a>
                 </div>
@@ -83,10 +85,10 @@
 
         <!-- Book List -->
         <div class="row">
-            @forelse($books as $book)
+            <?php $__empty_1 = true; $__currentLoopData = $books; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $book): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                 <div class="card h-100 book-card">
-                    @php
+                    <?php
                         $bookStatus = $bookStatuses->get($book->id, [
                             'status' => 'unavailable',
                             'text' => 'Non disponible',
@@ -94,98 +96,104 @@
                             'can_request' => false,
                             'action_text' => 'Indisponible'
                         ]);
-                    @endphp
+                    ?>
                     
                     <!-- Badge de statut en haut -->
                     <div class="position-absolute" style="top: 10px; right: 10px; z-index: 10;">
-                        <span class="badge {{ $bookStatus['badge_class'] }} badge-pill px-3 py-2 shadow-sm">
-                            @if($bookStatus['status'] === 'available')
+                        <span class="badge <?php echo e($bookStatus['badge_class']); ?> badge-pill px-3 py-2 shadow-sm">
+                            <?php if($bookStatus['status'] === 'available'): ?>
                                 <i class="icon-checkmark-circle mr-1"></i>
-                            @elseif($bookStatus['status'] === 'pending')
+                            <?php elseif($bookStatus['status'] === 'pending'): ?>
                                 <i class="icon-hour-glass2 mr-1"></i>
-                            @elseif($bookStatus['status'] === 'borrowed')
+                            <?php elseif($bookStatus['status'] === 'borrowed'): ?>
                                 <i class="icon-book mr-1"></i>
-                            @else
+                            <?php else: ?>
                                 <i class="icon-cross-circle mr-1"></i>
-                            @endif
-                            {{ $bookStatus['text'] }}
+                            <?php endif; ?>
+                            <?php echo e($bookStatus['text']); ?>
+
                         </span>
                     </div>
 
                     <!-- Image de couverture -->
                     <div class="book-cover-container" style="position: relative; overflow: hidden;">
-                        @if($book->cover_image)
-                            <img src="{{ Storage::url($book->cover_image) }}" class="card-img-top" alt="{{ $book->name }}" style="height: 280px; object-fit: cover; transition: transform 0.3s;">
-                        @else
+                        <?php if($book->cover_image): ?>
+                            <img src="<?php echo e(Storage::url($book->cover_image)); ?>" class="card-img-top" alt="<?php echo e($book->name); ?>" style="height: 280px; object-fit: cover; transition: transform 0.3s;">
+                        <?php else: ?>
                             <div class="text-center py-5 bg-gradient-to-br from-teal-400 to-teal-600" style="height: 280px; display: flex; align-items: center; justify-content: center;">
                                 <div>
                                     <i class="icon-book3 icon-4x text-white opacity-75"></i>
-                                    <div class="text-white mt-2 font-weight-semibold">{{ Str::limit($book->name, 20) }}</div>
+                                    <div class="text-white mt-2 font-weight-semibold"><?php echo e(Str::limit($book->name, 20)); ?></div>
                                 </div>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
 
                     <div class="card-body pb-2">
                         <h6 class="card-title font-weight-bold text-dark mb-2" style="min-height: 45px; line-height: 1.3;">
-                            {{ Str::limit($book->name, 60) }}
+                            <?php echo e(Str::limit($book->name, 60)); ?>
+
                         </h6>
                         
                         <div class="mb-3">
                             <div class="text-muted mb-1">
                                 <i class="icon-user text-teal mr-1"></i>
-                                <small class="font-weight-semibold">{{ Str::limit($book->author, 30) }}</small>
+                                <small class="font-weight-semibold"><?php echo e(Str::limit($book->author, 30)); ?></small>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="badge badge-flat border-teal text-teal-600">
                                     <i class="icon-tag mr-1"></i>
-                                    {{ ucfirst($book->book_type) }}
+                                    <?php echo e(ucfirst($book->book_type)); ?>
+
                                 </span>
-                                @if($book->category)
+                                <?php if($book->category): ?>
                                 <span class="badge badge-flat border-grey text-grey-600">
                                     <i class="icon-folder mr-1"></i>
-                                    {{ Str::limit($book->category, 15) }}
+                                    <?php echo e(Str::limit($book->category, 15)); ?>
+
                                 </span>
-                                @endif
+                                <?php endif; ?>
                             </div>
                         </div>
                         
                         <p class="card-text text-muted small mb-3" style="min-height: 60px; font-size: 0.85rem; line-height: 1.5;">
-                            {{ Str::limit($book->description, 100) }}
+                            <?php echo e(Str::limit($book->description, 100)); ?>
+
                         </p>
                     </div>
                     
                     <div class="card-footer bg-white border-top pt-3">
                         <div class="d-flex justify-content-between align-items-center">
-                            <a href="#" class="btn btn-outline-teal btn-sm" data-toggle="modal" data-target="#bookDetails{{ $book->id }}">
+                            <a href="#" class="btn btn-outline-teal btn-sm" data-toggle="modal" data-target="#bookDetails<?php echo e($book->id); ?>">
                                 <i class="icon-info22 mr-1"></i> Détails
                             </a>
                             
-                            @if($bookStatus['can_request'])
-                            <form id="request-form-{{ $book->id }}" action="{{ route('student.library.books.request', $book) }}" method="POST" class="d-inline">
-                                @csrf
+                            <?php if($bookStatus['can_request']): ?>
+                            <form id="request-form-<?php echo e($book->id); ?>" action="<?php echo e(route('student.library.books.request', $book)); ?>" method="POST" class="d-inline">
+                                <?php echo csrf_field(); ?>
                                 <button type="submit" class="btn btn-success btn-sm"
                                     onclick="return confirm('Êtes-vous sûr de vouloir demander ce livre ?')">
                                     <i class="icon-plus-circle2 mr-1"></i> Demander
                                 </button>
                             </form>
-                            <div id="debug-{{ $book->id }}" class="small text-muted mt-1"></div>
-                            @else
+                            <div id="debug-<?php echo e($book->id); ?>" class="small text-muted mt-1"></div>
+                            <?php else: ?>
                             <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="icon-{{ $bookStatus['status'] === 'pending' ? 'clock' : ($bookStatus['status'] === 'borrowed' ? 'book' : 'cross2') }} mr-1"></i>
-                                {{ $bookStatus['status'] === 'pending' ? 'En attente' : ($bookStatus['status'] === 'borrowed' ? 'Emprunté' : 'Indispo') }}
+                                <i class="icon-<?php echo e($bookStatus['status'] === 'pending' ? 'clock' : ($bookStatus['status'] === 'borrowed' ? 'book' : 'cross2')); ?> mr-1"></i>
+                                <?php echo e($bookStatus['status'] === 'pending' ? 'En attente' : ($bookStatus['status'] === 'borrowed' ? 'Emprunté' : 'Indispo')); ?>
+
                             </button>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
                 <!-- Book Details Modal -->
-                <div class="modal fade" id="bookDetails{{ $book->id }}" tabindex="-1" role="dialog" aria-labelledby="bookDetailsLabel" aria-hidden="true">
+                <div class="modal fade" id="bookDetails<?php echo e($book->id); ?>" tabindex="-1" role="dialog" aria-labelledby="bookDetailsLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="bookDetailsLabel">{{ $book->name }}</h5>
+                                <h5 class="modal-title" id="bookDetailsLabel"><?php echo e($book->name); ?></h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -193,46 +201,46 @@
                             <div class="modal-body">
                                 <div class="row">
                                     <div class="col-md-4">
-                                        @if($book->cover_image)
-                                            <img src="{{ Storage::url($book->cover_image) }}" class="img-fluid rounded" alt="{{ $book->name }}">
-                                        @else
+                                        <?php if($book->cover_image): ?>
+                                            <img src="<?php echo e(Storage::url($book->cover_image)); ?>" class="img-fluid rounded" alt="<?php echo e($book->name); ?>">
+                                        <?php else: ?>
                                             <div class="text-center py-5 bg-light rounded">
                                                 <i class="fas fa-book fa-5x text-muted"></i>
                                             </div>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                     <div class="col-md-8">
-                                        <p><strong>Auteur :</strong> {{ $book->author }}</p>
-                                        <p><strong>Type :</strong> {{ ucfirst($book->book_type) }}</p>
-                                        <p><strong>Catégorie :</strong> {{ $book->category ?? 'Non spécifiée' }}</p>
-                                        <p><strong>ISBN :</strong> {{ $book->isbn ?? 'Non spécifié' }}</p>
-                                        <p><strong>Éditeur :</strong> {{ $book->publisher ?? 'Non spécifié' }}</p>
-                                        <p><strong>Année de publication :</strong> {{ $book->publication_year ?? 'Non spécifiée' }}</p>
-                                        <p><strong>Pages :</strong> {{ $book->pages ?? 'Non spécifié' }}</p>
-                                        <p><strong>Langue :</strong> {{ $book->language ?? 'Non spécifiée' }}</p>
+                                        <p><strong>Auteur :</strong> <?php echo e($book->author); ?></p>
+                                        <p><strong>Type :</strong> <?php echo e(ucfirst($book->book_type)); ?></p>
+                                        <p><strong>Catégorie :</strong> <?php echo e($book->category ?? 'Non spécifiée'); ?></p>
+                                        <p><strong>ISBN :</strong> <?php echo e($book->isbn ?? 'Non spécifié'); ?></p>
+                                        <p><strong>Éditeur :</strong> <?php echo e($book->publisher ?? 'Non spécifié'); ?></p>
+                                        <p><strong>Année de publication :</strong> <?php echo e($book->publication_year ?? 'Non spécifiée'); ?></p>
+                                        <p><strong>Pages :</strong> <?php echo e($book->pages ?? 'Non spécifié'); ?></p>
+                                        <p><strong>Langue :</strong> <?php echo e($book->language ?? 'Non spécifiée'); ?></p>
                                         <p><strong>Description :</strong></p>
-                                        <p>{{ $book->description ?? 'Aucune description disponible.' }}</p>
+                                        <p><?php echo e($book->description ?? 'Aucune description disponible.'); ?></p>
                                     </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                @if($book->available)
-                                    <form action="{{ route('student.library.books.request', $book) }}" method="POST" class="mr-2">
-                                        @csrf
+                                <?php if($book->available): ?>
+                                    <form action="<?php echo e(route('student.library.books.request', $book)); ?>" method="POST" class="mr-2">
+                                        <?php echo csrf_field(); ?>
                                         <button type="submit" class="btn btn-primary">
                                             <i class="fas fa-hand-holding"></i> Demander ce livre
                                         </button>
                                     </form>
-                                @else
+                                <?php else: ?>
                                     <span class="text-muted">Non disponible pour le moment</span>
-                                @endif
+                                <?php endif; ?>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             <div class="col-12">
                 <div class="empty-state">
                     <div class="mb-4">
@@ -241,62 +249,62 @@
                     </div>
                     <h4 class="font-weight-semibold text-dark mb-2">Aucun livre trouvé</h4>
                     <p class="text-muted mb-4">Essayez de modifier vos critères de recherche ou parcourez tous les livres disponibles.</p>
-                    <a href="{{ route('student.library.index') }}" class="btn btn-teal">
+                    <a href="<?php echo e(route('student.library.index')); ?>" class="btn btn-teal">
                         <i class="icon-reset mr-2"></i> Voir tous les livres
                     </a>
                 </div>
             </div>
-            @endforelse
+            <?php endif; ?>
         </div>
 
         <!-- Pagination -->
-        @if($books->hasPages())
+        <?php if($books->hasPages()): ?>
         <div class="d-flex justify-content-center mt-4">
             <nav aria-label="Pagination">
                 <ul class="pagination">
-                    {{-- Previous Page Link --}}
-                    @if ($books->onFirstPage())
-                        <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">
+                    
+                    <?php if($books->onFirstPage()): ?>
+                        <li class="page-item disabled" aria-disabled="true" aria-label="<?php echo app('translator')->get('pagination.previous'); ?>">
                             <span class="page-link" aria-hidden="true">&lsaquo;</span>
                         </li>
-                    @else
+                    <?php else: ?>
                         <li class="page-item">
-                            <a class="page-link" href="{{ $books->previousPageUrl() }}" rel="prev" aria-label="@lang('pagination.previous')">&lsaquo;</a>
+                            <a class="page-link" href="<?php echo e($books->previousPageUrl()); ?>" rel="prev" aria-label="<?php echo app('translator')->get('pagination.previous'); ?>">&lsaquo;</a>
                         </li>
-                    @endif
+                    <?php endif; ?>
 
-                    {{-- Pagination Elements --}}
-                    @foreach ($books->getUrlRange(1, $books->lastPage()) as $page => $url)
-                        @if ($page == $books->currentPage())
+                    
+                    <?php $__currentLoopData = $books->getUrlRange(1, $books->lastPage()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if($page == $books->currentPage()): ?>
                             <li class="page-item active" aria-current="page">
-                                <span class="page-link">{{ $page }}</span>
+                                <span class="page-link"><?php echo e($page); ?></span>
                             </li>
-                        @else
+                        <?php else: ?>
                             <li class="page-item">
-                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                <a class="page-link" href="<?php echo e($url); ?>"><?php echo e($page); ?></a>
                             </li>
-                        @endif
-                    @endforeach
+                        <?php endif; ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                    {{-- Next Page Link --}}
-                    @if ($books->hasMorePages())
+                    
+                    <?php if($books->hasMorePages()): ?>
                         <li class="page-item">
-                            <a class="page-link" href="{{ $books->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')">&rsaquo;</a>
+                            <a class="page-link" href="<?php echo e($books->nextPageUrl()); ?>" rel="next" aria-label="<?php echo app('translator')->get('pagination.next'); ?>">&rsaquo;</a>
                         </li>
-                    @else
-                        <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
+                    <?php else: ?>
+                        <li class="page-item disabled" aria-disabled="true" aria-label="<?php echo app('translator')->get('pagination.next'); ?>">
                             <span class="page-link" aria-hidden="true">&rsaquo;</span>
                         </li>
-                    @endif
+                    <?php endif; ?>
                 </ul>
             </nav>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
 <!-- My Recent Requests -->
-@if(count($userRequests) > 0)
+<?php if(count($userRequests) > 0): ?>
     <div class="card mt-4">
         <div class="card-header header-elements-inline bg-teal-400">
             <h6 class="card-title text-white">
@@ -305,7 +313,8 @@
             </h6>
             <div class="header-elements">
                 <span class="badge badge-light badge-pill px-3 py-2">
-                    {{ count($userRequests) }} demande{{ count($userRequests) > 1 ? 's' : '' }}
+                    <?php echo e(count($userRequests)); ?> demande<?php echo e(count($userRequests) > 1 ? 's' : ''); ?>
+
                 </span>
             </div>
         </div>
@@ -322,83 +331,86 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($userRequests as $request)
+                    <?php $__currentLoopData = $userRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $request): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
                         <td>
                             <div class="d-flex align-items-center">
                                 <i class="icon-book3 text-teal mr-2"></i>
                                 <div>
-                                    <div class="font-weight-semibold text-dark">{{ Str::limit($request->book->name ?? 'Livre inconnu', 40) }}</div>
+                                    <div class="font-weight-semibold text-dark"><?php echo e(Str::limit($request->book->name ?? 'Livre inconnu', 40)); ?></div>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <span class="text-muted">{{ Str::limit($request->book->author ?? '-', 25) }}</span>
+                            <span class="text-muted"><?php echo e(Str::limit($request->book->author ?? '-', 25)); ?></span>
                         </td>
                         <td class="text-center">
                             <span class="text-muted">
                                 <i class="icon-calendar3 mr-1"></i>
-                                {{ $request->request_date->format('d/m/Y') }}
+                                <?php echo e($request->request_date->format('d/m/Y')); ?>
+
                             </span>
                         </td>
                         <td class="text-center">
-                            <span class="badge {{ $request->badge_class }} badge-pill px-3 py-2">
-                                {{ \App\Models\BookRequest::getStatuses()[$request->status] ?? ucfirst($request->status) }}
+                            <span class="badge <?php echo e($request->badge_class); ?> badge-pill px-3 py-2">
+                                <?php echo e(\App\Models\BookRequest::getStatuses()[$request->status] ?? ucfirst($request->status)); ?>
+
                             </span>
                         </td>
                         <td class="text-center">
-                            @if($request->expected_return_date)
+                            <?php if($request->expected_return_date): ?>
                                 <div class="badge badge-flat border-teal text-teal-600 px-2 py-1">
                                     <i class="icon-calendar mr-1"></i>
-                                    {{ $request->expected_return_date->format('d/m/Y') }}
+                                    <?php echo e($request->expected_return_date->format('d/m/Y')); ?>
+
                                 </div>
-                                @if($request->isOverdue())
+                                <?php if($request->isOverdue()): ?>
                                     <div class="badge badge-danger badge-pill mt-1">
                                         <i class="icon-alarm mr-1"></i>
                                         En retard
                                     </div>
-                                @endif
-                            @else
+                                <?php endif; ?>
+                            <?php else: ?>
                                 <span class="text-muted">-</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            @if($request->canBeMarkedAsReturned())
-                                <form action="{{ route('student.library.books.return', $request) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('PUT')
+                            <?php if($request->canBeMarkedAsReturned()): ?>
+                                <form action="<?php echo e(route('student.library.books.return', $request)); ?>" method="POST" class="d-inline">
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('PUT'); ?>
                                     <button type="submit" class="btn btn-sm btn-success"
                                             onclick="return confirm('Êtes-vous sûr de vouloir marquer ce livre comme retourné ?')">
                                         <i class="icon-checkmark mr-1"></i> Retourner
                                     </button>
                                 </form>
-                            @endif
+                            <?php endif; ?>
 
-                            @if($request->canBeCancelled())
-                                <form action="{{ route('student.library.requests.cancel', $request) }}" method="POST" class="d-inline ml-1">
-                                    @csrf
-                                    @method('DELETE')
+                            <?php if($request->canBeCancelled()): ?>
+                                <form action="<?php echo e(route('student.library.requests.cancel', $request)); ?>" method="POST" class="d-inline ml-1">
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('DELETE'); ?>
                                     <button type="submit" class="btn btn-sm btn-danger"
                                             onclick="return confirm('Êtes-vous sûr de vouloir annuler cette demande ?')">
                                         <i class="icon-cross mr-1"></i> Annuler
                                     </button>
                                 </form>
-                            @endif
+                            <?php endif; ?>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
         <div class="card-footer text-right bg-light">
-            <a href="{{ route('student.library.requests.index') }}" class="btn btn-teal">
+            <a href="<?php echo e(route('student.library.requests.index')); ?>" class="btn btn-teal">
                 <i class="icon-list mr-2"></i> Voir toutes mes demandes
             </a>
         </div>
     </div>
-@endif
+<?php endif; ?>
 
-@section('styles')
+<?php $__env->startSection('styles'); ?>
 <style>
     /* Cartes de livres */
     .book-card {
@@ -568,9 +580,9 @@
         border-top: 1px solid #e0e0e0;
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     // Script pour gérer les demandes de livres
     document.addEventListener('DOMContentLoaded', function() {
@@ -598,9 +610,9 @@
         });
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     // Gestion de la soumission du formulaire de demande de livre
     document.addEventListener('DOMContentLoaded', function() {
@@ -756,48 +768,48 @@
         });
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@if(session('success'))
-@push('scripts')
+<?php if(session('success')): ?>
+<?php $__env->startPush('scripts'); ?>
     <script>
         Swal.fire({
             title: 'Succès !',
-            text: '{{ session('success') }}',
+            text: '<?php echo e(session('success')); ?>',
             icon: 'success',
             confirmButtonColor: '#4f46e5'
         });
     </script>
-@endpush
-@endif
+<?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@if(session('error'))
-@push('scripts')
+<?php if(session('error')): ?>
+<?php $__env->startPush('scripts'); ?>
     <script>
         Swal.fire({
             title: 'Erreur !',
-            text: '{{ session('error') }}',
+            text: '<?php echo e(session('error')); ?>',
             icon: 'error',
             confirmButtonColor: '#4f46e5'
         });
     </script>
-@endpush
-@endif
+<?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@if(session('warning'))
-@push('scripts')
+<?php if(session('warning')): ?>
+<?php $__env->startPush('scripts'); ?>
     <script>
         Swal.fire({
             title: 'Attention !',
-            text: '{{ session('warning') }}',
+            text: '<?php echo e(session('warning')); ?>',
             icon: 'warning',
             confirmButtonColor: '#4f46e5'
         });
     </script>
-@endpush
-@endif
+<?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     // Script de débogage
     document.addEventListener('DOMContentLoaded', function() {
@@ -855,6 +867,8 @@
         });
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/student/library/index.blade.php ENDPATH**/ ?>

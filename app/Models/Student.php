@@ -66,6 +66,11 @@ class Student extends Model
         )->withPivot('submission', 'submitted_at', 'marks', 'feedback');
     }
 
+    public function bookRequests()
+    {
+        return $this->hasMany(\App\Models\BookRequest::class, 'student_id', 'user_id');
+    }
+
     /**
      * Accesseur pour my_class_id (alias de class_id)
      */

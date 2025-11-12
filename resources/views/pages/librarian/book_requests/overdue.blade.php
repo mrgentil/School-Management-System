@@ -3,53 +3,139 @@
 @section('content')
 
 <div class="card">
-    <div class="card-header header-elements-inline">
-        <h6 class="card-title">Livres en Retard</h6>
+    <div class="card-header header-elements-inline bg-danger-400">
+        <h6 class="card-title text-white">
+            <i class="icon-alarm mr-2"></i>
+            Livres en Retard - Gestion des Retours
+        </h6>
         <div class="header-elements">
-            <span class="badge badge-danger badge-pill">{{ $overdueRequests->total() }} en retard</span>
+            <div class="badge badge-light badge-pill font-size-lg px-3 py-2">
+                <strong>{{ $overdueRequests->total() }}</strong> livre{{ $overdueRequests->total() > 1 ? 's' : '' }} en retard
+            </div>
         </div>
     </div>
 
     <div class="card-body">
         @if($overdueRequests->isEmpty())
-            <div class="alert alert-success">
-                <i class="icon-checkmark-circle mr-2"></i>
-                Aucun livre en retard actuellement !
+            <div class="alert alert-success border-success alert-styled-left alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                <span class="font-weight-semibold">Excellent !</span> Aucun livre en retard actuellement.
             </div>
         @else
-            <div class="alert alert-warning">
-                <i class="icon-warning mr-2"></i>
-                <strong>{{ $overdueRequests->total() }}</strong> livre(s) sont actuellement en retard.
+            <div class="row mb-3">
+                @php
+                    $criticalCount = $overdueRequests->filter(function($r) { 
+                        return \Carbon\Carbon::parse($r->expected_return_date)->diffInDays(now()) > 14; 
+                    })->count();
+                    $warningCount = $overdueRequests->filter(function($r) { 
+                        $days = \Carbon\Carbon::parse($r->expected_return_date)->diffInDays(now());
+                        return $days > 7 && $days <= 14; 
+                    })->count();
+                    $recentCount = $overdueRequests->filter(function($r) { 
+                        return \Carbon\Carbon::parse($r->expected_return_date)->diffInDays(now()) <= 7; 
+                    })->count();
+                @endphp
+                
+                <div class="col-md-4">
+                    <div class="card bg-danger text-white mb-0">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="mr-3 align-self-center">
+                                    <i class="icon-warning2 icon-3x opacity-75"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-weight-semibold mb-0">{{ $criticalCount }}</h3>
+                                    <div class="text-uppercase font-size-sm opacity-75">+ de 14 jours</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-warning text-white mb-0">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="mr-3 align-self-center">
+                                    <i class="icon-alarm icon-3x opacity-75"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-weight-semibold mb-0">{{ $warningCount }}</h3>
+                                    <div class="text-uppercase font-size-sm opacity-75">7-14 jours</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-info text-white mb-0">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="mr-3 align-self-center">
+                                    <i class="icon-hour-glass2 icon-3x opacity-75"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-weight-semibold mb-0">{{ $recentCount }}</h3>
+                                    <div class="text-uppercase font-size-sm opacity-75">Moins de 7 jours</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         @endif
     </div>
 
     @if($overdueRequests->isNotEmpty())
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+            <table class="table table-hover table-striped">
+                <thead class="bg-danger-400">
                     <tr>
-                        <th>#</th>
-                        <th>Étudiant</th>
-                        <th>Livre</th>
-                        <th>Date d'emprunt</th>
-                        <th>Date de retour prévue</th>
-                        <th>Jours de retard</th>
-                        <th>Actions</th>
+                        <th class="text-center" width="60">#</th>
+                        <th width="20%">Étudiant</th>
+                        <th width="25%">Livre</th>
+                        <th class="text-center" width="120">Emprunté le</th>
+                        <th class="text-center" width="120">Retour prévu</th>
+                        <th class="text-center" width="140">Retard</th>
+                        <th class="text-center" width="120">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($overdueRequests as $request)
                         @php
                             $daysOverdue = \Carbon\Carbon::parse($request->expected_return_date)->diffInDays(now());
+                            $severity = 'secondary';
+                            $icon = 'icon-alarm';
+                            if ($daysOverdue > 14) {
+                                $severity = 'danger';
+                                $icon = 'icon-warning2';
+                            } elseif ($daysOverdue > 7) {
+                                $severity = 'warning';
+                                $icon = 'icon-alarm';
+                            } elseif ($daysOverdue > 3) {
+                                $severity = 'info';
+                                $icon = 'icon-hour-glass2';
+                            }
                         @endphp
-                        <tr>
-                            <td>{{ $request->id }}</td>
+                        <tr class="border-left-3 border-left-{{ $severity }}">
+                            <td class="text-center">
+                                <span class="badge badge-flat border-{{ $severity }} text-{{ $severity }}">{{ $request->id }}</span>
+                            </td>
                             <td>
                                 @if($request->student && $request->student->user)
-                                    <div class="font-weight-semibold">{{ $request->student->user->name }}</div>
-                                    <div class="text-muted">
-                                        <small>{{ $request->student->user->email ?? '' }}</small>
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-3">
+                                            <div class="bg-{{ $severity }}-400 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <span class="text-white font-weight-bold">{{ strtoupper(substr($request->student->user->name, 0, 1)) }}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="font-weight-semibold text-dark">{{ $request->student->user->name }}</div>
+                                            <div class="text-muted">
+                                                <small><i class="icon-mail5 mr-1"></i>{{ $request->student->user->email ?? '' }}</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 @else
                                     <span class="text-muted">N/A</span>
@@ -57,46 +143,52 @@
                             </td>
                             <td>
                                 @if($request->book)
-                                    <div class="font-weight-semibold">{{ $request->book->name }}</div>
-                                    @if($request->book->author)
-                                        <div class="text-muted">
-                                            <small>{{ $request->book->author }}</small>
+                                    <div class="media align-items-center">
+                                        <div class="mr-3">
+                                            <i class="icon-book3 icon-2x text-{{ $severity }}"></i>
                                         </div>
-                                    @endif
+                                        <div class="media-body">
+                                            <div class="font-weight-semibold text-dark">{{ $request->book->name }}</div>
+                                            @if($request->book->author)
+                                                <div class="text-muted">
+                                                    <small><i class="icon-user mr-1"></i>{{ $request->book->author }}</small>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 @else
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <span class="text-muted">
+                                    <i class="icon-calendar3 mr-1"></i>
                                     {{ \Carbon\Carbon::parse($request->request_date)->format('d/m/Y') }}
                                 </span>
                             </td>
-                            <td>
-                                <span class="text-danger font-weight-semibold">
+                            <td class="text-center">
+                                <div class="badge badge-flat border-danger text-danger-600">
+                                    <i class="icon-alarm mr-1"></i>
                                     {{ \Carbon\Carbon::parse($request->expected_return_date)->format('d/m/Y') }}
-                                </span>
+                                </div>
                             </td>
-                            <td>
-                                @if($daysOverdue > 7)
-                                    <span class="badge badge-danger">{{ $daysOverdue }} jours</span>
-                                @elseif($daysOverdue > 3)
-                                    <span class="badge badge-warning">{{ $daysOverdue }} jours</span>
-                                @else
-                                    <span class="badge badge-secondary">{{ $daysOverdue }} jours</span>
-                                @endif
+                            <td class="text-center">
+                                <div class="badge badge-{{ $severity }} badge-pill px-3 py-2">
+                                    <i class="{{ $icon }} mr-1"></i>
+                                    <strong>{{ $daysOverdue }}</strong> jour{{ $daysOverdue > 1 ? 's' : '' }}
+                                </div>
                             </td>
-                            <td>
-                                <div class="list-icons">
+                            <td class="text-center">
+                                <div class="list-icons list-icons-extended">
                                     <a href="{{ route('librarian.book-requests.show', $request->id) }}" 
-                                       class="list-icons-item text-primary" 
+                                       class="list-icons-item btn btn-sm btn-outline-primary" 
                                        data-toggle="tooltip" 
                                        title="Voir les détails">
                                         <i class="icon-eye"></i>
                                     </a>
                                     
                                     <button type="button"
-                                            class="list-icons-item text-success border-0 bg-transparent" 
+                                            class="list-icons-item btn btn-sm btn-outline-success ml-1" 
                                             data-toggle="modal"
                                             data-target="#returnModal{{ $request->id }}"
                                             title="Marquer comme retourné">

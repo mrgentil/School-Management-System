@@ -52,7 +52,9 @@ class ReportController extends Controller
         $startDate = $request->input('start_date', Carbon::now()->subMonths(3));
         $endDate = $request->input('end_date', Carbon::now());
 
-        $activeStudents = User::where('user_type', 'student')
+        $activeStudents = \App\Models\Student::with(['user', 'myClass', 'bookRequests' => function($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }])
             ->withCount([
                 'bookRequests' => function($query) use ($startDate, $endDate) {
                     $query->whereBetween('created_at', [$startDate, $endDate]);
@@ -102,16 +104,12 @@ class ReportController extends Controller
             'overdue' => BookRequest::where('status', 'borrowed')
                 ->whereMonth('created_at', $month)
                 ->whereYear('created_at', $year)
-                ->where('due_date', '<', now())
+                ->where('expected_return_date', '<', now())
                 ->count(),
             
             'new_books' => Book::whereMonth('created_at', $month)
                 ->whereYear('created_at', $year)
                 ->count(),
-            
-            'total_penalties' => BookRequest::whereMonth('returned_at', $month)
-                ->whereYear('returned_at', $year)
-                ->sum('penalty_amount'),
         ];
 
         // Graphique par jour
@@ -130,23 +128,28 @@ class ReportController extends Controller
      */
     public function inventory()
     {
+        $totalCopies = Book::sum('total_copies');
+        $issuedCopies = Book::sum('issued_copies');
+        
         $inventory = [
             'total_books' => Book::count(),
-            'total_copies' => Book::sum('total_copies'),
-            'available_copies' => Book::sum('available_copies'),
-            'borrowed_copies' => Book::sum('total_copies') - Book::sum('available_copies'),
+            'total_copies' => $totalCopies,
+            'available_copies' => $totalCopies - $issuedCopies,
+            'borrowed_copies' => $issuedCopies,
             
-            'by_category' => Book::select('category', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_copies) as total'))
-                ->groupBy('category')
+            'by_category' => Book::select('book_type', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_copies) as total'))
+                ->groupBy('book_type')
                 ->orderBy('count', 'desc')
                 ->get(),
             
-            'low_stock' => Book::where('available_copies', '<=', 2)
+            'low_stock' => Book::selectRaw('*, (total_copies - issued_copies) as available_copies')
+                ->whereRaw('(total_copies - issued_copies) <= 2')
                 ->where('total_copies', '>', 0)
-                ->orderBy('available_copies')
+                ->orderByRaw('(total_copies - issued_copies)')
                 ->get(),
             
-            'out_of_stock' => Book::where('available_copies', 0)
+            'out_of_stock' => Book::selectRaw('*, (total_copies - issued_copies) as available_copies')
+                ->whereRaw('(total_copies - issued_copies) = 0')
                 ->where('total_copies', '>', 0)
                 ->get(),
         ];
@@ -162,13 +165,24 @@ class ReportController extends Controller
         $startDate = $request->input('start_date', Carbon::now()->subMonths(1));
         $endDate = $request->input('end_date', Carbon::now());
 
-        $penalties = BookRequest::with(['student', 'book'])
-            ->whereBetween('returned_at', [$startDate, $endDate])
-            ->where('penalty_amount', '>', 0)
-            ->orderBy('penalty_amount', 'desc')
+        // Récupérer les retours en retard (actual_return_date > expected_return_date)
+        $penalties = BookRequest::with(['student.user', 'book'])
+            ->where('status', 'returned')
+            ->whereBetween('actual_return_date', [$startDate, $endDate])
+            ->whereNotNull('actual_return_date')
+            ->whereNotNull('expected_return_date')
+            ->whereColumn('actual_return_date', '>', 'expected_return_date')
+            ->orderByDesc('actual_return_date')
             ->get();
 
-        $totalPenalties = $penalties->sum('penalty_amount');
+        // Calculer les jours de retard pour chaque demande
+        $penalties->each(function($penalty) {
+            $expected = Carbon::parse($penalty->expected_return_date);
+            $actual = Carbon::parse($penalty->actual_return_date);
+            $penalty->days_late = $expected->diffInDays($actual);
+        });
+
+        $totalPenalties = 0; // Pas de système de pénalités pour le moment
         $totalDaysLate = $penalties->sum('days_late');
 
         return view('pages.librarian.reports.penalties', compact('penalties', 'totalPenalties', 'totalDaysLate', 'startDate', 'endDate'));

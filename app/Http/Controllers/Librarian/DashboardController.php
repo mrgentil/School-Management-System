@@ -22,29 +22,44 @@ class DashboardController extends Controller
         $stats = [
             'total_books' => Book::count(),
             'available_books' => Book::where('available', 1)->count(),
-            'borrowed_books' => BookRequest::whereIn('status', ['approved', 'borrowed'])->count(),
+            'borrowed_books' => BookRequest::where('status', 'borrowed')->count(),
             'pending_requests' => BookRequest::where('status', 'pending')->count(),
             'overdue_books' => BookRequest::where('status', 'borrowed')
                 ->where('expected_return_date', '<', now())
                 ->count(),
             'total_students' => User::where('user_type', 'student')->count(),
+            
+            // Statistiques supplémentaires
+            'active_borrowers' => BookRequest::where('status', 'borrowed')
+                ->distinct('student_id')
+                ->count('student_id'),
+            
+            'requests_today' => BookRequest::whereDate('created_at', Carbon::today())
+                ->count(),
+            
+            'returned_this_week' => BookRequest::where('status', 'returned')
+                ->whereBetween('updated_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])
+                ->count(),
         ];
 
         // Demandes récentes (10 dernières)
-        $recent_requests = BookRequest::with(['student', 'book'])
+        $recent_requests = BookRequest::with(['student.user', 'book'])
             ->latest()
             ->take(10)
             ->get();
 
         // Demandes en attente
-        $pending_requests = BookRequest::with(['student', 'book'])
+        $pending_requests = BookRequest::with(['student.user', 'book'])
             ->where('status', 'pending')
             ->latest()
             ->take(5)
             ->get();
 
         // Livres en retard
-        $overdue_books = BookRequest::with(['student', 'book'])
+        $overdue_books = BookRequest::with(['student.user', 'book'])
             ->where('status', 'borrowed')
             ->where('expected_return_date', '<', now())
             ->orderBy('expected_return_date')
@@ -103,7 +118,7 @@ class DashboardController extends Controller
 
     private function getRecentActivities()
     {
-        return BookRequest::with(['student', 'book'])
+        return BookRequest::with(['student.user', 'book'])
             ->whereIn('status', ['approved', 'borrowed', 'returned', 'rejected'])
             ->latest('updated_at')
             ->take(15)
@@ -111,8 +126,8 @@ class DashboardController extends Controller
             ->map(function($request) {
                 return [
                     'type' => $request->status,
-                    'student' => $request->student->name ?? 'N/A',
-                    'book' => $request->book->title ?? $request->titre ?? 'N/A',
+                    'student' => $request->student && $request->student->user ? $request->student->user->name : 'N/A',
+                    'book' => $request->book ? $request->book->name : 'N/A',
                     'date' => $request->updated_at,
                     'icon' => $this->getStatusIcon($request->status),
                     'color' => $this->getStatusColor($request->status),
