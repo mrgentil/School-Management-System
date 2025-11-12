@@ -1,30 +1,29 @@
-@extends('layouts.master')
-@section('page_title', 'Livres en Retard')
-@section('content')
+<?php $__env->startSection('page_title', 'Livres en Retard'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="card">
     <div class="card-header header-elements-inline">
         <h6 class="card-title">Livres en Retard</h6>
         <div class="header-elements">
-            <span class="badge badge-danger badge-pill">{{ $overdueRequests->total() }} en retard</span>
+            <span class="badge badge-danger badge-pill"><?php echo e($overdueRequests->total()); ?> en retard</span>
         </div>
     </div>
 
     <div class="card-body">
-        @if($overdueRequests->isEmpty())
+        <?php if($overdueRequests->isEmpty()): ?>
             <div class="alert alert-success">
                 <i class="icon-checkmark-circle mr-2"></i>
                 Aucun livre en retard actuellement !
             </div>
-        @else
+        <?php else: ?>
             <div class="alert alert-warning">
                 <i class="icon-warning mr-2"></i>
-                <strong>{{ $overdueRequests->total() }}</strong> livre(s) sont actuellement en retard.
+                <strong><?php echo e($overdueRequests->total()); ?></strong> livre(s) sont actuellement en retard.
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 
-    @if($overdueRequests->isNotEmpty())
+    <?php if($overdueRequests->isNotEmpty()): ?>
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -39,56 +38,58 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($overdueRequests as $request)
-                        @php
+                    <?php $__currentLoopData = $overdueRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $request): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $daysOverdue = \Carbon\Carbon::parse($request->expected_return_date)->diffInDays(now());
-                        @endphp
+                        ?>
                         <tr>
-                            <td>{{ $request->id }}</td>
+                            <td><?php echo e($request->id); ?></td>
                             <td>
-                                @if($request->student && $request->student->user)
-                                    <div class="font-weight-semibold">{{ $request->student->user->name }}</div>
+                                <?php if($request->student && $request->student->user): ?>
+                                    <div class="font-weight-semibold"><?php echo e($request->student->user->name); ?></div>
                                     <div class="text-muted">
-                                        <small>{{ $request->student->user->email ?? '' }}</small>
+                                        <small><?php echo e($request->student->user->email ?? ''); ?></small>
                                     </div>
-                                @else
+                                <?php else: ?>
                                     <span class="text-muted">N/A</span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                             <td>
-                                @if($request->book)
-                                    <div class="font-weight-semibold">{{ $request->book->name }}</div>
-                                    @if($request->book->author)
+                                <?php if($request->book): ?>
+                                    <div class="font-weight-semibold"><?php echo e($request->book->name); ?></div>
+                                    <?php if($request->book->author): ?>
                                         <div class="text-muted">
-                                            <small>{{ $request->book->author }}</small>
+                                            <small><?php echo e($request->book->author); ?></small>
                                         </div>
-                                    @endif
-                                @else
+                                    <?php endif; ?>
+                                <?php else: ?>
                                     <span class="text-muted">N/A</span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <span class="text-muted">
-                                    {{ \Carbon\Carbon::parse($request->request_date)->format('d/m/Y') }}
+                                    <?php echo e(\Carbon\Carbon::parse($request->request_date)->format('d/m/Y')); ?>
+
                                 </span>
                             </td>
                             <td>
                                 <span class="text-danger font-weight-semibold">
-                                    {{ \Carbon\Carbon::parse($request->expected_return_date)->format('d/m/Y') }}
+                                    <?php echo e(\Carbon\Carbon::parse($request->expected_return_date)->format('d/m/Y')); ?>
+
                                 </span>
                             </td>
                             <td>
-                                @if($daysOverdue > 7)
-                                    <span class="badge badge-danger">{{ $daysOverdue }} jours</span>
-                                @elseif($daysOverdue > 3)
-                                    <span class="badge badge-warning">{{ $daysOverdue }} jours</span>
-                                @else
-                                    <span class="badge badge-secondary">{{ $daysOverdue }} jours</span>
-                                @endif
+                                <?php if($daysOverdue > 7): ?>
+                                    <span class="badge badge-danger"><?php echo e($daysOverdue); ?> jours</span>
+                                <?php elseif($daysOverdue > 3): ?>
+                                    <span class="badge badge-warning"><?php echo e($daysOverdue); ?> jours</span>
+                                <?php else: ?>
+                                    <span class="badge badge-secondary"><?php echo e($daysOverdue); ?> jours</span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <div class="list-icons">
-                                    <a href="{{ route('librarian.book-requests.show', $request->id) }}" 
+                                    <a href="<?php echo e(route('librarian.book-requests.show', $request->id)); ?>" 
                                        class="list-icons-item text-primary" 
                                        data-toggle="tooltip" 
                                        title="Voir les détails">
@@ -98,40 +99,41 @@
                                     <button type="button"
                                             class="list-icons-item text-success border-0 bg-transparent" 
                                             data-toggle="modal"
-                                            data-target="#returnModal{{ $request->id }}"
+                                            data-target="#returnModal<?php echo e($request->id); ?>"
                                             title="Marquer comme retourné">
                                         <i class="icon-checkmark-circle"></i>
                                     </button>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
 
         <div class="card-footer">
-            {{ $overdueRequests->links() }}
+            <?php echo e($overdueRequests->links()); ?>
+
         </div>
-    @endif
+    <?php endif; ?>
 </div>
 
 <!-- Modals pour marquer comme retourné -->
-@foreach($overdueRequests as $request)
-<div id="returnModal{{ $request->id }}" class="modal fade" tabindex="-1">
+<?php $__currentLoopData = $overdueRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $request): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+<div id="returnModal<?php echo e($request->id); ?>" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('librarian.book-requests.mark-returned', $request->id) }}" method="POST">
-                @csrf
+            <form action="<?php echo e(route('librarian.book-requests.mark-returned', $request->id)); ?>" method="POST">
+                <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h5 class="modal-title">Marquer comme Retourné</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        <strong>Livre :</strong> {{ $request->book->name ?? 'N/A' }}<br>
-                        <strong>Étudiant :</strong> {{ $request->student->user->name ?? 'N/A' }}<br>
-                        <strong>Retard :</strong> {{ \Carbon\Carbon::parse($request->expected_return_date)->diffInDays(now()) }} jours
+                        <strong>Livre :</strong> <?php echo e($request->book->name ?? 'N/A'); ?><br>
+                        <strong>Étudiant :</strong> <?php echo e($request->student->user->name ?? 'N/A'); ?><br>
+                        <strong>Retard :</strong> <?php echo e(\Carbon\Carbon::parse($request->expected_return_date)->diffInDays(now())); ?> jours
                     </div>
                     <div class="form-group">
                         <label>État du livre <span class="text-danger">*</span></label>
@@ -158,15 +160,17 @@
         </div>
     </div>
 </div>
-@endforeach
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
     $(document).ready(function() {
         // Initialiser les tooltips
         $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/librarian/book_requests/overdue.blade.php ENDPATH**/ ?>
