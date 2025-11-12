@@ -1,0 +1,48 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+class ForceFixBookLoansForeignKey extends Migration
+{
+    public function up()
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            // Supprimer la table si elle existe
+            if (Schema::hasTable('book_loans')) {
+                Schema::dropIfExists('book_loans');
+            }
+
+            // Recréer la table avec les bons types
+            Schema::create('book_loans', function ($table) {
+                $table->id();
+                $table->unsignedInteger('user_id');  // Correspond à users.id
+                $table->unsignedInteger('book_id');
+                $table->dateTime('loan_date');
+                $table->dateTime('due_date');
+                $table->dateTime('return_date')->nullable();
+                $table->timestamps();
+
+                // FK for column 'user_id' moved to final migration (auto-generated).
+// Original: $table->foreign('user_id')
+                      ->references('id')
+                      ->on('users')
+                      ->onDelete('cascade')
+                      ->onUpdate('cascade');
+            });
+        } catch (\Exception $e) {
+            echo "Erreur lors de la migration: " . $e->getMessage() . "\n";
+            throw $e;
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+    }
+
+    public function down()
+    {
+        // Cette migration est irréversible car elle corrige un problème de schéma
+    }
+}

@@ -1,0 +1,87 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+class FixBookLoansForeignKeys extends Migration
+{
+    public function up(): void
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            echo "\n=== Correction des clés étrangères de la table book_loans ===\n";
+
+            // 1. Supprimer la contrainte existante si elle existe
+            $constraintName = 'book_loans_user_id_foreign';
+            $constraintExists = DB::select("
+                SELECT 1 FROM information_schema.TABLE_CONSTRAINTS 
+                WHERE CONSTRAINT_SCHEMA = ? 
+                AND TABLE_NAME = 'book_loans' 
+                AND CONSTRAINT_NAME = ?
+                AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+            ", [DB::getDatabaseName(), $constraintName]);
+
+            if (!empty($constraintExists)) {
+                DB::statement("ALTER TABLE `book_loans` DROP FOREIGN KEY `{$constraintName}`");
+                echo "[SUCCÈS] Contrainte '{$constraintName}' supprimée.\n";
+            }
+
+            // 2. Vérifier et modifier le type de la colonne user_id
+            $columnInfo = DB::select("SHOW COLUMNS FROM `book_loans` WHERE Field = 'user_id'");
+            
+            if (!empty($columnInfo)) {
+                $currentType = $columnInfo[0]->Type;
+                $targetType = 'BIGINT UNSIGNED';
+                
+                if (strtoupper($currentType) !== $targetType) {
+                    DB::statement("ALTER TABLE `book_loans` MODIFY `user_id` {$targetType} NULL"");
+                    echo "[SUCCÈS] Colonne 'user_id' mise à jour en {$targetType}.\n";
+                } else {
+                    echo "[INFO] La colonne 'user_id' est déjà du type {$targetType}.\n";
+                }
+            } else {
+                echo "[ERREUR] La colonne 'user_id' n'existe pas dans la table 'book_loans'.\n";
+                return;
+            }
+
+            // 3. Recréer la contrainte si elle n'existe pas déjà
+            $constraintExists = DB::select("
+                SELECT 1 FROM information_schema.TABLE_CONSTRAINTS 
+                WHERE CONSTRAINT_SCHEMA = ? 
+                AND TABLE_NAME = 'book_loans' 
+                AND CONSTRAINT_NAME = ?
+                AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+            ", [DB::getDatabaseName(), $constraintName]);
+
+            if (empty($constraintExists)) {
+                DB::statement("
+                    ALTER TABLE `book_loans`
+                    ADD CONSTRAINT `{$constraintName}`
+                    FOREIGN KEY (`user_id`)
+                    REFERENCES `users` (`id`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE;
+                ");
+                echo "[SUCCÈS] Contrainte '{$constraintName}' recréée.\n";
+            } else {
+                echo "[INFO] La contrainte '{$constraintName}' existe déjà.\n";
+            }
+
+            echo "\n=== Correction des clés étrangères terminée avec succès ===\n";
+
+        } catch (\Exception $e) {
+            echo "\n[ERREUR] " . $e->getMessage() . "\n";
+            throw $e;
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+    }
+
+    public function down(): void
+    {
+        // Cette méthode est laissée vide intentionnellement
+        // car le rollback sera géré par les autres migrations
+    }
+}

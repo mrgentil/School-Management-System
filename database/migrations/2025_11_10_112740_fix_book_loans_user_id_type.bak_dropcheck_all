@@ -1,0 +1,63 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+class FixBookLoansUserIdType extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        // Disable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        // Drop existing foreign key constraint if it exists
+        if (Schema::hasTable('book_loans')) {
+            Schema::table('book_loans', function ($table) {
+                $table->dropForeign(['user_id']);
+            });
+
+            // Change the column type to match users.id (unsignedInteger)
+            DB::statement('ALTER TABLE book_loans MODIFY user_id INT UNSIGNED NOT NULL');
+
+            // Re-add the foreign key constraint
+            Schema::table('book_loans', function ($table) {
+                // FK for column 'user_id' moved to final migration (auto-generated).
+// Original: $table->foreign('user_id')
+//                       ->references('id')
+//                       ->on('users')
+//                       ->onDelete('cascade')
+//                       ->onUpdate('cascade');
+});
+        }
+
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        // This is the reverse operation - change back to bigint if needed
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        if (Schema::hasTable('book_loans')) {
+            Schema::table('book_loans', function ($table) {
+                $table->dropForeign(['user_id']);
+            });
+
+            DB::statement('ALTER TABLE book_loans MODIFY user_id BIGINT UNSIGNED NOT NULL');
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+    }
+}

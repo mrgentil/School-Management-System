@@ -1,0 +1,266 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+class FixAllForeignKeysComplete extends Migration
+{
+    // Liste complète des tables et colonnes qui référencent users.id
+    // La valeur booléenne indique si la colonne est nullable
+    protected $foreignKeyColumns = [
+        'book_loans' => ['user_id' => false],
+        'book_reservations' => ['user_id' => false],
+        'book_reviews' => ['user_id' => false],
+        'messages' => ['receiver_id' => true],
+        'notifications' => ['user_id' => false],
+        'student_attendances' => ['marked_by' => false],
+        'sections' => ['teacher_id' => true],
+        'subjects' => ['teacher_id' => true],  // Ajouté
+        'pins' => ['user_id' => false],
+        'book_requests' => ['user_id' => false],
+        'assignment_submissions' => ['user_id' => false],
+        'payments' => ['user_id' => false],
+        'payment_records' => ['user_id' => false, 'created_by' => false],
+        'receipts' => ['user_id' => false, 'recorded_by' => false],
+        'student_records' => ['my_parent_id' => true, 'user_id' => false],
+        'exams' => ['teacher_id' => true],  // Ajouté
+        'time_tables' => ['teacher_id' => true]  // Ajouté
+    ];
+    
+    public function up(): void
+    {
+        // Désactiver temporairement les vérifications de clés étrangères
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        
+        try {
+            // Étape 1: Récupérer toutes les contraintes de clé étrangère qui référencent users.id
+            $allForeignKeys = $this->getAllForeignKeysToUsers();
+            
+            // Afficher les contraintes trouvées
+            echo "=== Contraintes trouvées ===\n";
+            foreach ($allForeignKeys as $fk) {
+                echo "Table: {$fk['table']}, Colonne: {$fk['column']}, Contrainte: {$fk['constraint']}\n";
+                
+                // Mettre à jour notre liste avec les contraintes trouvées
+                if (!isset($this->foreignKeyColumns[$fk['table']])) {
+                    $this->foreignKeyColumns[$fk['table']] = [];
+                }
+                
+                if (!in_array($fk['column'], $this->foreignKeyColumns[$fk['table']])) {
+                    // Par défaut, on suppose que la colonne n'est pas nullable
+                    $this->foreignKeyColumns[$fk['table']][$fk['column']] = false;
+                }
+            }
+            
+            echo "\n=== Début de la migration ===\n";
+            
+            // Étape 2: Supprimer toutes les contraintes de clé étrangère
+            $this->dropAllForeignKeys($allForeignKeys);
+            
+            // Étape 3: Modifier le type de la colonne id de la table users
+            if (Schema::hasTable('users')) {
+                echo "\nMise à jour de la colonne 'id' de la table 'users'...\n";
+                DB::statement('ALTER TABLE `users` MODIFY `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT');
+                echo "Colonne 'id' de la table 'users' mise à jour avec succès.\n";
+            }
+            
+            // Étape 4: Mettre à jour le type des colonnes de clé étrangère
+            $this->updateForeignKeyColumns();
+            
+            // Étape 5: Recréer les contraintes de clé étrangère
+            $this->recreateForeignKeys();
+            
+            echo "\n=== Migration terminée avec succès ===\n";
+            
+        } catch (\Exception $e) {
+            echo "\n=== ERREUR LORS DE LA MIGRATION ===\n";
+            echo "Erreur: " . $e->getMessage() . "\n";
+            echo "Fichier: " . $e->getFile() . " (ligne " . $e->getLine() . ")\n\n";
+            
+            // Essayer de réactiver les vérifications de clés étrangères en cas d'erreur
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            
+            throw $e;
+        } finally {
+            // Réactiver les vérifications de clés étrangères
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+    }
+    
+    /**
+     * Récupère toutes les contraintes de clé étrangère qui référencent users.id
+     */
+    protected function getAllForeignKeysToUsers(): array
+    {
+        $databaseName = DB::getDatabaseName();
+        $foreignKeys = [];
+        
+        $results = DB::select("
+            SELECT 
+                TABLE_NAME as 'table',
+                COLUMN_NAME as 'column',
+                CONSTRAINT_NAME as 'constraint',
+                REFERENCED_TABLE_NAME as 'referenced_table',
+                REFERENCED_COLUMN_NAME as 'referenced_column'
+            FROM 
+                INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE 
+                TABLE_SCHEMA = '{$databaseName}'
+                AND REFERENCED_TABLE_NAME = 'users'
+                AND REFERENCED_COLUMN_NAME = 'id'
+        ");
+        
+        foreach ($results as $row) {
+            $foreignKeys[] = [
+                'table' => $row->table,
+                'column' => $row->column,
+                'constraint' => $row->constraint,
+                'referenced_table' => $row->referenced_table,
+                'referenced_column' => $row->referenced_column
+            ];
+        }
+        
+        return $foreignKeys;
+    }
+    
+    /**
+     * Supprime toutes les contraintes de clé étrangère spécifiées
+     */
+    protected function dropAllForeignKeys(array $foreignKeys): void
+    {
+        echo "\n=== Suppression des contraintes de clé étrangère ===\n";
+        
+        foreach ($foreignKeys as $fk) {
+            $tableName = $fk['table'];
+            $constraintName = $fk['constraint'];
+            
+            if (!Schema::hasTable($tableName)) {
+                echo "[IGNORÉ] La table '{$tableName}' n'existe pas.\n";
+                continue;
+            }
+            
+            try {
+                DB::statement("ALTER TABLE `{$tableName}` DROP FOREIGN KEY `{$constraintName}`");
+                echo "[SUCCÈS] Contrainte '{$constraintName}' supprimée de la table '{$tableName}'.\n";
+            } catch (\Exception $e) {
+                echo "[ERREUR] Impossible de supprimer la contrainte '{$constraintName}' de la table '{$tableName}': " . $e->getMessage() . "\n";
+            }
+        }
+    }
+    
+    /**
+     * Met à jour le type des colonnes de clé étrangère
+     */
+    protected function updateForeignKeyColumns(): void
+    {
+        echo "\n=== Mise à jour des colonnes de clé étrangère ===\n";
+        
+        foreach ($this->foreignKeyColumns as $tableName => $columns) {
+            if (!Schema::hasTable($tableName)) {
+                echo "[IGNORÉ] La table '{$tableName}' n'existe pas.\n";
+                continue;
+            }
+            
+            foreach ($columns as $columnName => $isNullable) {
+                if (!Schema::hasColumn($tableName, $columnName)) {
+                    echo "[IGNORÉ] La colonne '{$columnName}' n'existe pas dans la table '{$tableName}'.\n";
+                    continue;
+                }
+                
+                try {
+                    $columnInfo = DB::select("SHOW COLUMNS FROM `{$tableName}` WHERE Field = '{$columnName}'")[0] ?? null;
+                    
+                    if ($columnInfo) {
+                        $isColumnNullable = ($columnInfo->Null === 'YES');
+                        $nullModifier = $isColumnNullable ? ' NULL' : ' NOT NULL';
+                        
+                        // Vérifier si la colonne est déjà en BIGINT UNSIGNED
+                        if (strpos(strtolower($columnInfo->Type), 'bigint') === false) {
+                            DB::statement("ALTER TABLE `{$tableName}` MODIFY `{$columnName}` BIGINT UNSIGNED{$nullModifier}");
+                            echo "[SUCCÈS] Colonne '{$columnName}' de la table '{$tableName}' mise à jour en BIGINT UNSIGNED.\n";
+                        } else {
+                            echo "[DÉJÀ FAIT] La colonne '{$columnName}' de la table '{$tableName}' est déjà de type BIGINT UNSIGNED.\n";
+                        }
+                    }
+                } catch (\Exception $e) {
+                    echo "[ERREUR] Impossible de mettre à jour la colonne '{$columnName}' de la table '{$tableName}': " . $e->getMessage() . "\n";
+                }
+            }
+        }
+    }
+    
+    /**
+     * Recrée les contraintes de clé étrangère
+     */
+    protected function recreateForeignKeys(): void
+    {
+        echo "\n=== Recréation des contraintes de clé étrangère ===\n";
+        
+        foreach ($this->foreignKeyColumns as $tableName => $columns) {
+            if (!Schema::hasTable($tableName)) {
+                echo "[IGNORÉ] La table '{$tableName}' n'existe pas.\n";
+                continue;
+            }
+            
+            foreach ($columns as $columnName => $isNullable) {
+                if (!Schema::hasColumn($tableName, $columnName)) {
+                    echo "[IGNORÉ] La colonne '{$columnName}' n'existe pas dans la table '{$tableName}'.\n";
+                    continue;
+                }
+                
+                try {
+                    // Vérifier si la contrainte existe déjà
+                    if ($this->foreignKeyExists($tableName, $columnName)) {
+                        echo "[DÉJÀ FAIT] La contrainte pour '{$columnName}' dans la table '{$tableName}' existe déjà.\n";
+                        continue;
+                    }
+                    
+                    // Vérifier si la colonne est nullable
+                    $columnInfo = DB::select("SHOW COLUMNS FROM `{$tableName}` WHERE Field = '{$columnName}'")[0] ?? null;
+                    $isColumnNullable = $columnInfo && $columnInfo->Null === 'YES';
+                    
+                    // Déterminer le type de suppression
+                    $onDelete = ($isNullable || $isColumnNullable || $columnName === 'receiver_id' || $columnName === 'teacher_id') ? 'SET NULL' : 'CASCADE';
+                    
+                    // Nom de la contrainte
+                    $constraintName = "fk_{$tableName}_{$columnName}";
+                    
+                    // Créer la contrainte
+                    DB::statement("\n                        ALTER TABLE `{$tableName}`\n                        ADD CONSTRAINT `{$constraintName}`\n                        FOREIGN KEY (`{$columnName}`)\n                        REFERENCES `users` (`id`)\n                        ON DELETE {$onDelete}\n                        ON UPDATE CASCADE\n                    ");
+                    
+                    echo "[SUCCÈS] Contrainte '{$constraintName}' recréée pour la colonne '{$columnName}' dans la table '{$tableName}'.\n";
+                    
+                } catch (\Exception $e) {
+                    echo "[ERREUR] Impossible de recréer la contrainte pour '{$columnName}' dans la table '{$tableName}': " . $e->getMessage() . "\n";
+                }
+            }
+        }
+    }
+    
+    /**
+     * Vérifie si une contrainte de clé étrangère existe déjà
+     */
+    protected function foreignKeyExists($tableName, $columnName): bool
+    {
+        $databaseName = DB::getDatabaseName();
+        $constraints = DB::select("
+            SELECT CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = '{$databaseName}'
+            AND TABLE_NAME = '{$tableName}'
+            AND COLUMN_NAME = '{$columnName}'
+            AND REFERENCED_TABLE_NAME = 'users'
+            AND REFERENCED_COLUMN_NAME = 'id'
+        ");
+        
+        return !empty($constraints);
+    }
+    
+    public function down(): void
+    {
+        // Cette méthode est laissée vide intentionnellement
+        // car le rollback sera géré par les autres migrations
+    }
+}

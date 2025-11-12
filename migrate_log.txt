@@ -1,0 +1,266 @@
+
+  Dropping all tables ...................................................................................................................... 5s DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table ........................................................................................................... 273.50ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000001_create_cache_table ............................................................................................... 309.11ms DONE
+  0001_01_01_000002_create_jobs_table ................................................................................................ 356.38ms DONE
+  2013_09_20_121733_create_blood_groups_table ......................................................................................... 30.03ms DONE
+  2013_09_22_124750_create_states_table ............................................................................................... 23.68ms DONE
+  2013_09_22_124806_create_lgas_table ................................................................................................. 26.38ms DONE
+  2013_09_26_121148_create_nationalities_table ........................................................................................ 29.57ms DONE
+  2014_10_12_000000_create_users_table ............................................................................................... 429.77ms DONE
+  2014_10_12_100000_create_password_resets_table ..................................................................................... 101.18ms DONE
+  2018_09_19_000000_create_students_table ............................................................................................. 85.19ms DONE
+  2018_09_20_100249_create_user_types_table ........................................................................................... 32.79ms DONE
+  2018_09_20_150906_create_class_types_table .......................................................................................... 40.14ms DONE
+  2018_09_22_073005_create_my_classes_table ........................................................................................... 92.24ms DONE
+  2018_09_22_073526_create_sections_table ............................................................................................ 130.31ms DONE
+  2018_09_22_080555_create_settings_table ............................................................................................. 28.47ms DONE
+  2018_09_22_081302_create_subjects_table ............................................................................................ 119.78ms DONE
+  2018_09_22_151514_create_student_records_table ..................................................................................... 102.41ms DONE
+  2018_09_26_124241_create_dorms_table ................................................................................................ 90.86ms DONE
+  2018_10_04_224910_create_exams_table ................................................................................................ 78.35ms DONE
+  2018_10_06_224846_create_marks_table ................................................................................................ 31.49ms DONE
+  2018_10_06_224944_create_grades_table ............................................................................................... 85.45ms DONE
+  2018_10_06_225007_create_pins_table ................................................................................................. 77.50ms DONE
+  2018_10_18_205550_create_skills_table ............................................................................................... 46.94ms DONE
+  2018_10_18_205842_create_exam_records_table ......................................................................................... 29.78ms DONE
+  2018_10_31_191358_create_books_table ................................................................................................ 33.01ms DONE
+  2018_10_31_192540_create_book_requests_table ........................................................................................ 47.19ms DONE
+  2018_11_01_132115_create_staff_records_table ....................................................................................... 120.66ms DONE
+  2018_11_03_210758_create_payments_table ............................................................................................ 112.98ms DONE
+  2018_11_03_210817_create_payment_records_table ..................................................................................... 122.68ms DONE
+  2018_11_06_083707_create_receipts_table ............................................................................................. 32.44ms DONE
+  2018_11_27_180401_create_time_tables_table ......................................................................................... 316.25ms DONE
+  2019_09_22_142514_create_fks ......................................................................................................... 2.67ms DONE
+  2019_09_26_132227_create_promotions_table ........................................................................................... 47.52ms DONE
+  2019_10_01_000000_add_foreign_keys_to_students_table ................................................................................ 15.62ms DONE
+  2024_01_01_000002_create_assignments_table .......................................................................................... 69.31ms DONE
+  2024_01_01_000003_create_assignment_submissions_table .............................................................................. 114.59ms DONE
+  2024_01_01_000004_create_messages_table ............................................................................................. 28.87ms DONE
+  2024_01_01_000005_update_book_requests_table ........................................................................................ 48.46ms DONE
+  2024_10_24_000001_create_notices_table ............................................................................................. 117.58ms DONE
+  2024_10_24_000002_create_school_events_table ....................................................................................... 112.14ms DONE
+  2024_10_24_000003_create_study_materials_table ..................................................................................... 150.12ms DONE
+  2025_10_25_030727_update_attendances_table ........................................................................................... 3.83ms DONE
+  2025_10_25_032056_add_available_to_books_table ...................................................................................... 37.18ms DONE
+  2025_10_25_102255_check_missing_columns .............................................................................................. 0.33ms DONE
+  2025_10_25_103824_create_student_attendances_table .................................................................................. 37.33ms DONE
+  2025_10_25_120100_create_message_recipients_table ................................................................................... 31.89ms DONE
+  2025_10_28_000001_create_learning_materials_table ................................................................................... 33.50ms DONE
+  2025_10_28_000002_create_attendances_table ......................................................................................... 126.77ms DONE
+  2025_10_28_000003_update_assignments_table .......................................................................................... 45.06ms DONE
+  2025_10_28_153200_fresh_start ...................................................................................................... 381.40ms DONE
+  2025_10_28_163000_fix_all_issues ................................................................................................... 609.74ms DONE
+  2025_10_29_103000_create_library_related_tables .................................................................................... 140.31ms DONE
+  2025_10_29_124011_create_notifications_table ....................................................................................... 187.62ms DONE
+  2025_10_29_164557_update_book_requests_table_structure ............................................................................... 0.19ms DONE
+  2025_10_29_165022_check_book_requests_structure .................................................................................... 105.17ms DONE
+  2025_10_29_165124_check_book_requests_columns ........................................................................................ 0.27ms DONE
+  2025_10_30_130720_add_fields_to_book_requests_table .................................................................................. 0.14ms DONE
+  2025_11_03_140341_update_user_foreign_keys_to_bigint ............................................................................... 832.93ms DONE
+  2025_11_03_140342_update_users_table_id_to_big_increments ................................................................................ 5s DONE
+  2025_11_03_142250_fix_student_attendances_foreign_keys ................................................................................... 4s DONE
+  2025_11_03_142535_update_all_foreign_keys_to_users ................................................................................. 430.62ms DONE
+  2025_11_03_142658_fix_all_foreign_keys ............................................................................................. 870.54ms DONE
+  2025_11_04_201005_fix_foreign_key_issues ................................................................................................. 2s DONE
+  2025_11_04_201417_drop_problematic_foreign_keys .......................................................................................... 1s DONE
+  2025_11_04_201623_update_users_table_id_type ............................................................................................. 4s DONE
+  2025_11_04_201759_recreate_foreign_keys .............................................................................................. 0.23ms DONE
+  2025_11_04_201837_drop_all_foreign_keys ............................................................................................. 51.79ms DONE
+  2025_11_07_120000_fix_users_foreign_keys_types ..................................................................................... 424.04ms DONE
+  2025_11_07_181000_update_users_table_first ........................................................................................... 9.90ms DONE
+  2025_11_07_181500_fix_all_foreign_keys_to_users .................................................................................... 740.30ms DONE
+  2025_11_07_182000_fix_all_foreign_keys_safely Mise à jour des clés étrangères terminée avec succès.
+............................................................................................ 6s DONE
+  2025_11_07_183000_fix_foreign_keys_step_by_step Contrainte 'book_loans_user_id_foreign' supprimée de la table 'book_loans'.
+Contrainte 'book_reservations_user_id_foreign' supprimée de la table 'book_reservations'.
+Contrainte 'book_reviews_user_id_foreign' supprimée de la table 'book_reviews'.
+Contrainte 'messages_receiver_id_foreign' supprimée de la table 'messages'.
+Contrainte 'student_attendances_marked_by_foreign' supprimée de la table 'student_attendances'.
+Contrainte 'sections_teacher_id_foreign' supprimée de la table 'sections'.
+Contrainte 'pins_user_id_foreign' supprimée de la table 'pins'.
+Contrainte 'student_records_my_parent_id_foreign' supprimée de la table 'student_records'.
+Contrainte 'student_records_user_id_foreign' supprimée de la table 'student_records'.
+Colonne 'id' de la table 'users' mise à jour avec succès.
+La colonne 'user_id' de la table 'book_loans' est déjà de type BIGINT UNSIGNED.
+La colonne 'user_id' de la table 'book_reservations' est déjà de type BIGINT UNSIGNED.
+La colonne 'user_id' de la table 'book_reviews' est déjà de type BIGINT UNSIGNED.
+La colonne 'receiver_id' de la table 'messages' est déjà de type BIGINT UNSIGNED.
+La colonne 'marked_by' de la table 'student_attendances' est déjà de type BIGINT UNSIGNED.
+La colonne 'teacher_id' de la table 'sections' est déjà de type BIGINT UNSIGNED.
+La colonne 'user_id' de la table 'pins' est déjà de type BIGINT UNSIGNED.
+La colonne 'my_parent_id' de la table 'student_records' est déjà de type BIGINT UNSIGNED.
+La colonne 'user_id' de la table 'student_records' est déjà de type BIGINT UNSIGNED.
+Contrainte pour 'user_id' recréée dans la table 'book_loans'.
+Contrainte pour 'user_id' recréée dans la table 'book_reservations'.
+Contrainte pour 'user_id' recréée dans la table 'book_reviews'.
+Contrainte pour 'receiver_id' recréée dans la table 'messages'.
+Contrainte pour 'marked_by' recréée dans la table 'student_attendances'.
+Contrainte pour 'teacher_id' recréée dans la table 'sections'.
+Contrainte pour 'user_id' recréée dans la table 'pins'.
+Contrainte pour 'my_parent_id' recréée dans la table 'student_records'.
+Contrainte pour 'user_id' recréée dans la table 'student_records'.
+Toutes les opérations ont été effectuées avec succès.
+.......................................................................................... 4s DONE
+  2025_11_07_184000_fix_all_foreign_keys_complete === Contraintes trouvées ===
+Table: book_loans, Colonne: user_id, Contrainte: book_loans_user_id_foreign
+Table: book_reservations, Colonne: user_id, Contrainte: book_reservations_user_id_foreign
+Table: book_reviews, Colonne: user_id, Contrainte: book_reviews_user_id_foreign
+Table: messages, Colonne: receiver_id, Contrainte: messages_receiver_id_foreign
+Table: pins, Colonne: user_id, Contrainte: pins_user_id_foreign
+Table: sections, Colonne: teacher_id, Contrainte: sections_teacher_id_foreign
+Table: student_attendances, Colonne: marked_by, Contrainte: student_attendances_marked_by_foreign
+Table: student_records, Colonne: my_parent_id, Contrainte: student_records_my_parent_id_foreign
+Table: student_records, Colonne: user_id, Contrainte: student_records_user_id_foreign
+
+=== Début de la migration ===
+
+=== Suppression des contraintes de clé étrangère ===
+[SUCCÈS] Contrainte 'book_loans_user_id_foreign' supprimée de la table 'book_loans'.
+[SUCCÈS] Contrainte 'book_reservations_user_id_foreign' supprimée de la table 'book_reservations'.
+[SUCCÈS] Contrainte 'book_reviews_user_id_foreign' supprimée de la table 'book_reviews'.
+[SUCCÈS] Contrainte 'messages_receiver_id_foreign' supprimée de la table 'messages'.
+[SUCCÈS] Contrainte 'pins_user_id_foreign' supprimée de la table 'pins'.
+[SUCCÈS] Contrainte 'sections_teacher_id_foreign' supprimée de la table 'sections'.
+[SUCCÈS] Contrainte 'student_attendances_marked_by_foreign' supprimée de la table 'student_attendances'.
+[SUCCÈS] Contrainte 'student_records_my_parent_id_foreign' supprimée de la table 'student_records'.
+[SUCCÈS] Contrainte 'student_records_user_id_foreign' supprimée de la table 'student_records'.
+
+Mise à jour de la colonne 'id' de la table 'users'...
+Colonne 'id' de la table 'users' mise à jour avec succès.
+
+=== Mise à jour des colonnes de clé étrangère ===
+[DÉJÀ FAIT] La colonne 'user_id' de la table 'book_loans' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'user_id' de la table 'book_reservations' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'user_id' de la table 'book_reviews' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'receiver_id' de la table 'messages' est déjà de type BIGINT UNSIGNED.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'notifications'.
+[DÉJÀ FAIT] La colonne 'marked_by' de la table 'student_attendances' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'teacher_id' de la table 'sections' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'teacher_id' de la table 'subjects' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'user_id' de la table 'pins' est déjà de type BIGINT UNSIGNED.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'book_requests'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'assignment_submissions'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'payments'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'payment_records'.
+[IGNORÉ] La colonne 'created_by' n'existe pas dans la table 'payment_records'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'receipts'.
+[IGNORÉ] La colonne 'recorded_by' n'existe pas dans la table 'receipts'.
+[DÉJÀ FAIT] La colonne 'my_parent_id' de la table 'student_records' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'user_id' de la table 'student_records' est déjà de type BIGINT UNSIGNED.
+[IGNORÉ] La colonne 'teacher_id' n'existe pas dans la table 'exams'.
+[IGNORÉ] La colonne 'teacher_id' n'existe pas dans la table 'time_tables'.
+
+=== Recréation des contraintes de clé étrangère ===
+[SUCCÈS] Contrainte 'fk_book_loans_user_id' recréée pour la colonne 'user_id' dans la table 'book_loans'.
+[SUCCÈS] Contrainte 'fk_book_reservations_user_id' recréée pour la colonne 'user_id' dans la table 'book_reservations'.
+[SUCCÈS] Contrainte 'fk_book_reviews_user_id' recréée pour la colonne 'user_id' dans la table 'book_reviews'.
+[SUCCÈS] Contrainte 'fk_messages_receiver_id' recréée pour la colonne 'receiver_id' dans la table 'messages'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'notifications'.
+[SUCCÈS] Contrainte 'fk_student_attendances_marked_by' recréée pour la colonne 'marked_by' dans la table 'student_attendances'.
+[SUCCÈS] Contrainte 'fk_sections_teacher_id' recréée pour la colonne 'teacher_id' dans la table 'sections'.
+[SUCCÈS] Contrainte 'fk_subjects_teacher_id' recréée pour la colonne 'teacher_id' dans la table 'subjects'.
+[SUCCÈS] Contrainte 'fk_pins_user_id' recréée pour la colonne 'user_id' dans la table 'pins'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'book_requests'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'assignment_submissions'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'payments'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'payment_records'.
+[IGNORÉ] La colonne 'created_by' n'existe pas dans la table 'payment_records'.
+[IGNORÉ] La colonne 'user_id' n'existe pas dans la table 'receipts'.
+[IGNORÉ] La colonne 'recorded_by' n'existe pas dans la table 'receipts'.
+[SUCCÈS] Contrainte 'fk_student_records_my_parent_id' recréée pour la colonne 'my_parent_id' dans la table 'student_records'.
+[SUCCÈS] Contrainte 'fk_student_records_user_id' recréée pour la colonne 'user_id' dans la table 'student_records'.
+[IGNORÉ] La colonne 'teacher_id' n'existe pas dans la table 'exams'.
+[IGNORÉ] La colonne 'teacher_id' n'existe pas dans la table 'time_tables'.
+
+=== Migration terminée avec succès ===
+.......................................................................................... 3s DONE
+  2025_11_07_185000_fix_remaining_foreign_keys 
+=== Correction des colonnes NULL ===
+[DÉJÀ FAIT] La colonne 'receiver_id' de la table 'messages' est déjà nullable.
+[DÉJÀ FAIT] La colonne 'teacher_id' de la table 'subjects' est déjà nullable.
+[DÉJÀ FAIT] La colonne 'teacher_id' de la table 'assignments' est déjà nullable.
+
+=== Correction des incompatibilités de type ===
+[DÉJÀ FAIT] La colonne 'user_id' de la table 'students' est déjà de type BIGINT UNSIGNED.
+[DÉJÀ FAIT] La colonne 'student_id' de la table 'book_requests' est déjà de type BIGINT UNSIGNED.
+
+=== Recréation des contraintes manquantes ===
+[DÉJÀ FAIT] La contrainte pour 'receiver_id' dans la table 'messages' existe déjà.
+[DÉJÀ FAIT] La contrainte pour 'teacher_id' dans la table 'subjects' existe déjà.
+[SUCCÈS] Contrainte 'fk_assignments_teacher_id' recréée pour la colonne 'teacher_id' dans la table 'assignments'.
+[SUCCÈS] Contrainte 'fk_students_user_id' recréée pour la colonne 'user_id' dans la table 'students'.
+
+=== Correction des problèmes restants terminée avec succès ===
+....................................................................................... 545.29ms DONE
+  2025_11_07_190000_fix_final_foreign_keys 
+=== Correction des problèmes de clés étrangères finales ===
+[SUCCÈS] Colonne 'user_id' de la table 'students' mise à jour en BIGINT UNSIGNED.
+[SUCCÈS] Contrainte 'students_user_id_foreign' recréée pour la colonne 'user_id' dans la table 'students'.
+[SUCCÈS] Contrainte 'book_requests_student_id_foreign' recréée pour la colonne 'student_id' dans la table 'book_requests'.
+
+=== Correction des problèmes de clés étrangères terminée ===
+........................................................................................... 483.24ms DONE
+  2025_11_07_191000_fix_book_requests_foreign_key 
+=== Correction de la clé étrangère de book_requests.student_id ===
+[SUCCÈS] Contrainte 'book_requests_student_id_foreign' supprimée.
+[SUCCÈS] Colonne 'student_id' mise à jour en BIGINT UNSIGNED.
+[SUCCÈS] Contrainte 'book_requests_student_id_foreign' recréée.
+.................................................................................... 279.93ms DONE
+  2025_11_07_191500_fix_book_requests_student_foreign_key 
+=== Correction de la clé étrangère book_requests.student_id ===
+[SUCCÈS] Contrainte 'book_requests_student_id_foreign' supprimée.
+[INFO] La colonne 'student_id' est déjà du type BIGINT UNSIGNED.
+[SUCCÈS] Contrainte 'book_requests_student_id_foreign' recréée avec référence à students.user_id.
+............................................................................ 145.70ms DONE
+  2025_11_07_200000_fix_all_foreign_keys 
+=== Début de la correction des clés étrangères ===
+
+=== Étape 1: Suppression des contraintes existantes ===
+[INFO] La colonne 'book_loans.issued_by' n'existe pas. Ignorée.
+[SUCCÈS] Contrainte 'book_requests_student_id_foreign' supprimée.
+[SUCCÈS] Contrainte 'students_user_id_foreign' supprimée.
+
+=== Étape 2: Mise à jour des types de colonnes ===
+[SUCCÈS] Colonne 'book_loans.user_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'book_loans.book_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'book_requests.student_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'book_requests.book_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'book_requests.approved_by' mise à jour en BIGINT UNSIGNED NULL.
+[SUCCÈS] Colonne 'book_reservations.user_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'book_reservations.book_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'book_reviews.user_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'book_reviews.book_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'students.user_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+[SUCCÈS] Colonne 'staff_records.user_id' mise à jour en BIGINT UNSIGNED NOT NULL.
+
+[ERREUR] SQLSTATE[HY000]: General error: 1830 Column 'user_id' cannot be NOT NULL: needed in a foreign key constraint 'fk_student_records_user_id' SET NULL (Connection: mysql, SQL: ALTER TABLE `student_records` MODIFY `user_id` BIGINT UNSIGNED NOT NULL)
+................................................................................................... 3s FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[HY000]: General error: 1830 Column 'user_id' cannot be NOT NULL: needed in a foreign key constraint 'fk_student_records_user_id' SET NULL (Connection: mysql, SQL: ALTER TABLE `student_records` MODIFY `user_id` BIGINT UNSIGNED NOT NULL)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:824
+    [90m820[0m[90m▕ [0m[35;1m                    [0m[39;1m$this[0m[35;1m->[0m[39;1mgetName[0m[35;1m(), [0m[39;1m$query[0m[35;1m, [0m[39;1m$this[0m[35;1m->[0m[39;1mprepareBindings[0m[35;1m([0m[39;1m$bindings[0m[35;1m), [0m[39;1m$e[0m
+    [90m821[0m[90m▕ [0m[39;1m                [0m[35;1m);[0m
+    [90m822[0m[90m▕ [0m[35;1m            }[0m
+    [90m823[0m[90m▕ [0m
+[31;1m  ➜ [0m[3;1m824[0m[90m▕ [0m[35;1m            throw new [0m[39;1mQueryException[0m[35;1m([0m
+    [90m825[0m[90m▕ [0m[35;1m                [0m[39;1m$this[0m[35;1m->[0m[39;1mgetName[0m[35;1m(), [0m[39;1m$query[0m[35;1m, [0m[39;1m$this[0m[35;1m->[0m[39;1mprepareBindings[0m[35;1m([0m[39;1m$bindings[0m[35;1m), [0m[39;1m$e[0m
+    [90m826[0m[90m▕ [0m[39;1m            [0m[35;1m);[0m
+    [90m827[0m[90m▕ [0m[35;1m        }[0m
+    [90m828[0m[90m▕ [0m[35;1m    }[0m
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOException::("SQLSTATE[HY000]: General error: 1830 Column 'user_id' cannot be NOT NULL: needed in a foreign key constraint 'fk_student_records_user_id' SET NULL")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:570
+      PDOStatement::execute()
+

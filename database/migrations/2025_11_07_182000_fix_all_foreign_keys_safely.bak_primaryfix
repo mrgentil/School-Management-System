@@ -1,0 +1,151 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+class FixAllForeignKeysSafely extends Migration
+{
+    public function up(): void
+    {
+        // Désactiver temporairement les vérifications de clés étrangères
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        
+        try {
+            // 1. Mettre à jour la colonne id de la table users en BIGINT UNSIGNED
+            if (Schema::hasTable('users')) {
+                DB::statement('ALTER TABLE `users` MODIFY `id` BIGINT UNSIGNED NULL AUTO_INCREMENT');
+            }
+            
+            // 2. Fonction pour mettre à jour une colonne de clé étrangère
+            $updateForeignKey = function($tableName, $columnName, $isNullable = false) {
+                // Vérifier si la table et la colonne existent
+                if (!Schema::hasTable($tableName) || !Schema::hasColumn($tableName, $columnName)) {
+                    return;
+                }
+                
+                // Supprimer la contrainte de clé étrangère si elle existe
+                $constraintName = $this->getForeignKeyName($tableName, $columnName);
+                if ($constraintName) {
+                    Schema::table($tableName, function (Blueprint $table) use ($constraintName, $tableName) {
+                        $table->dropForeign($constraintName);
+                    });
+                }
+                
+                // Modifier le type de la colonne
+                $nullModifier = $isNullable ? ' NULL' : ' NOT NULL';
+                
+                // Vérifier si la colonne est déjà en BIGINT UNSIGNED
+                $columnInfo = DB::select("SHOW COLUMNS FROM `{$tableName}` WHERE Field = '{$columnName}'")[0] ?? null;
+                
+                if ($columnInfo && strpos(strtolower($columnInfo->Type), 'bigint') === false) {
+                    // Si la colonne est nullable, on le conserve
+                    $isColumnNullable = ($columnInfo->Null === 'YES');
+                    $nullModifier = $isColumnNullable ? ' NULL' : ' NOT NULL';
+                    
+                    DB::statement("ALTER TABLE `{$tableName}` MODIFY `{$columnName}` BIGINT UNSIGNED{$nullModifier}");
+                }
+                
+                // Recréer la contrainte de clé étrangère si elle n'existe pas déjà
+                if (!$this->foreignKeyExists($tableName, $columnName)) {
+                    Schema::table($tableName, function (Blueprint $table) use ($columnName, $isNullable, $tableName) {
+                        $foreign = $table->foreign($columnName)
+                            ->references('id')
+                            ->on('users')
+                            ->onUpdate('cascade');
+                        
+                        // Pour les colonnes nullables ou receiver_id, on met onDelete('set null')
+                        // Pour les autres, on met onDelete('cascade')
+                        if ($isNullable || $columnName === 'receiver_id') {
+                                                    // Ensure column is nullable if we plan ON DELETE SET NULL
+                        DB::statement("ALTER TABLE `{$tableName}` MODIFY `{$columnName}` BIGINT UNSIGNED NULL;");
+
+                        $foreign->onDelete('set null');
+                        } else {
+                            $foreign->onDelete('cascade');
+                        }
+                    });
+                }
+            };
+            
+            // 3. Liste des tables et colonnes à mettre à jour
+            $tables = [
+                'book_loans' => ['user_id' => false],
+                'book_reservations' => ['user_id' => false],
+                'book_reviews' => ['user_id' => false],
+                'messages' => ['receiver_id' => true],
+                'notifications' => ['user_id' => false],
+                'student_attendances' => ['marked_by' => false],
+                'sections' => ['teacher_id' => true],
+                'pins' => ['user_id' => false],
+                'book_requests' => ['user_id' => false],
+                'assignment_submissions' => ['user_id' => false],
+                'payments' => ['user_id' => false],
+                'payment_records' => ['user_id' => false, 'created_by' => false],
+                'receipts' => ['user_id' => false, 'recorded_by' => false],
+                'student_records' => ['my_parent_id' => true, 'user_id' => false]
+            ];
+            
+            // 4. Appliquer les mises à jour
+            foreach ($tables as $table => $columns) {
+                foreach ($columns as $column => $isNullable) {
+                    $updateForeignKey($table, $column, $isNullable);
+                }
+            }
+            
+            echo "Mise à jour des clés étrangères terminée avec succès.\n";
+            
+        } catch (\Exception $e) {
+            echo "Erreur lors de la mise à jour des clés étrangères: " . $e->getMessage() . "\n";
+            throw $e;
+        } finally {
+            // Réactiver les vérifications de clés étrangères
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+    }
+    
+    /**
+     * Vérifie si une contrainte de clé étrangère existe déjà
+     */
+    private function foreignKeyExists($tableName, $columnName)
+    {
+        $databaseName = DB::getDatabaseName();
+        $constraints = DB::select("
+            SELECT CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = '{$databaseName}'
+            AND TABLE_NAME = '{$tableName}'
+            AND COLUMN_NAME = '{$columnName}'
+            AND REFERENCED_TABLE_NAME = 'users'
+            AND REFERENCED_COLUMN_NAME = 'id'
+        ");
+        
+        return !empty($constraints);
+    }
+    
+    /**
+     * Obtenir le nom de la contrainte de clé étrangère
+     */
+    private function getForeignKeyName($tableName, $columnName)
+    {
+        $databaseName = DB::getDatabaseName();
+        $constraints = DB::select("
+            SELECT CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = '{$databaseName}'
+            AND TABLE_NAME = '{$tableName}'
+            AND COLUMN_NAME = '{$columnName}'
+            AND REFERENCED_TABLE_NAME = 'users'
+            AND REFERENCED_COLUMN_NAME = 'id'
+        ");
+        
+        return !empty($constraints) ? $constraints[0]->CONSTRAINT_NAME : null;
+    }
+    
+    public function down(): void
+    {
+        // Cette méthode est laissée vide intentionnellement
+        // car le rollback sera géré par les autres migrations
+    }
+}

@@ -1,0 +1,62 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+class FixForeignKeyMismatch extends Migration
+{
+    public function up()
+    {
+        // Désactiver temporairement les contraintes de clé étrangère
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            // Supprimer la contrainte existante si elle existe (sans Doctrine)
+            if (Schema::hasColumn('book_loans', 'user_id')) {
+                $constraints = DB::select("
+                    SELECT CONSTRAINT_NAME AS name
+                    FROM information_schema.KEY_COLUMN_USAGE
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'book_loans'
+                      AND COLUMN_NAME = 'user_id'
+                      AND REFERENCED_TABLE_NAME IS NOT NULL
+                ");
+
+                if (!empty($constraints)) {
+                    Schema::table('book_loans', function ($table) use ($constraints) {
+                        foreach ($constraints as $c) {
+                            $table->dropForeign($c->name);
+                        }
+                    });
+                }
+            }
+
+            // Forcer la modification du type de la colonne
+            DB::statement('ALTER TABLE `book_loans` 
+                          MODIFY COLUMN `user_id` INT UNSIGNED NULL');
+
+            // Recréer la contrainte de clé étrangère
+            Schema::table('book_loans', function ($table) {
+                // FK for column 'user_id' moved to final migration (auto-generated).
+// Original: $table->foreign('user_id')
+//                       ->references('id')
+//                       ->on('users')
+//                       ->onDelete('cascade')
+//                       ->onUpdate('cascade');
+});
+        } catch (\Exception $e) {
+            // Afficher l'erreur pour le débogage
+            echo "Erreur lors de la migration: " . $e->getMessage() . "\n";
+            throw $e;
+        } finally {
+            // Toujours réactiver les contraintes
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+    }
+
+    public function down()
+    {
+        // Cette migration est irréversible car elle corrige un problème de schéma
+    }
+}

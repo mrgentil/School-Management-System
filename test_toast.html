@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Toasts - E-School</title>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            font-weight: bold;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-error {
+            background: #dc3545;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        .btn-info {
+            background: #17a2b8;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .config-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #666;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Test des Notifications Toast</h1>
+    
+    <div class="section">
+        <h2>Configuration Toastr</h2>
+        <div class="config-section">
+            <div>
+                <label>Position:</label>
+                <select id="position">
+                    <option value="toast-top-right">Haut Droite</option>
+                    <option value="toast-top-left">Haut Gauche</option>
+                    <option value="toast-bottom-right">Bas Droite</option>
+                    <option value="toast-bottom-left">Bas Gauche</option>
+                    <option value="toast-top-center">Haut Centre</option>
+                    <option value="toast-bottom-center">Bas Centre</option>
+                </select>
+            </div>
+            <div>
+                <label>Durée (ms):</label>
+                <input type="number" id="timeout" value="5000" step="1000">
+            </div>
+            <div>
+                <label>Barre de progression:</label>
+                <select id="progressBar">
+                    <option value="true">Oui</option>
+                    <option value="false">Non</option>
+                </select>
+            </div>
+            <div>
+                <label>Bouton fermer:</label>
+                <select id="closeButton">
+                    <option value="true">Oui</option>
+                    <option value="false">Non</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Types de Toast</h2>
+        <div class="button-group">
+            <button class="btn-success" onclick="showSuccess()">
+                ✅ Succès
+            </button>
+            <button class="btn-error" onclick="showError()">
+                ❌ Erreur
+            </button>
+            <button class="btn-warning" onclick="showWarning()">
+                ⚠️ Avertissement
+            </button>
+            <button class="btn-info" onclick="showInfo()">
+                ℹ️ Information
+            </button>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Exemples Pratiques</h2>
+        <div class="button-group">
+            <button class="btn-success" onclick="userCreated()">
+                Utilisateur Créé
+            </button>
+            <button class="btn-error" onclick="loginFailed()">
+                Connexion Échouée
+            </button>
+            <button class="btn-warning" onclick="paymentPartial()">
+                Paiement Partiel
+            </button>
+            <button class="btn-info" onclick="downloadStarted()">
+                Téléchargement
+            </button>
+            <button class="btn-success" onclick="examPublished()">
+                Examen Publié
+            </button>
+            <button class="btn-error" onclick="bookUnavailable()">
+                Livre Indisponible
+            </button>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Tests Avancés</h2>
+        <div class="button-group">
+            <button class="btn-info" onclick="multipleToasts()">
+                Toasts Multiples
+            </button>
+            <button class="btn-warning" onclick="permanentToast()">
+                Toast Permanent
+            </button>
+            <button class="btn-success" onclick="longMessage()">
+                Message Long
+            </button>
+            <button class="btn-error" onclick="clearAll()">
+                Effacer Tout
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration initiale
+        function updateConfig() {
+            toastr.options = {
+                "closeButton": document.getElementById('closeButton').value === 'true',
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": document.getElementById('progressBar').value === 'true',
+                "positionClass": document.getElementById('position').value,
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": document.getElementById('timeout').value,
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        }
+
+        // Mettre à jour la config au changement
+        document.getElementById('position').addEventListener('change', updateConfig);
+        document.getElementById('timeout').addEventListener('change', updateConfig);
+        document.getElementById('progressBar').addEventListener('change', updateConfig);
+        document.getElementById('closeButton').addEventListener('change', updateConfig);
+
+        // Initialiser
+        updateConfig();
+
+        // Types de base
+        function showSuccess() {
+            toastr.success('Opération réussie!', 'Succès!');
+        }
+
+        function showError() {
+            toastr.error('Une erreur est survenue!', 'Erreur!');
+        }
+
+        function showWarning() {
+            toastr.warning('Attention à cette action!', 'Avertissement!');
+        }
+
+        function showInfo() {
+            toastr.info('Information importante', 'Info');
+        }
+
+        // Exemples pratiques
+        function userCreated() {
+            toastr.success('Utilisateur "Jean Dupont" créé avec succès!', 'Création Réussie');
+        }
+
+        function loginFailed() {
+            toastr.error('Email ou mot de passe incorrect', 'Connexion Échouée');
+        }
+
+        function paymentPartial() {
+            toastr.warning('Paiement partiel enregistré. Reste à payer: 15,000 FCFA', 'Paiement Partiel');
+        }
+
+        function downloadStarted() {
+            toastr.info('Téléchargement en cours...', 'Téléchargement');
+        }
+
+        function examPublished() {
+            toastr.success('Résultats de l\'examen publiés!', 'Publication Réussie');
+        }
+
+        function bookUnavailable() {
+            toastr.error('Ce livre n\'est pas disponible actuellement', 'Livre Indisponible');
+        }
+
+        // Tests avancés
+        function multipleToasts() {
+            toastr.success('Premier toast', 'Toast 1');
+            setTimeout(() => toastr.info('Deuxième toast', 'Toast 2'), 500);
+            setTimeout(() => toastr.warning('Troisième toast', 'Toast 3'), 1000);
+            setTimeout(() => toastr.error('Quatrième toast', 'Toast 4'), 1500);
+        }
+
+        function permanentToast() {
+            var oldTimeout = toastr.options.timeOut;
+            toastr.options.timeOut = 0;
+            toastr.options.extendedTimeOut = 0;
+            toastr.warning('Ce toast reste affiché jusqu\'à ce que vous le fermiez', 'Toast Permanent');
+            setTimeout(() => {
+                toastr.options.timeOut = oldTimeout;
+                toastr.options.extendedTimeOut = 1000;
+            }, 100);
+        }
+
+        function longMessage() {
+            toastr.success('Ceci est un message très long pour tester comment Toastr gère les messages avec beaucoup de texte. Le toast devrait s\'adapter automatiquement à la longueur du contenu.', 'Message Long');
+        }
+
+        function clearAll() {
+            toastr.clear();
+            toastr.info('Tous les toasts ont été effacés', 'Effacé');
+        }
+    </script>
+</body>
+</html>

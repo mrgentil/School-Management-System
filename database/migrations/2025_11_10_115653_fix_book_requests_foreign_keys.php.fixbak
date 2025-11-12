@@ -1,0 +1,53 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+class FixBookRequestsForeignKeys extends Migration
+{
+    public function up()
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            // Correction pour la colonne approved_by
+            if (Schema::hasTable('book_requests') && Schema::hasColumn('book_requests', 'approved_by')) {
+                // Supprimer la contrainte existante si elle existe
+                $sm = Schema::getConnection()->getDoctrineSchemaManager();
+                $foreignKeys = $sm->listTableForeignKeys('book_requests');
+                
+                foreach ($foreignKeys as $foreignKey) {
+                    if (in_array('approved_by', $foreignKey->getLocalColumns())) {
+                        Schema::table('book_requests', function ($table) use ($foreignKey) {
+                            $table->dropForeign([$foreignKey->getName()]);
+                        });
+                    }
+                }
+
+                // Modifier le type de la colonne pour correspondre à users.id
+                DB::statement('ALTER TABLE `book_requests` 
+                             MODIFY COLUMN `approved_by` INT UNSIGNED NULL');
+
+                // Recréer la contrainte de clé étrangère
+                Schema::table('book_requests', function ($table) {
+                    // FK for column 'approved_by' moved to final migration (auto-generated).
+// Original: $table->foreign('approved_by')
+                          ->references('id')
+                          ->on('users')
+                          ->onDelete('set null');
+                });
+            }
+        } catch (\Exception $e) {
+            echo "Erreur lors de la migration: " . $e->getMessage() . "\n";
+            throw $e;
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+    }
+
+    public function down()
+    {
+        // Cette migration est irréversible car elle corrige un problème de schéma
+    }
+}
