@@ -65,10 +65,10 @@
                             <th>Classe:</th>
                             <td>
                                 @php
-                                    $studentRecord = auth()->user()->student->studentRecord ?? null;
+                                    $studentRecord = auth()->user()->student_record ?? null;
                                     $className = $studentRecord && $studentRecord->my_class ? $studentRecord->my_class->name : 'N/A';
                                 @endphp
-                                {{ $className }}
+                                <span class="badge badge-info">{{ $className }}</span>
                             </td>
                         </tr>
                         <tr>

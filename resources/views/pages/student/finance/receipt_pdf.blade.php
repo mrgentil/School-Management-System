@@ -133,11 +133,11 @@
                 </tr>
                 <tr>
                     <th>Classe</th>
-                    <td>{{ $receipt->paymentRecord->student->studentRecord->myClass->name ?? 'N/A' }}</td>
+                    <td>{{ $receipt->paymentRecord->student->student_record->my_class->name ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>Section</th>
-                    <td>{{ $receipt->paymentRecord->student->studentRecord->section->name ?? 'N/A' }}</td>
+                    <td>{{ $receipt->paymentRecord->student->student_record->section->name ?? 'N/A' }}</td>
                 </tr>
             </table>
         </div>
