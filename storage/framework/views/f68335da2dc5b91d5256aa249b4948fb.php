@@ -44,16 +44,18 @@
         <div class="card card-sidebar-mobile">
             <ul class="nav nav-sidebar" data-nav-type="accordion">
 
-                <!-- Main -->
+                <!-- Main (Non-Students) -->
+                <?php if(!Qs::userIsStudent()): ?>
                 <li class="nav-item">
                     <a href="<?php echo e(route('dashboard')); ?>" class="nav-link <?php echo e((Route::is('dashboard')) ? 'active' : ''); ?>">
                         <i class="icon-home4"></i>
                         <span>Tableau de bord</span>
                     </a>
                 </li>
+                <?php endif; ?>
 
                 
-                <?php if(Qs::userIsAcademic()): ?>
+                <?php if(Qs::userIsAcademic() && !Qs::userIsStudent()): ?>
                     <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage']) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Académique</span></a>
 

@@ -43,16 +43,18 @@
         <div class="card card-sidebar-mobile">
             <ul class="nav nav-sidebar" data-nav-type="accordion">
 
-                <!-- Main -->
+                <!-- Main (Non-Students) -->
+                @if(!Qs::userIsStudent())
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ (Route::is('dashboard')) ? 'active' : '' }}">
                         <i class="icon-home4"></i>
                         <span>Tableau de bord</span>
                     </a>
                 </li>
+                @endif
 
-                {{--Academics--}}
-                @if(Qs::userIsAcademic())
+                {{--Academics (Non-Students)--}}
+                @if(Qs::userIsAcademic() && !Qs::userIsStudent())
                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Académique</span></a>
 

@@ -463,6 +463,11 @@ class MarkController extends Controller
 
     protected function noStudentRecord()
     {
+        // Si c'est un étudiant, afficher une page informative au lieu de rediriger
+        if(Qs::userIsStudent()) {
+            return view('pages.support_team.marks.no_records');
+        }
+        
         return redirect()->route('dashboard')->with('flash_danger', __('msg.srnf'));
     }
 

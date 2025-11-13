@@ -127,9 +127,19 @@
 
 
 <li class="nav-item">
-    <a href="<?php echo e(route('marks.year_select', Qs::hash(Auth::user()->id))); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['marks.show', 'marks.year_selector', 'pins.enter']) ? 'active' : ''); ?>">
+    <?php
+        $userId = Auth::user()->id;
+        $hashedId = Qs::hash($userId);
+        \Log::info('Menu Notes Debug', [
+            'user_id' => $userId,
+            'hashed_id' => $hashedId,
+            'route_url' => route('marks.year_selector', ['id' => $hashedId])
+        ]);
+    ?>
+    <a href="<?php echo e(route('marks.year_selector', ['id' => $hashedId])); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['marks.show', 'marks.year_selector', 'pins.enter']) ? 'active' : ''); ?>">
         <i class="icon-book"></i> 
         <span>Mes Notes</span>
+        
     </a>
 </li>
 

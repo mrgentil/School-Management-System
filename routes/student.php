@@ -16,6 +16,30 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
     // Dashboard
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
     
+    // Route de test pour vérifier les données de l'étudiant
+    Route::get('/test-student-data', function() {
+        $user = auth()->user();
+        
+        $studentRecord = \App\Models\StudentRecord::where('user_id', $user->id)->first();
+        $student = \App\Models\Student::where('user_id', $user->id)->first();
+        
+        $examYears = \App\Models\ExamRecord::where('student_id', $user->id)
+            ->distinct()
+            ->pluck('year');
+        
+        dd([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_type' => $user->user_type,
+            'student_record_exists' => $studentRecord ? 'OUI' : 'NON',
+            'student_record_data' => $studentRecord,
+            'student_exists' => $student ? 'OUI' : 'NON',
+            'student_data' => $student,
+            'exam_years' => $examYears,
+            'has_exam_records' => $examYears->count() > 0 ? 'OUI' : 'NON'
+        ]);
+    })->name('test.student.data');
+    
     // Bibliothèque
     Route::group(['prefix' => 'library', 'as' => 'library.'], function() {
         Route::get('/', [StudentLibraryController::class, 'index'])->name('index');
