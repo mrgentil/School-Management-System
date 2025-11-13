@@ -66,6 +66,26 @@
 </li>
 
 
+<li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['student.timetable.index', 'student.timetable.calendar']) ? 'nav-item-open' : ''); ?>">
+    <a href="#" class="nav-link">
+        <i class="icon-calendar"></i>
+        <span>Emploi du Temps</span>
+    </a>
+    <ul class="nav nav-group-sub" data-submenu-title="Emploi du Temps">
+        <li class="nav-item">
+            <a href="<?php echo e(route('student.timetable.index')); ?>" class="nav-link <?php echo e((Route::is('student.timetable.index')) ? 'active' : ''); ?>">
+                <i class="icon-list mr-2"></i>Vue Liste
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="<?php echo e(route('student.timetable.calendar')); ?>" class="nav-link <?php echo e((Route::is('student.timetable.calendar')) ? 'active' : ''); ?>">
+                <i class="icon-calendar3 mr-2"></i>Vue Calendrier
+            </a>
+        </li>
+    </ul>
+</li>
+
+
 <li class="nav-item">
     <a href="<?php echo e(route('student.messages.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['student.messages.index', 'student.messages.show', 'student.messages.create']) ? 'active' : ''); ?>">
         <i class="icon-bubbles4"></i>

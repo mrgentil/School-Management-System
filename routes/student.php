@@ -9,6 +9,7 @@ use App\Http\Controllers\Student\AttendanceController as StudentAttendanceContro
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\MessageController as StudentMessageController;
 use App\Http\Controllers\Student\BookRequestController as StudentBookRequestController;
+use App\Http\Controllers\Student\TimetableController as StudentTimetableController;
 
 Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' => 'student.'], function() {
     
@@ -79,6 +80,12 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
     Route::group(['prefix' => 'assignments', 'as' => 'assignments.'], function() {
         Route::get('/', [StudentAssignmentController::class, 'index'])->name('index');
         Route::get('/{id}', [StudentAssignmentController::class, 'show'])->name('show');
+    });
+
+    // Emploi du temps
+    Route::group(['prefix' => 'timetable', 'as' => 'timetable.'], function() {
+        Route::get('/', [StudentTimetableController::class, 'index'])->name('index');
+        Route::get('/calendar', [StudentTimetableController::class, 'calendar'])->name('calendar');
     });
 
     // Messagerie
