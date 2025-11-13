@@ -175,6 +175,11 @@ class Qs
         return Auth::user()->user_type == 'librarian';
     }
 
+    public static function userIsAccountant()
+    {
+        return Auth::user()->user_type == 'accountant';
+    }
+
     public static function userIsStaff()
     {
         return in_array(Auth::user()->user_type, self::getStaff());
@@ -366,6 +371,39 @@ class Qs
     public static function getDaysOfTheWeek()
     {
         return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    }
+
+    /**
+     * Formater un montant avec la devise locale (USD pour RDC)
+     */
+    public static function formatCurrency($amount, $showSymbol = true)
+    {
+        $formatted = number_format($amount, 0, ',', ' ');
+        return $showSymbol ? $formatted . ' $' : $formatted;
+    }
+
+    /**
+     * Obtenir le symbole de la devise
+     */
+    public static function getCurrencySymbol()
+    {
+        return '$';
+    }
+
+    /**
+     * Obtenir le code de la devise
+     */
+    public static function getCurrencyCode()
+    {
+        return 'USD';
+    }
+
+    /**
+     * Obtenir le nom de la devise
+     */
+    public static function getCurrencyName()
+    {
+        return 'Dollar Américain';
     }
 
 }

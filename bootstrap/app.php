@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'my_parent' => \App\Http\Middleware\Custom\MyParent::class,
             'student' => \App\Http\Middleware\Custom\Student::class,
             'librarian' => \App\Http\Middleware\Custom\Librarian::class,
+            'accountant' => \App\Http\Middleware\Custom\Accountant::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

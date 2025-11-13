@@ -181,7 +181,7 @@ POST /librarian/reports/export           → export
 #### Calcul des Pénalités
 ```php
 $daysLate = now()->diffInDays($bookRequest->due_date);
-$penalty = $daysLate * 100; // 100 FCFA par jour de retard
+$penalty = $daysLate * 100; // 100 $ par jour de retard
 ```
 
 #### Gestion des Retards

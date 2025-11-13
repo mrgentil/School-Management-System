@@ -1,7 +1,6 @@
-@extends('layouts.master')
-@section('page_title', 'Mes Reçus')
+<?php $__env->startSection('page_title', 'Mes Reçus'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <!-- En-tête -->
 <div class="card mb-3">
@@ -12,7 +11,7 @@
                 <p class="mb-0 opacity-75">Consultez et imprimez tous vos reçus de paiement</p>
             </div>
             <div>
-                <a href="{{ route('student.finance.payments') }}" class="btn btn-light">
+                <a href="<?php echo e(route('student.finance.payments')); ?>" class="btn btn-light">
                     <i class="icon-arrow-left13 mr-2"></i> Retour aux paiements
                 </a>
             </div>
@@ -26,35 +25,36 @@
             <h6 class="card-title mb-0"><i class="icon-filter3 mr-2"></i>Filtrer les reçus</h6>
         </div>
         <div class="card-body">
-            <form action="{{ route('student.finance.receipts') }}" method="GET" class="form-inline">
+            <form action="<?php echo e(route('student.finance.receipts')); ?>" method="GET" class="form-inline">
                 <div class="form-group mr-3 mb-2">
                     <label for="year" class="mr-2">Année scolaire:</label>
                     <select name="year" id="year" class="form-control form-control-sm">
                         <option value="">Toutes les années</option>
-                        @foreach($years as $year)
-                            <option value="{{ $year }}" {{ $selected_year == $year ? 'selected' : '' }}>{{ $year }}</option>
-                        @endforeach
+                        <?php $__currentLoopData = $years; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($year); ?>" <?php echo e($selected_year == $year ? 'selected' : ''); ?>><?php echo e($year); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
                 <div class="form-group mr-3 mb-2">
                     <label for="month" class="mr-2">Mois:</label>
                     <select name="month" id="month" class="form-control form-control-sm">
                         <option value="">Tous les mois</option>
-                        @for($i = 1; $i <= 12; $i++)
-                            <option value="{{ $i }}" {{ $selected_month == $i ? 'selected' : '' }}>
-                                {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                        <?php for($i = 1; $i <= 12; $i++): ?>
+                            <option value="<?php echo e($i); ?>" <?php echo e($selected_month == $i ? 'selected' : ''); ?>>
+                                <?php echo e(DateTime::createFromFormat('!m', $i)->format('F')); ?>
+
                             </option>
-                        @endfor
+                        <?php endfor; ?>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm mb-2">
                     <i class="fas fa-filter"></i> Filtrer
                 </button>
-                @if(request()->has('year') || request()->has('month'))
-                    <a href="{{ route('student.finance.receipts') }}" class="btn btn-secondary btn-sm mb-2 ml-2">
+                <?php if(request()->has('year') || request()->has('month')): ?>
+                    <a href="<?php echo e(route('student.finance.receipts')); ?>" class="btn btn-secondary btn-sm mb-2 ml-2">
                         <i class="fas fa-times"></i> Réinitialiser
                     </a>
-                @endif
+                <?php endif; ?>
             </form>
         </div>
     </div>
@@ -62,7 +62,7 @@
     <!-- Reçus -->
     <div class="card">
         <div class="card-header header-elements-inline bg-white">
-            <h5 class="card-title"><i class="icon-list mr-2"></i>Historique des Reçus ({{ $receipts->total() }})</h5>
+            <h5 class="card-title"><i class="icon-list mr-2"></i>Historique des Reçus (<?php echo e($receipts->total()); ?>)</h5>
             <div class="header-elements">
                 <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#printModal">
                     <i class="icon-printer mr-1"></i> Imprimer
@@ -70,7 +70,7 @@
             </div>
         </div>
         <div class="card-body">
-            @if($receipts->count() > 0)
+            <?php if($receipts->count() > 0): ?>
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="bg-light">
@@ -85,48 +85,48 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($receipts as $receipt)
+                            <?php $__currentLoopData = $receipts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $receipt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <i class="icon-calendar22 text-muted mr-2"></i>
                                         <div>
-                                            <div class="font-weight-semibold">{{ $receipt->created_at->format('d/m/Y') }}</div>
-                                            <small class="text-muted">{{ $receipt->created_at->format('H:i') }}</small>
+                                            <div class="font-weight-semibold"><?php echo e($receipt->created_at->format('d/m/Y')); ?></div>
+                                            <small class="text-muted"><?php echo e($receipt->created_at->format('H:i')); ?></small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <code class="bg-light px-2 py-1 rounded">{{ $receipt->ref_no }}</code>
+                                    <code class="bg-light px-2 py-1 rounded"><?php echo e($receipt->ref_no); ?></code>
                                 </td>
                                 <td>
-                                    <div class="font-weight-semibold text-dark">{{ $receipt->paymentRecord->payment->title ?? 'N/A' }}</div>
-                                    <small class="text-muted">Année: {{ $receipt->paymentRecord->year ?? 'N/A' }}</small>
+                                    <div class="font-weight-semibold text-dark"><?php echo e($receipt->paymentRecord->payment->title ?? 'N/A'); ?></div>
+                                    <small class="text-muted">Année: <?php echo e($receipt->paymentRecord->year ?? 'N/A'); ?></small>
                                 </td>
                                 <td class="text-right">
-                                    <div class="font-weight-bold text-success">{{ number_format($receipt->amt_paid, 0, ',', ' ') }} $</div>
+                                    <div class="font-weight-bold text-success"><?php echo e(number_format($receipt->amt_paid, 0, ',', ' ')); ?> $</div>
                                     <small class="text-muted">Versé</small>
                                 </td>
                                 <td class="text-right">
-                                    <div class="font-weight-bold text-{{ $receipt->balance > 0 ? 'warning' : 'success' }}">
-                                        {{ number_format($receipt->balance, 0, ',', ' ') }} $
+                                    <div class="font-weight-bold text-<?php echo e($receipt->balance > 0 ? 'warning' : 'success'); ?>">
+                                        <?php echo e(number_format($receipt->balance, 0, ',', ' ')); ?> $
                                     </div>
-                                    <small class="text-muted">{{ $receipt->balance > 0 ? 'Reste dû' : 'Soldé' }}</small>
+                                    <small class="text-muted"><?php echo e($receipt->balance > 0 ? 'Reste dû' : 'Soldé'); ?></small>
                                 </td>
                                 <td class="text-center">
-                                    @if($receipt->balance == 0)
+                                    <?php if($receipt->balance == 0): ?>
                                         <span class="badge badge-success badge-pill">
                                             <i class="icon-checkmark-circle mr-1"></i>Soldé
                                         </span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="badge badge-warning badge-pill">
                                             <i class="icon-hourglass mr-1"></i>Partiel
                                         </span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('student.finance.receipt', $receipt->id) }}" 
+                                        <a href="<?php echo e(route('student.finance.receipt', $receipt->id)); ?>" 
                                            class="btn btn-sm btn-info" 
                                            target="_blank"
                                            title="Voir le reçu">
@@ -134,11 +134,11 @@
                                         </a>
                                         <button type="button" 
                                                 class="btn btn-sm btn-primary print-receipt"
-                                                data-id="{{ $receipt->id }}"
+                                                data-id="<?php echo e($receipt->id); ?>"
                                                 title="Imprimer">
                                             <i class="icon-printer"></i>
                                         </button>
-                                        <a href="{{ route('student.finance.receipt.download', $receipt->id) }}" 
+                                        <a href="<?php echo e(route('student.finance.receipt.download', $receipt->id)); ?>" 
                                            class="btn btn-sm btn-success"
                                            title="Télécharger PDF">
                                             <i class="icon-download"></i>
@@ -146,22 +146,23 @@
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
                 
                 <!-- Pagination -->
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $receipts->appends(request()->query())->links() }}
+                    <?php echo e($receipts->appends(request()->query())->links()); ?>
+
                 </div>
-            @else
+            <?php else: ?>
                 <div class="text-center py-5">
                     <i class="fas fa-receipt fa-4x text-gray-300 mb-4"></i>
                     <h5 class="text-gray-500">Aucun reçu trouvé</h5>
                     <p class="text-muted">Vous n'avez pas encore de reçus de paiement.</p>
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -245,9 +246,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('css')
+<?php $__env->startPush('css'); ?>
 <style>
     /* Header Styles */
     .bg-primary-400 {
@@ -364,12 +365,12 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('js')
+<?php $__env->startPush('js'); ?>
 <!-- Page level plugins -->
-<script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="<?php echo e(asset('vendor/datatables/jquery.dataTables.min.js')); ?>"></script>
+<script src="<?php echo e(asset('vendor/datatables/dataTables.bootstrap4.min.js')); ?>"></script>
 
 <!-- Page level custom scripts -->
 <script>
@@ -390,7 +391,7 @@
             let startDate = $('#startDate').val();
             let endDate = $('#endDate').val();
             
-            let url = "{{ route('student.finance.receipts.print') }}?print=1";
+            let url = "<?php echo e(route('student.finance.receipts.print')); ?>?print=1";
             
             if (range === 'custom' && startDate && endDate) {
                 url += `&start_date=${startDate}&end_date=${endDate}`;
@@ -409,7 +410,7 @@
         // Print individual receipt
         $('.print-receipt').on('click', function() {
             let receiptId = $(this).data('id');
-            let url = `{{ url('student/finance/receipt') }}/${receiptId}?print=1`;
+            let url = `<?php echo e(url('student/finance/receipt')); ?>/${receiptId}?print=1`;
             
             // Open in new window for printing
             let printWindow = window.open(url, '_blank');
@@ -425,14 +426,16 @@
         });
 
         // Success message on print
-        @if(session('print_success'))
+        <?php if(session('print_success')): ?>
             Swal.fire({
                 icon: 'success',
                 title: 'Succès',
-                text: '{{ session('print_success') }}',
+                text: '<?php echo e(session('print_success')); ?>',
                 timer: 3000
             });
-        @endif
+        <?php endif; ?>
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/student/finance/receipts.blade.php ENDPATH**/ ?>

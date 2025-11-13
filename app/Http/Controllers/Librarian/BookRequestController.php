@@ -176,7 +176,7 @@ class BookRequestController extends Controller
             $daysLate = now()->diffInDays($bookRequest->expected_return_date);
             // Note: Les colonnes penalty_amount et days_late n'existent pas dans la table
             // On peut ajouter l'info dans remarks
-            $penaltyInfo = "Retard: {$daysLate} jour(s). Pénalité: " . ($daysLate * 100) . " FCFA";
+            $penaltyInfo = "Retard: {$daysLate} jour(s). Pénalité: " . ($daysLate * 100) . " $";
             $bookRequest->update([
                 'remarks' => ($bookRequest->remarks ? $bookRequest->remarks . ' | ' : '') . $penaltyInfo,
             ]);

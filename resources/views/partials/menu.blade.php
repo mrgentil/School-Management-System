@@ -51,97 +51,6 @@
                     </a>
                 </li>
 
-                @if(Qs::userIsStudent())
-                    <!-- Bibliothèque -->
-                    <li class="nav-item {{ in_array(Route::currentRouteName(), ['student.library.index', 'student.library.show', 'student.library.search']) ? 'nav-item-expanded nav-item-open' : '' }}">
-                        <a href="#" class="nav-link">
-                            <i class="icon-library2"></i>
-                            <span>Bibliothèque</span>
-                        </a>
-                        <ul class="nav nav-group-sub" data-submenu-title="Gestion de la bibliothèque">
-                            <li class="nav-item">
-                                <a href="{{ route('student.library.index') }}" class="nav-link {{ Route::is('student.library.index') ? 'active' : '' }}">
-                                    <i class="icon-books"></i> Catalogue des livres
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('student.library.search') }}" class="nav-link {{ Route::is('student.library.search') ? 'active' : '' }}">
-                                    <i class="icon-search4"></i> Rechercher un livre
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <!-- Finance -->
-                    <li class="nav-item {{ in_array(Route::currentRouteName(), ['student.finance.dashboard', 'student.finance.payments', 'student.finance.receipts', 'student.finance.receipt']) ? 'nav-item-expanded nav-item-open' : '' }}">
-                        <a href="#" class="nav-link">
-                            <i class="icon-coin-dollar"></i>
-                            <span>Finance</span>
-                        </a>
-                        <ul class="nav nav-group-sub" data-submenu-title="Gestion financière">
-                            <li class="nav-item">
-                                <a href="{{ route('student.finance.dashboard') }}" class="nav-link {{ Route::is('student.finance.dashboard') ? 'active' : '' }}">
-                                    <i class="icon-graph"></i> Tableau de bord
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('student.finance.payments') }}" class="nav-link {{ Route::is('student.finance.payments') ? 'active' : '' }}">
-                                    <i class="icon-credit-card"></i> Mes paiements
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('student.finance.receipts') }}" class="nav-link {{ Route::is('student.finance.receipts') ? 'active' : '' }}">
-                                    <i class="icon-receipt"></i> Mes reçus
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <!-- Matériel pédagogique -->
-                    <li class="nav-item">
-                        <a href="{{ route('student.materials.index') }}" class="nav-link {{ Route::is('student.materials.*') ? 'active' : '' }}">
-                            <i class="icon-books"></i>
-                            <span>Matériel pédagogique</span>
-                        </a>
-                    </li>
-
-                    <!-- Présences -->
-                    <li class="nav-item {{ in_array(Route::currentRouteName(), ['student.attendance.index', 'student.attendance.calendar']) ? 'nav-item-expanded nav-item-open' : '' }}">
-                        <a href="#" class="nav-link">
-                            <i class="icon-calendar3"></i>
-                            <span>Présences</span>
-                        </a>
-                        <ul class="nav nav-group-sub" data-submenu-title="Gestion des présences">
-                            <li class="nav-item">
-                                <a href="{{ route('student.attendance.index') }}" class="nav-link {{ Route::is('student.attendance.index') ? 'active' : '' }}">
-                                    <i class="icon-list"></i> Liste des présences
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('student.attendance.calendar') }}" class="nav-link {{ Route::is('student.attendance.calendar') ? 'active' : '' }}">
-                                    <i class="icon-calendar52"></i> Calendrier
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <!-- Devoirs -->
-                    <li class="nav-item">
-                        <a href="{{ route('student.assignments.index') }}" class="nav-link {{ Route::is('student.assignments.*') ? 'active' : '' }}">
-                            <i class="icon-book2"></i>
-                            <span>Devoirs</span>
-                        </a>
-                    </li>
-
-                    <!-- Messagerie -->
-                    <li class="nav-item">
-                        <a href="{{ route('student.messages.index') }}" class="nav-link {{ Route::is('student.messages.*') ? 'active' : '' }}">
-                            <i class="icon-bubbles4"></i>
-                            <span>Messagerie</span>
-                        </a>
-                    </li>
-                @endif
-
                 {{--Academics--}}
                 @if(Qs::userIsAcademic())
                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage']) ? 'nav-item-expanded nav-item-open' : '' }} ">
@@ -305,10 +214,12 @@
 
                 @include('pages.'.Qs::getUserType().'.menu')
 
-                {{--Manage Account--}}
+                {{--Manage Account (pour non-étudiants)--}}
+                @if(!Qs::userIsStudent())
                 <li class="nav-item">
                     <a href="{{ route('my_account') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['my_account']) ? 'active' : '' }}"><i class="icon-user"></i> <span>Mon compte</span></a>
                 </li>
+                @endif
 
                 </ul>
             </div>

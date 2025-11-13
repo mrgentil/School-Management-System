@@ -42,14 +42,25 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
     // Finance
     Route::group(['prefix' => 'finance', 'as' => 'finance.'], function() {
         Route::get('/', [StudentFinanceController::class, 'dashboard'])->name('dashboard');
+        
+        // Payments
         Route::get('/payments', [StudentFinanceController::class, 'payments'])->name('payments');
         Route::get('/payments/print', [StudentFinanceController::class, 'printPayments'])->name('payments.print');
-        Route::get('/receipts', [StudentFinanceController::class, 'receipts'])->name('receipts');
+        
+        // TEST ROUTE
+        Route::get('/test', function() {
+            return 'TEST ROUTE WORKS!';
+        });
+        
+        // Receipts - routes spécifiques en premier
         Route::get('/receipts/print', [StudentFinanceController::class, 'printReceipts'])->name('receipts.print');
         Route::get('/receipts/download-all', [StudentFinanceController::class, 'downloadAllReceipts'])->name('receipts.download_all');
-        Route::get('/receipt/{id}', [StudentFinanceController::class, 'showReceipt'])->name('receipt');
-        Route::get('/receipt/{id}/download', [StudentFinanceController::class, 'downloadReceipt'])->name('receipt.download');
-        Route::get('/receipt/{id}/print', [StudentFinanceController::class, 'printReceipt'])->name('receipt.print');
+        Route::get('/receipts', [StudentFinanceController::class, 'receipts'])->name('receipts');
+        
+        // Single receipt - routes avec paramètres en dernier
+        Route::get('/receipt/{id}/download', [StudentFinanceController::class, 'downloadReceipt'])->name('receipt.download')->where('id', '[0-9]+');
+        Route::get('/receipt/{id}/print', [StudentFinanceController::class, 'printReceipt'])->name('receipt.print')->where('id', '[0-9]+');
+        Route::get('/receipt/{id}', [StudentFinanceController::class, 'showReceipt'])->name('receipt')->where('id', '[0-9]+');
     });
 
     // Matériel pédagogique

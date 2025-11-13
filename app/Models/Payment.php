@@ -12,4 +12,9 @@ class Payment extends Eloquent
     {
         return $this->belongsTo(MyClass::class);
     }
+
+    public function paymentRecords()
+    {
+        return $this->hasMany(PaymentRecord::class);
+    }
 }

@@ -1,10 +1,8 @@
-@extends('layouts.master')
+<?php $__env->startSection('page_title', 'Reçu de Paiement #' . $receipt->id); ?>
 
-@section('page_title', 'Reçu de Paiement #' . $receipt->id)
+<?php $__env->startSection('content'); ?>
 
-@section('content')
-
-@if(isset($autoPrint) && $autoPrint)
+<?php if(isset($autoPrint) && $autoPrint): ?>
 <script>
     // Déclencher l'impression automatiquement
     window.onload = function() {
@@ -13,19 +11,19 @@
         }, 500);
     };
 </script>
-@endif
+<?php endif; ?>
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Reçu de Paiement</h1>
         <div class="d-none d-sm-inline-block">
-            <a href="{{ route('student.finance.receipts') }}" class="btn btn-sm btn-secondary shadow-sm">
+            <a href="<?php echo e(route('student.finance.receipts')); ?>" class="btn btn-sm btn-secondary shadow-sm">
                 <i class="fas fa-arrow-left fa-sm text-white-50"></i> Retour à la liste
             </a>
-            <a href="{{ route('student.finance.receipt.download', $receipt->id) }}" class="btn btn-sm btn-primary shadow-sm">
+            <a href="<?php echo e(route('student.finance.receipt.download', $receipt->id)); ?>" class="btn btn-sm btn-primary shadow-sm">
                 <i class="fas fa-download fa-sm text-white-50"></i> Télécharger
             </a>
-            <a href="{{ route('student.finance.receipt.print', $receipt->id) }}" class="btn btn-sm btn-success shadow-sm" target="_blank">
+            <a href="<?php echo e(route('student.finance.receipt.print', $receipt->id)); ?>" class="btn btn-sm btn-success shadow-sm" target="_blank">
                 <i class="fas fa-print fa-sm text-white-50"></i> Imprimer
             </a>
         </div>
@@ -36,14 +34,16 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-receipt"></i> Reçu #{{ $receipt->ref_no }}
+                        <i class="fas fa-receipt"></i> Reçu #<?php echo e($receipt->ref_no); ?>
+
                     </h6>
-                    <span class="badge badge-{{ $receipt->status == 'approved' ? 'success' : ($receipt->status == 'pending' ? 'warning' : 'danger') }}">
-                        {{ ucfirst($receipt->status) }}
+                    <span class="badge badge-<?php echo e($receipt->status == 'approved' ? 'success' : ($receipt->status == 'pending' ? 'warning' : 'danger')); ?>">
+                        <?php echo e(ucfirst($receipt->status)); ?>
+
                     </span>
                 </div>
                 <div class="card-body">
-                    @include('pages.student.finance.partials.receipt_details')
+                    <?php echo $__env->make('pages.student.finance.partials.receipt_details', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                     
                     <div class="row mt-4">
                         <div class="col-12">
@@ -60,15 +60,15 @@
                     </div>
                 </div>
                 <div class="card-footer text-muted text-center">
-                    <small>Reçu généré le {{ $receipt->created_at->format('d/m/Y à H:i') }} par {{ config('app.name') }}</small>
+                    <small>Reçu généré le <?php echo e($receipt->created_at->format('d/m/Y à H:i')); ?> par <?php echo e(config('app.name')); ?></small>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('css')
+<?php $__env->startPush('css'); ?>
 <style>
     .receipt-details .card {
         border: none;
@@ -88,4 +88,6 @@
         border-left: 4px solid #4e73df;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/student/finance/receipt_show.blade.php ENDPATH**/ ?>

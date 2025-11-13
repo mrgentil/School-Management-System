@@ -39,9 +39,9 @@ class Student extends Model
         return $this->hasManyThrough(
             \App\Models\Receipt::class,
             \App\Models\PaymentRecord::class,
-            'student_id', // Clé étrangère sur payment_records
+            'student_id', // Clé étrangère sur payment_records (student_id = user_id)
             'pr_id',     // Clé étrangère sur receipts
-            'id',        // Clé locale sur students
+            'user_id',   // Clé locale sur students
             'id'         // Clé locale sur payment_records
         );
     }

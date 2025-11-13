@@ -151,15 +151,15 @@
                 </tr>
                 <tr>
                     <th>Montant Total</th>
-                    <td>{{ number_format($receipt->paymentRecord->payment->amount ?? 0, 0, ',', ' ') }} FCFA</td>
+                    <td>{{ number_format($receipt->paymentRecord->payment->amount ?? 0, 0, ',', ' ') }} $</td>
                 </tr>
                 <tr>
                     <th>Montant Payé</th>
-                    <td class="total-amount">{{ number_format($receipt->amt_paid, 0, ',', ' ') }} FCFA</td>
+                    <td class="total-amount">{{ number_format($receipt->amt_paid, 0, ',', ' ') }} $</td>
                 </tr>
                 <tr>
                     <th>Reste à Payer</th>
-                    <td>{{ number_format(($receipt->paymentRecord->payment->amount ?? 0) - $receipt->paymentRecord->amt_paid, 0, ',', ' ') }} FCFA</td>
+                    <td>{{ number_format(($receipt->paymentRecord->payment->amount ?? 0) - $receipt->paymentRecord->amt_paid, 0, ',', ' ') }} $</td>
                 </tr>
                 <tr>
                     <th>Méthode de Paiement</th>

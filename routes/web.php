@@ -217,6 +217,16 @@ Route::group(['middleware' => 'my_parent'], function(){
 
 });
 
+    /*************** Accountant *****************/
+Route::group(['middleware' => 'accountant', 'prefix' => 'accountant', 'as' => 'accountant.'], function(){
+
+    // Dashboard
+    Route::get('/dashboard', function() {
+        return view('pages.accountant.dashboard');
+    })->name('dashboard');
+
+});
+
     /*************** Librarian *****************/
 Route::group(['middleware' => 'librarian', 'prefix' => 'librarian', 'as' => 'librarian.'], function(){
 

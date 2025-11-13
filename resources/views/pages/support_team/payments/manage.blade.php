@@ -64,7 +64,7 @@
                                     </a>
                             <div class="dropdown-menu dropdown-menu-left">
                                 <a href="{{ route('payments.invoice', [Qs::hash($s->user_id)]) }}" class="dropdown-item">All Payments</a>
-                                @foreach(Pay::getYears($s->user_id) as $py)
+                                @foreach(\App\Helpers\Pay::getYears($s->user_id) as $py)
                                 @if($py)
                                     <a href="{{ route('payments.invoice', [Qs::hash($s->user_id), $py]) }}" class="dropdown-item">{{ $py }}</a>
                                 @endif

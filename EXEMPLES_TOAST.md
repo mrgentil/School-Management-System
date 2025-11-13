@@ -120,7 +120,7 @@ public function processPayment(Request $request)
     $payment = Payment::create($request->validated());
     
     return Toast::popSuccess(
-        'Paiement de ' . $payment->amount . ' FCFA enregistré!',
+        'Paiement de ' . $payment->amount . ' $ enregistré!',
         'Paiement Confirmé'
     );
 }
@@ -132,7 +132,7 @@ public function partialPayment(Request $request)
 {
     // Logique...
     
-    return Toast::warning('Paiement partiel enregistré. Reste à payer: ' . $balance . ' FCFA');
+    return Toast::warning('Paiement partiel enregistré. Reste à payer: ' . $balance . ' $');
 }
 ```
 
@@ -141,7 +141,7 @@ public function partialPayment(Request $request)
 public function processPayment(Request $request)
 {
     if ($request->amount < $minimumAmount) {
-        return Toast::error('Le montant minimum est de ' . $minimumAmount . ' FCFA');
+        return Toast::error('Le montant minimum est de ' . $minimumAmount . ' $');
     }
     
     // Suite...
@@ -205,7 +205,7 @@ public function returnBook($bookId)
     $book = Book::findOrFail($bookId);
     
     if ($book->isOverdue()) {
-        return Toast::warning('Livre en retard! Pénalité: ' . $book->penalty . ' FCFA');
+        return Toast::warning('Livre en retard! Pénalité: ' . $book->penalty . ' $');
     }
     
     $book->return();

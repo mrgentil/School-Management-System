@@ -184,7 +184,7 @@ ilisateur <!DOCTYPE html>
                 <td>{{ $receipt->created_at->format('d/m/Y H:i') }}</td>
                 <td>{{ $receipt->ref_no }}</td>
                 <td>{{ $receipt->paymentRecord->payment->title ?? 'N/A' }}</td>
-                <td class="text-right">{{ number_format($receipt->amt_paid, 0, ',', ' ') }} FCFA</td>
+                <td class="text-right">{{ number_format($receipt->amt_paid, 0, ',', ' ') }} $</td>
                 <td>{{ ucfirst($receipt->payment_method) }}</td>
                 <td class="text-center">
                     @if($receipt->status == 'approved')
@@ -208,7 +208,7 @@ ilisateur <!DOCTYPE html>
         <tfoot>
             <tr style="font-weight: bold; background-color: #f9f9f9;">
                 <td colspan="3" class="text-right">TOTAUX:</td>
-                <td class="text-right">{{ number_format($receipts->sum('amt_paid'), 0, ',', ' ') }} FCFA</td>
+                <td class="text-right">{{ number_format($receipts->sum('amt_paid'), 0, ',', ' ') }} $</td>
                 <td colspan="2" class="text-center">-</td>
             </tr>
         </tfoot>

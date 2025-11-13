@@ -8,7 +8,7 @@
         <div class="card card-body bg-success-400 has-bg-image">
             <div class="media">
                 <div class="media-body">
-                    <h3 class="mb-0">{{ number_format(\App\Models\PaymentRecord::sum('amount_paid'), 0, ',', ' ') }} FCFA</h3>
+                    <h3 class="mb-0">{{ number_format(\App\Models\PaymentRecord::sum('amt_paid'), 0, ',', ' ') }} $</h3>
                     <span class="text-uppercase font-size-xs font-weight-bold">Total Encaissé</span>
                 </div>
                 <div class="ml-3 align-self-center">
@@ -22,7 +22,7 @@
         <div class="card card-body bg-warning-400 has-bg-image">
             <div class="media">
                 <div class="media-body">
-                    <h3 class="mb-0">{{ number_format(\App\Models\Payment::sum('amount') - \App\Models\PaymentRecord::sum('amount_paid'), 0, ',', ' ') }} FCFA</h3>
+                    <h3 class="mb-0">{{ number_format(\App\Models\Payment::sum('amount') - \App\Models\PaymentRecord::sum('amt_paid'), 0, ',', ' ') }} $</h3>
                     <span class="text-uppercase font-size-xs">Montant Dû</span>
                 </div>
                 <div class="ml-3 align-self-center">
@@ -50,7 +50,7 @@
         <div class="card card-body bg-danger-400 has-bg-image">
             <div class="media">
                 <div class="media-body">
-                    <h3 class="mb-0">{{ \App\Models\Payment::whereHas('pr', function($q) { $q->where('balance', '>', 0); })->count() }}</h3>
+                    <h3 class="mb-0">{{ \App\Models\PaymentRecord::where('balance', '>', 0)->count() }}</h3>
                     <span class="text-uppercase font-size-xs">Comptes en Retard</span>
                 </div>
                 <div class="ml-3 align-self-center">
@@ -85,11 +85,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(\App\Models\PaymentRecord::with(['payment', 'student.user'])->latest()->take(8)->get() as $record)
+                            @forelse(\App\Models\PaymentRecord::with(['payment', 'student'])->latest()->take(8)->get() as $record)
                             <tr>
-                                <td>{{ $record->student->user->name }}</td>
-                                <td>{{ $record->payment->title }}</td>
-                                <td>{{ number_format($record->amount_paid, 0, ',', ' ') }} FCFA</td>
+                                <td>{{ $record->student->name ?? 'N/A' }}</td>
+                                <td>{{ $record->payment->title ?? 'N/A' }}</td>
+                                <td>{{ number_format($record->amt_paid, 0, ',', ' ') }} $</td>
                                 <td>{{ $record->created_at->format('d/m/Y') }}</td>
                                 <td>
                                     <span class="badge badge-{{ $record->balance > 0 ? 'warning' : 'success' }}">
@@ -97,9 +97,13 @@
                                     </span>
                                 </td>
                                 <td>
+                                    @if(Qs::userIsTeamAccount())
                                     <a href="{{ route('payments.receipts', $record->id) }}" class="btn btn-sm btn-outline-primary">
-                                        Reçu
+                                        <i class="icon-file-text2 mr-1"></i> Reçu
                                     </a>
+                                    @else
+                                    <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -122,8 +126,9 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
+                    @if(Qs::userIsTeamAccount())
                     <a href="{{ route('payments.create') }}" class="list-group-item list-group-item-action">
-                        <i class="icon-plus2 mr-3"></i>Nouveau Paiement
+                        <i class="icon-plus2 mr-3"></i>Nouveau Type de Paiement
                     </a>
                     <a href="{{ route('payments.manage') }}" class="list-group-item list-group-item-action">
                         <i class="icon-cash mr-3"></i>Enregistrer Paiement
@@ -131,9 +136,12 @@
                     <a href="{{ route('payments.index') }}" class="list-group-item list-group-item-action">
                         <i class="icon-list mr-3"></i>Gérer les Paiements
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action" onclick="generateReport()">
-                        <i class="icon-file-stats mr-3"></i>Rapport Financier
-                    </a>
+                    @else
+                    <div class="alert alert-info">
+                        <i class="icon-info22 mr-2"></i>
+                        Accès limité. Contactez l'administrateur.
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -155,9 +163,7 @@
             </div>
             <div class="card-body">
                 @php
-                    $overduePayments = \App\Models\Payment::whereHas('pr', function($q) { 
-                        $q->where('balance', '>', 0); 
-                    })->count();
+                    $overduePayments = \App\Models\PaymentRecord::where('balance', '>', 0)->count();
                 @endphp
                 
                 @if($overduePayments > 0)
@@ -196,17 +202,27 @@
 <script>
 // Graphique des paiements mensuels
 const ctx = document.getElementById('paymentsChart').getContext('2d');
+
+@php
+    $monthlyData = \App\Models\PaymentRecord::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+    
+    $chartData = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $chartData[] = $monthlyData[$i] ?? 0;
+    }
+@endphp
+
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
         datasets: [{
             label: 'Paiements',
-            data: @json(array_values(\App\Models\PaymentRecord::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-                ->whereYear('created_at', date('Y'))
-                ->groupBy('month')
-                ->pluck('count', 'month')
-                ->toArray())),
+            data: @json($chartData),
             borderColor: '#26a69a',
             backgroundColor: 'rgba(38, 166, 154, 0.1)',
             tension: 0.4

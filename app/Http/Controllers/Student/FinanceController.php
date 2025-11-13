@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Finance\Payment;
-use App\Models\Finance\Receipt;
+use App\Models\Payment;
+use App\Models\PaymentRecord;
+use App\Models\Receipt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -36,8 +37,8 @@ class FinanceController extends Controller
             }
 
             // Récupérer les années disponibles pour le filtre
-            $years = \App\Models\PaymentRecord::selectRaw('YEAR(created_at) as year')
-                ->where('student_id', $student->id)
+            $years = \App\Models\PaymentRecord::selectRaw('year')
+                ->where('student_id', $user->id)
                 ->distinct()
                 ->orderBy('year', 'desc')
                 ->pluck('year');
@@ -52,13 +53,13 @@ class FinanceController extends Controller
             $selected_status = $request->input('status');
 
             // Construire la requête des paiements
-            $query = $student->paymentRecords()
+            $query = \App\Models\PaymentRecord::where('student_id', $user->id)
                 ->with('payment')
                 ->orderBy('created_at', 'desc');
 
             // Appliquer les filtres
             if ($selected_year) {
-                $query->whereYear('created_at', $selected_year);
+                $query->where('year', $selected_year);
             }
 
             if ($selected_status) {
@@ -106,14 +107,12 @@ class FinanceController extends Controller
 
     public function receipts(Request $request)
     {
-        $student = auth()->user()->student;
+        $userId = auth()->id();
         
-        if (!$student) {
-            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
-        }
-
-        // Récupérer les années disponibles depuis les reçus
-        $years = \App\Models\Receipt::selectRaw('YEAR(created_at) as year')
+        // Récupérer les années disponibles depuis les reçus de cet étudiant
+        $years = \App\Models\Receipt::join('payment_records', 'receipts.pr_id', '=', 'payment_records.id')
+            ->where('payment_records.student_id', $userId)
+            ->selectRaw('YEAR(receipts.created_at) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
@@ -123,10 +122,12 @@ class FinanceController extends Controller
             $years = collect([date('Y')]);
         }
 
-        // Filtrer par année si spécifié
-        $query = $student->receipts()
-            ->with('payment')
-            ->orderBy('created_at', 'desc');
+        // Construire la requête des reçus
+        $query = \App\Models\Receipt::join('payment_records', 'receipts.pr_id', '=', 'payment_records.id')
+            ->where('payment_records.student_id', $userId)
+            ->with(['paymentRecord.payment'])
+            ->select('receipts.*')
+            ->orderBy('receipts.created_at', 'desc');
 
         if ($request->has('year') && $request->year != '') {
             $query->whereYear('receipts.created_at', $request->year);
@@ -146,63 +147,83 @@ class FinanceController extends Controller
         ]);
     }
 
-    public function showReceipt($id)
+    public function showReceipt($id = null)
     {
-        $student = auth()->user()->student;
-        
-        if (!$student) {
-            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+        // Si l'ID est vide, le récupérer depuis l'URL directement
+        if (empty($id)) {
+            $segments = request()->segments();
+            $id = end($segments); // Dernier segment de l'URL
         }
+        
+        $userId = auth()->id();
+        
+        // Récupérer le reçu en vérifiant qu'il appartient bien à l'étudiant
+        $receipt = \App\Models\Receipt::join('payment_records', 'receipts.pr_id', '=', 'payment_records.id')
+            ->where('payment_records.student_id', $userId)
+            ->where('receipts.id', $id)
+            ->with('paymentRecord.payment')
+            ->select('receipts.*')
+            ->firstOrFail();
 
-        $receipt = $student->receipts()
-            ->with('payment')
-            ->findOrFail($id);
-
-        return view('pages.student.finance.show_receipt', compact('receipt'));
+        return view('pages.student.finance.receipt_show', compact('receipt'));
     }
 
     /**
      * Télécharger un reçu en PDF
      */
-    public function downloadReceipt($id)
+    public function downloadReceipt($id = null)
     {
-        $student = auth()->user()->student;
-        
-        if (!$student) {
-            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+        // Si l'ID est vide, le récupérer depuis l'URL
+        if (empty($id)) {
+            $segments = request()->segments();
+            // L'ID est l'avant-dernier segment (avant "download")
+            $id = $segments[count($segments) - 2];
         }
-
-        $receipt = $student->receipts()
-            ->with(['payment', 'student.user'])
-            ->findOrFail($id);
-
-        // Générer le PDF
-        $pdf = \PDF::loadView('pages.student.finance.receipt_pdf', compact('receipt'));
         
-        // Nom du fichier
-        $filename = 'recu_' . $receipt->id . '_' . date('Y-m-d') . '.pdf';
+        $userId = auth()->id();
         
-        // Télécharger le PDF
-        return $pdf->download($filename);
+        // Récupérer le reçu
+        $receipt = \App\Models\Receipt::join('payment_records', 'receipts.pr_id', '=', 'payment_records.id')
+            ->where('payment_records.student_id', $userId)
+            ->where('receipts.id', $id)
+            ->with('paymentRecord.payment')
+            ->select('receipts.*')
+            ->firstOrFail();
+
+        $student = auth()->user()->student;
+        $autoPrint = true;
+
+        // Retourner la vue d'impression directement
+        // L'utilisateur peut ensuite faire Ctrl+P et "Enregistrer au format PDF"
+        return view('pages.student.finance.receipt_show', compact('receipt', 'student', 'autoPrint'));
     }
 
     /**
      * Imprimer un reçu
      */
-    public function printReceipt($id)
+    public function printReceipt($id = null)
     {
-        $student = auth()->user()->student;
-        
-        if (!$student) {
-            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+        // Si l'ID est vide, le récupérer depuis l'URL
+        if (empty($id)) {
+            $segments = request()->segments();
+            // L'ID est l'avant-dernier segment (avant "print")
+            $id = $segments[count($segments) - 2];
         }
+        
+        $userId = auth()->id();
+        
+        // Récupérer le reçu
+        $receipt = \App\Models\Receipt::join('payment_records', 'receipts.pr_id', '=', 'payment_records.id')
+            ->where('payment_records.student_id', $userId)
+            ->where('receipts.id', $id)
+            ->with('paymentRecord.payment')
+            ->select('receipts.*')
+            ->firstOrFail();
 
-        $receipt = $student->receipts()
-            ->with(['payment', 'student.user'])
-            ->findOrFail($id);
+        $student = auth()->user()->student;
 
         // Afficher la vue d'impression
-        return view('pages.student.finance.receipt_print', compact('receipt'));
+        return view('pages.student.finance.receipt_show', compact('receipt', 'student'));
     }
 
     /**

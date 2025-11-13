@@ -14,4 +14,10 @@ class Receipt extends Eloquent
         return $this->belongsTo(PaymentRecord::class, 'pr_id');
     }
 
+    // Alias pour pr()
+    public function paymentRecord()
+    {
+        return $this->belongsTo(PaymentRecord::class, 'pr_id');
+    }
+
 }

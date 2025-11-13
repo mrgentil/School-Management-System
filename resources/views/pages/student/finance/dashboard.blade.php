@@ -20,7 +20,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Total Dû</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($total_due, 0, ',', ' ') }} FCFA</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($total_due, 0, ',', ' ') }} $</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -38,7 +38,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Total Payé</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($total_paid, 0, ',', ' ') }} FCFA</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($total_paid, 0, ',', ' ') }} $</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -56,7 +56,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Solde Restant</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($total_balance, 0, ',', ' ') }} FCFA</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($total_balance, 0, ',', ' ') }} $</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-comments fa-2x text-gray-300"></i>
@@ -110,7 +110,7 @@
                                 <tr>
                                     <td>{{ $payment->created_at->format('d/m/Y') }}</td>
                                     <td>{{ $payment->payment->title }}</td>
-                                    <td class="text-right">{{ number_format($payment->amt_paid, 0, ',', ' ') }} FCFA</td>
+                                    <td class="text-right">{{ number_format($payment->amt_paid, 0, ',', ' ') }} $</td>
                                     <td>
                                         @if($payment->balance == 0)
                                             <span class="badge badge-success">Payé</span>
@@ -146,7 +146,7 @@
                             <div class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h6 class="mb-1">{{ $payment->payment->title }}</h6>
-                                    <small>{{ number_format($payment->balance, 0, ',', ' ') }} FCFA</small>
+                                    <small>{{ number_format($payment->balance, 0, ',', ' ') }} $</small>
                                 </div>
                                 <p class="mb-1">Échéance: {{ $payment->payment->deadline ? $payment->payment->deadline->format('d/m/Y') : 'Non définie' }}</p>
                                 <small><a href="#" class="text-primary">Payer maintenant</a></small>
@@ -193,9 +193,9 @@
                                     <td>{{ $record->created_at->format('d/m/Y') }}</td>
                                     <td>{{ $record->ref_no }}</td>
                                     <td>{{ $record->payment->title }}</td>
-                                    <td class="text-right">{{ number_format($record->payment->amount, 0, ',', ' ') }} FCFA</td>
-                                    <td class="text-right">{{ number_format($record->amt_paid, 0, ',', ' ') }} FCFA</td>
-                                    <td class="text-right">{{ number_format($record->balance, 0, ',', ' ') }} FCFA</td>
+                                    <td class="text-right">{{ number_format($record->payment->amount, 0, ',', ' ') }} $</td>
+                                    <td class="text-right">{{ number_format($record->amt_paid, 0, ',', ' ') }} $</td>
+                                    <td class="text-right">{{ number_format($record->balance, 0, ',', ' ') }} $</td>
                                     <td>
                                         @if($record->balance == 0)
                                             <span class="badge badge-success">Payé</span>
