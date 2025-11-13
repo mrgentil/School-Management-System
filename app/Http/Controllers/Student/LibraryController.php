@@ -89,17 +89,36 @@ class LibraryController extends Controller
                      ->paginate(15)
                      ->appends($request->query());
 
-        // Récupérer les demandes de l'utilisateur connecté
-        $my_requests = collect();
+        // Récupérer les demandes de l'utilisateur connecté pour déterminer le statut de chaque livre
+        $userRequests = collect();
+        $bookStatuses = collect();
+
         if (auth()->check() && auth()->user()->user_type === 'student') {
-            $my_requests = \App\Models\BookRequest::where('student_id', auth()->id())
+            $userRequests = \App\Models\BookRequest::where('student_id', auth()->id())
                 ->with('book')
                 ->orderBy('created_at', 'desc')
                 ->take(5)
                 ->get();
+
+            // Créer un mapping des statuts par livre
+            $allUserRequests = \App\Models\BookRequest::where('student_id', auth()->id())
+                ->whereIn('status', [
+                    BookRequest::STATUS_PENDING,
+                    BookRequest::STATUS_APPROVED,
+                    BookRequest::STATUS_BORROWED,
+                    BookRequest::STATUS_RETURNED
+                ])
+                ->get()
+                ->keyBy('book_id');
+
+            // Déterminer le statut pour chaque livre affiché
+            foreach ($books as $book) {
+                $status = $this->getBookStatusForUser($book, $allUserRequests->get($book->id));
+                $bookStatuses->put($book->id, $status);
+            }
         }
 
-        return view('pages.student.library.index', compact('books', 'search', 'book_type', 'my_requests'));
+        return view('pages.student.library.index', compact('books', 'search', 'book_type', 'userRequests', 'bookStatuses'));
     }
 
     public function show(Book $book)
