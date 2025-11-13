@@ -8,6 +8,7 @@ use App\Models\PaymentRecord;
 use App\Models\Receipt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class FinanceController extends Controller
 {
@@ -186,16 +187,17 @@ class FinanceController extends Controller
         $receipt = \App\Models\Receipt::join('payment_records', 'receipts.pr_id', '=', 'payment_records.id')
             ->where('payment_records.student_id', $userId)
             ->where('receipts.id', $id)
-            ->with('paymentRecord.payment')
+            ->with(['paymentRecord.payment', 'paymentRecord.student.student_record.my_class', 'paymentRecord.student.student_record.section'])
             ->select('receipts.*')
             ->firstOrFail();
 
-        $student = auth()->user()->student;
-        $autoPrint = true;
+        // Générer le nom du fichier PDF
+        $fileName = 'Recu_' . $receipt->ref_no . '_' . date('Y-m-d') . '.pdf';
 
-        // Retourner la vue d'impression directement
-        // L'utilisateur peut ensuite faire Ctrl+P et "Enregistrer au format PDF"
-        return view('pages.student.finance.receipt_show', compact('receipt', 'student', 'autoPrint'));
+        // Générer et télécharger le PDF
+        $pdf = PDF::loadView('pages.student.finance.receipt_pdf', compact('receipt'));
+        
+        return $pdf->download($fileName);
     }
 
     /**

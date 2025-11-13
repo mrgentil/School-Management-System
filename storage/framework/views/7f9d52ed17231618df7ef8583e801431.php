@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Reçu de Paiement - {{ $receipt->ref_no }}</title>
+    <title>Reçu de Paiement - <?php echo e($receipt->ref_no); ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,15 +108,15 @@
     </style>
 </head>
 <body>
-    <div class="watermark">{{ config('app.name') }}</div>
+    <div class="watermark"><?php echo e(config('app.name')); ?></div>
     
     <div class="header">
-        @if(file_exists(public_path('storage/' . config('settings.logo'))))
-            <img src="{{ public_path('storage/' . config('settings.logo')) }}" alt="Logo" class="logo">
-        @endif
+        <?php if(file_exists(public_path('storage/' . config('settings.logo')))): ?>
+            <img src="<?php echo e(public_path('storage/' . config('settings.logo'))); ?>" alt="Logo" class="logo">
+        <?php endif; ?>
         <h1>REÇU DE PAIEMENT</h1>
-        <p>Référence: {{ $receipt->paymentRecord->ref_no ?? 'REC-' . $receipt->id }}</p>
-        <p>Date: {{ $receipt->created_at->format('d/m/Y H:i') }}</p>
+        <p>Référence: <?php echo e($receipt->paymentRecord->ref_no ?? 'REC-' . $receipt->id); ?></p>
+        <p>Date: <?php echo e($receipt->created_at->format('d/m/Y H:i')); ?></p>
     </div>
 
     <div class="receipt-info">
@@ -125,19 +125,19 @@
             <table class="table">
                 <tr>
                     <th width="30%">Nom Complet</th>
-                    <td>{{ $receipt->paymentRecord->student->name ?? 'N/A' }}</td>
+                    <td><?php echo e($receipt->paymentRecord->student->name ?? 'N/A'); ?></td>
                 </tr>
                 <tr>
                     <th>Matricule</th>
-                    <td>{{ $receipt->paymentRecord->student->student_record->adm_no ?? $receipt->paymentRecord->student->username ?? $receipt->paymentRecord->student->code ?? 'N/A' }}</td>
+                    <td><?php echo e($receipt->paymentRecord->student->student_record->adm_no ?? $receipt->paymentRecord->student->username ?? $receipt->paymentRecord->student->code ?? 'N/A'); ?></td>
                 </tr>
                 <tr>
                     <th>Classe</th>
-                    <td>{{ $receipt->paymentRecord->student->student_record->my_class->name ?? 'N/A' }}</td>
+                    <td><?php echo e($receipt->paymentRecord->student->student_record->my_class->name ?? 'N/A'); ?></td>
                 </tr>
                 <tr>
                     <th>Section</th>
-                    <td>{{ $receipt->paymentRecord->student->student_record->section->name ?? 'N/A' }}</td>
+                    <td><?php echo e($receipt->paymentRecord->student->student_record->section->name ?? 'N/A'); ?></td>
                 </tr>
             </table>
         </div>
@@ -147,36 +147,36 @@
             <table class="table">
                 <tr>
                     <th width="30%">Libellé</th>
-                    <td>{{ $receipt->paymentRecord->payment->title ?? 'N/A' }}</td>
+                    <td><?php echo e($receipt->paymentRecord->payment->title ?? 'N/A'); ?></td>
                 </tr>
                 <tr>
                     <th>Montant Total</th>
-                    <td>{{ number_format($receipt->paymentRecord->payment->amount ?? 0, 0, ',', ' ') }} $</td>
+                    <td><?php echo e(number_format($receipt->paymentRecord->payment->amount ?? 0, 0, ',', ' ')); ?> $</td>
                 </tr>
                 <tr>
                     <th>Montant Payé</th>
-                    <td class="total-amount">{{ number_format($receipt->amt_paid, 0, ',', ' ') }} $</td>
+                    <td class="total-amount"><?php echo e(number_format($receipt->amt_paid, 0, ',', ' ')); ?> $</td>
                 </tr>
                 <tr>
                     <th>Reste à Payer</th>
-                    <td>{{ number_format(($receipt->paymentRecord->payment->amount ?? 0) - $receipt->paymentRecord->amt_paid, 0, ',', ' ') }} $</td>
+                    <td><?php echo e(number_format(($receipt->paymentRecord->payment->amount ?? 0) - $receipt->paymentRecord->amt_paid, 0, ',', ' ')); ?> $</td>
                 </tr>
                 <tr>
                     <th>Méthode de Paiement</th>
-                    <td>{{ ucfirst($receipt->payment_method) }}</td>
+                    <td><?php echo e(ucfirst($receipt->payment_method)); ?></td>
                 </tr>
-                @if($receipt->transaction_ref)
+                <?php if($receipt->transaction_ref): ?>
                 <tr>
                     <th>Référence de Transaction</th>
-                    <td>{{ $receipt->transaction_ref }}</td>
+                    <td><?php echo e($receipt->transaction_ref); ?></td>
                 </tr>
-                @endif
-                @if($receipt->notes)
+                <?php endif; ?>
+                <?php if($receipt->notes): ?>
                 <tr>
                     <th>Notes</th>
-                    <td>{{ $receipt->notes }}</td>
+                    <td><?php echo e($receipt->notes); ?></td>
                 </tr>
-                @endif
+                <?php endif; ?>
             </table>
         </div>
     </div>
@@ -187,9 +187,10 @@
     </div>
 
     <div class="footer">
-        <p>{{ config('app.name') }} - {{ config('app.url') }}</p>
+        <p><?php echo e(config('app.name')); ?> - <?php echo e(config('app.url')); ?></p>
         <p>Ce document est un reçu officiel. Veuillez le conserver précieusement.</p>
-        <p>Reçu généré le {{ now()->format('d/m/Y à H:i') }}</p>
+        <p>Reçu généré le <?php echo e(now()->format('d/m/Y à H:i')); ?></p>
     </div>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\eschool\resources\views/pages/student/finance/receipt_pdf.blade.php ENDPATH**/ ?>
