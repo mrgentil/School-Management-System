@@ -13,23 +13,33 @@
             <!-- Sidebar -->
             <div class="col-md-3">
                 <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action active">
+                    <a href="{{ route('student.messages.index') }}" class="list-group-item list-group-item-action active">
                         <i class="icon-envelope mr-2"></i> Boîte de réception
-                        <span class="badge badge-primary badge-pill ml-auto">0</span>
+                        @php
+                            $unreadCount = \App\Models\MessageRecipient::where('recipient_id', Auth::id())
+                                ->where('is_read', false)
+                                ->count();
+                        @endphp
+                        @if($unreadCount > 0)
+                            <span class="badge badge-primary badge-pill ml-auto">{{ $unreadCount }}</span>
+                        @endif
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action">
+                    <a href="#" class="list-group-item list-group-item-action disabled">
                         <i class="icon-paperplane mr-2"></i> Envoyés
+                        <small class="text-muted ml-2">(Bientôt)</small>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action">
+                    <a href="#" class="list-group-item list-group-item-action disabled">
                         <i class="icon-star-full2 mr-2"></i> Favoris
+                        <small class="text-muted ml-2">(Bientôt)</small>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action">
+                    <a href="#" class="list-group-item list-group-item-action disabled">
                         <i class="icon-trash mr-2"></i> Corbeille
+                        <small class="text-muted ml-2">(Bientôt)</small>
                     </a>
                 </div>
 
                 <div class="mt-3">
-                    <a href="#" class="btn btn-primary btn-block">
+                    <a href="{{ route('student.messages.create') }}" class="btn btn-primary btn-block">
                         <i class="icon-pencil7 mr-2"></i> Nouveau message
                     </a>
                 </div>

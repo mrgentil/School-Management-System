@@ -13,25 +13,27 @@ class MessageController extends Controller
 {
     public function index()
     {
-        return $this->inbox();
+        $userId = auth()->id();
+        
+        // Récupérer les messages reçus ET envoyés
+        $conversations = Message::where(function($query) use ($userId) {
+                // Messages reçus
+                $query->whereHas('recipients', function($q) use ($userId) {
+                    $q->where('recipient_id', $userId);
+                })
+                // OU messages envoyés
+                ->orWhere('sender_id', $userId);
+            })
+            ->with(['sender', 'recipients', 'attachments'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('pages.student.messages.index', compact('conversations'));
     }
     
     public function inbox()
     {
-        $userId = auth()->id();
-        
-        // Récupérer les conversations
-        $conversations = Message::select('messages.*')
-            ->join('message_recipients', function($join) use ($userId) {
-                $join->on('messages.id', '=', 'message_recipients.message_id')
-                    ->where('message_recipients.recipient_id', $userId);
-            })
-            ->with(['sender', 'recipients'])
-            ->orderBy('messages.created_at', 'desc')
-            ->groupBy('messages.id')
-            ->paginate(15);
-
-        return view('pages.student.messages.inbox', compact('conversations'));
+        return $this->index();
     }
 
     public function create()
@@ -65,6 +67,7 @@ class MessageController extends Controller
                 'sender_id' => auth()->id(),
                 'subject' => $request->subject,
                 'content' => $request->content,
+                'message' => $request->content, // Pour compatibilité avec l'ancienne colonne
             ]);
 
             // Ajouter les destinataires
@@ -80,7 +83,9 @@ class MessageController extends Controller
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     $path = $file->store('messages/attachments', 'public');
-                    $message->attachments()->create([
+                    
+                    \App\Models\MessageAttachment::create([
+                        'message_id' => $message->id,
                         'filename' => $file->getClientOriginalName(),
                         'path' => $path,
                         'mime_type' => $file->getClientMimeType(),
@@ -91,58 +96,55 @@ class MessageController extends Controller
 
             DB::commit();
             
-            return redirect()->route('student.messages.show', $message->id)
-                ->with('success', 'Message envoyé avec succès.');
+            return redirect()->route('student.messages.index')
+                ->with('success', '✅ Message envoyé avec succès !');
                 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Une erreur est survenue lors de l\'envoi du message.')->withInput();
+            \Log::error('Erreur envoi message: ' . $e->getMessage());
+            return back()->with('error', '❌ Erreur: ' . $e->getMessage())->withInput();
         }
     }
 
-    public function show($id)
+    public function show(Request $request, $id = null)
     {
-        $message = Message::with(['sender', 'recipients', 'attachments'])
-            ->where('id', $id)
-            ->where(function($query) {
-                $query->where('sender_id', auth()->id())
-                    ->orWhereHas('recipients', function($q) {
-                        $q->where('recipient_id', auth()->id());
-                    });
-            })
-            ->firstOrFail();
-
-        // Marquer le message comme lu
-        if ($message->sender_id != auth()->id()) {
-            $message->recipients()->where('recipient_id', auth()->id())->update(['is_read' => true]);
+        // Récupérer l'ID depuis l'URL si le paramètre est vide
+        if (empty($id)) {
+            $urlParts = explode('/', $request->path());
+            $id = end($urlParts);
         }
+        
+        try {
+            // Récupérer le message
+            $message = Message::with(['sender', 'recipients.recipient', 'attachments'])
+                ->findOrFail($id);
+            
+            // Vérifier l'accès
+            $hasAccess = ($message->sender_id == auth()->id()) || 
+                         $message->recipients->contains('recipient_id', auth()->id());
+            
+            if (!$hasAccess) {
+                return redirect()->route('student.messages.index')
+                    ->with('error', '❌ Vous n\'avez pas accès à ce message.');
+            }
 
-        // Récupérer la conversation complète
-        $conversation = Message::where('subject', $message->subject)
-            ->where(function($query) use ($message) {
-                $query->where('sender_id', auth()->id())
-                    ->orWhere('sender_id', $message->sender_id);
-            })
-            ->orWhereIn('id', function($query) use ($message) {
-                $query->select('message_id')
-                    ->from('message_recipients')
-                    ->whereIn('message_id', function($q) use ($message) {
-                        $q->select('id')
-                            ->from('messages')
-                            ->where('subject', $message->subject)
-                            ->where(function($q2) {
-                                $q2->where('sender_id', auth()->id())
-                                    ->orWhereHas('recipients', function($q3) {
-                                        $q3->where('recipient_id', auth()->id());
-                                    });
-                            });
-                    });
-            })
-            ->with(['sender', 'recipients', 'attachments'])
-            ->orderBy('created_at', 'asc')
-            ->get();
+            // Marquer le message comme lu
+            if ($message->sender_id != auth()->id()) {
+                MessageRecipient::where('message_id', $message->id)
+                    ->where('recipient_id', auth()->id())
+                    ->update(['is_read' => true]);
+            }
 
-        return view('pages.student.messages.show', compact('message', 'conversation'));
+            // Pour l'instant, afficher juste ce message
+            $conversation = collect([$message]);
+
+            return view('pages.student.messages.show', compact('message', 'conversation'));
+            
+        } catch (\Exception $e) {
+            \Log::error('Erreur affichage message ID=' . $id . ': ' . $e->getMessage());
+            return redirect()->route('student.messages.index')
+                ->with('error', '❌ Message introuvable.');
+        }
     }
 
     public function reply(Request $request, $id)

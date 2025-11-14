@@ -16,29 +16,18 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
     // Dashboard
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
     
-    // Route de test pour vérifier les données de l'étudiant
-    Route::get('/test-student-data', function() {
-        $user = auth()->user();
-        
-        $studentRecord = \App\Models\StudentRecord::where('user_id', $user->id)->first();
-        $student = \App\Models\Student::where('user_id', $user->id)->first();
-        
-        $examYears = \App\Models\ExamRecord::where('student_id', $user->id)
-            ->distinct()
-            ->pluck('year');
-        
+    // Route de test pour la messagerie
+    Route::post('/test-message', function(\Illuminate\Http\Request $request) {
         dd([
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_type' => $user->user_type,
-            'student_record_exists' => $studentRecord ? 'OUI' : 'NON',
-            'student_record_data' => $studentRecord,
-            'student_exists' => $student ? 'OUI' : 'NON',
-            'student_data' => $student,
-            'exam_years' => $examYears,
-            'has_exam_records' => $examYears->count() > 0 ? 'OUI' : 'NON'
+            'POST_DATA' => $request->all(),
+            'recipients' => $request->recipients,
+            'subject' => $request->subject,
+            'content' => $request->content,
+            'has_files' => $request->hasFile('attachments'),
+            'auth_user' => auth()->user()->name,
+            'auth_id' => auth()->id(),
         ]);
-    })->name('test.student.data');
+    })->name('test.message');
     
     // Bibliothèque
     Route::group(['prefix' => 'library', 'as' => 'library.'], function() {
@@ -117,8 +106,8 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
         Route::get('/', [StudentMessageController::class, 'index'])->name('index');
         Route::get('/create', [StudentMessageController::class, 'create'])->name('create');
         Route::post('/', [StudentMessageController::class, 'store'])->name('store');
-        Route::get('/{id}', [StudentMessageController::class, 'show'])->name('show');
-        Route::post('/{id}/reply', [StudentMessageController::class, 'reply'])->name('reply');
+        Route::get('/{id}', [StudentMessageController::class, 'show'])->name('show')->where('id', '[0-9]+');
+        Route::post('/{id}/reply', [StudentMessageController::class, 'reply'])->name('reply')->where('id', '[0-9]+');
     });
 
     // Demandes de livres

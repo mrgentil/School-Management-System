@@ -1,7 +1,6 @@
-@extends('layouts.master')
-@section('page_title', '📧 Messagerie')
+<?php $__env->startSection('page_title', '📧 Messagerie'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="row no-gutters">
@@ -9,29 +8,29 @@
             <div class="col-md-3 border-right bg-light">
                 <div class="p-3">
                     <!-- Bouton Nouveau message -->
-                    <a href="{{ route('student.messages.create') }}" class="btn btn-primary btn-block mb-3">
+                    <a href="<?php echo e(route('student.messages.create')); ?>" class="btn btn-primary btn-block mb-3">
                         <i class="icon-pencil7 mr-2"></i> ✉️ Nouveau message
                     </a>
 
                     <!-- Menu de navigation -->
                     <div class="list-group list-group-flush">
-                        <a href="{{ route('student.messages.index') }}" class="list-group-item list-group-item-action active">
+                        <a href="<?php echo e(route('student.messages.index')); ?>" class="list-group-item list-group-item-action active">
                             <i class="icon-inbox mr-2"></i> 📥 Boîte de réception
-                            @php
+                            <?php
                                 $unreadCount = \App\Models\MessageRecipient::where('recipient_id', Auth::id())
                                     ->where('is_read', false)
                                     ->count();
-                            @endphp
-                            @if($unreadCount > 0)
-                                <span class="badge badge-primary badge-pill float-right">{{ $unreadCount }}</span>
-                            @endif
+                            ?>
+                            <?php if($unreadCount > 0): ?>
+                                <span class="badge badge-primary badge-pill float-right"><?php echo e($unreadCount); ?></span>
+                            <?php endif; ?>
                         </a>
                         <a href="#" class="list-group-item list-group-item-action" onclick="filterMessages('sent'); return false;">
                             <i class="icon-paperplane mr-2"></i> 📤 Envoyés
-                            @php
+                            <?php
                                 $sentCount = \App\Models\Message::where('sender_id', Auth::id())->count();
-                            @endphp
-                            <span class="badge badge-secondary badge-pill float-right">{{ $sentCount }}</span>
+                            ?>
+                            <span class="badge badge-secondary badge-pill float-right"><?php echo e($sentCount); ?></span>
                         </a>
                         <a href="#" class="list-group-item list-group-item-action disabled">
                             <i class="icon-star-full2 mr-2"></i> ⭐ Favoris
@@ -49,19 +48,21 @@
             <div class="col-md-9">
                 <div class="p-3">
                     <!-- Alertes -->
-                    @if(session('success'))
+                    <?php if(session('success')): ?>
                         <div class="alert alert-success alert-dismissible fade show border-0">
                             <button type="button" class="close" data-dismiss="alert">×</button>
-                            <i class="icon-checkmark-circle mr-2"></i>{{ session('success') }}
-                        </div>
-                    @endif
+                            <i class="icon-checkmark-circle mr-2"></i><?php echo e(session('success')); ?>
 
-                    @if(session('error'))
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if(session('error')): ?>
                         <div class="alert alert-danger alert-dismissible fade show border-0">
                             <button type="button" class="close" data-dismiss="alert">×</button>
-                            <i class="icon-cancel-circle2 mr-2"></i>{{ session('error') }}
+                            <i class="icon-cancel-circle2 mr-2"></i><?php echo e(session('error')); ?>
+
                         </div>
-                    @endif
+                    <?php endif; ?>
 
                     <!-- En-tête -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -87,95 +88,98 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($conversations as $message)
-                    @php
+                    <?php $__empty_1 = true; $__currentLoopData = $conversations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $message): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <?php
                         $isSent = $message->sender_id == auth()->id();
                         $isUnread = !$message->isReadBy(auth()->id());
-                    @endphp
-                    <tr class="{{ !$isSent && $isUnread ? 'font-weight-bold bg-light' : '' }}">
+                    ?>
+                    <tr class="<?php echo e(!$isSent && $isUnread ? 'font-weight-bold bg-light' : ''); ?>">
                         <td class="text-center">
-                            @if($isSent)
+                            <?php if($isSent): ?>
                                 <i class="icon-paperplane text-success" data-popup="tooltip" title="Envoyé"></i>
-                            @else
+                            <?php else: ?>
                                 <i class="icon-envelope text-primary" data-popup="tooltip" title="Reçu"></i>
-                            @endif
+                            <?php endif; ?>
                         </td>
                         <td>
-                            @if($isSent)
+                            <?php if($isSent): ?>
                                 <div class="text-muted small">À:</div>
-                                @foreach($message->recipients->take(2) as $recipient)
-                                    {{ $recipient->recipient->name }}@if(!$loop->last), @endif
-                                @endforeach
-                                @if($message->recipients->count() > 2)
-                                    <span class="text-muted">+{{ $message->recipients->count() - 2 }}</span>
-                                @endif
-                            @else
-                                {{ $message->sender->name }}
-                                @if($message->sender->user_type == 'teacher')
+                                <?php $__currentLoopData = $message->recipients->take(2); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $recipient): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php echo e($recipient->recipient->name); ?><?php if(!$loop->last): ?>, <?php endif; ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php if($message->recipients->count() > 2): ?>
+                                    <span class="text-muted">+<?php echo e($message->recipients->count() - 2); ?></span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <?php echo e($message->sender->name); ?>
+
+                                <?php if($message->sender->user_type == 'teacher'): ?>
                                     <span class="badge badge-info badge-sm ml-1">👨‍🏫</span>
-                                @elseif(in_array($message->sender->user_type, ['admin', 'super_admin']))
+                                <?php elseif(in_array($message->sender->user_type, ['admin', 'super_admin'])): ?>
                                     <span class="badge badge-success badge-sm ml-1">👔</span>
-                                @endif
-                            @endif
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </td>
                         <td>
-                            <a href="{{ route('student.messages.show', $message->id) }}" class="text-body">
-                                @if(!$isSent && $isUnread)
-                                    <strong>{{ $message->subject }}</strong>
-                                @else
-                                    {{ $message->subject }}
-                                @endif
-                                @if($message->attachments->count() > 0)
+                            <a href="<?php echo e(route('student.messages.show', $message->id)); ?>" class="text-body">
+                                <?php if(!$isSent && $isUnread): ?>
+                                    <strong><?php echo e($message->subject); ?></strong>
+                                <?php else: ?>
+                                    <?php echo e($message->subject); ?>
+
+                                <?php endif; ?>
+                                <?php if($message->attachments->count() > 0): ?>
                                     <i class="icon-attachment text-muted ml-1"></i>
-                                @endif
+                                <?php endif; ?>
                             </a>
                         </td>
                         <td>
-                            <span class="text-muted">{{ $message->created_at->format('d/m/Y') }}</span>
+                            <span class="text-muted"><?php echo e($message->created_at->format('d/m/Y')); ?></span>
                             <br>
-                            <small class="text-muted">{{ $message->created_at->format('H:i') }}</small>
+                            <small class="text-muted"><?php echo e($message->created_at->format('H:i')); ?></small>
                         </td>
                         <td>
-                            @if($isSent)
+                            <?php if($isSent): ?>
                                 <span class="badge badge-success">✓ Envoyé</span>
-                            @else
-                                @if($isUnread)
+                            <?php else: ?>
+                                <?php if($isUnread): ?>
                                     <span class="badge badge-primary">✉️ Nouveau</span>
-                                @else
+                                <?php else: ?>
                                     <span class="badge badge-light">✓ Lu</span>
-                                @endif
-                            @endif
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </td>
                         <td class="text-center">
                             <div class="list-icons">
-                                <a href="{{ route('student.messages.show', $message->id) }}" class="list-icons-item" data-popup="tooltip" title="Voir le message">
+                                <a href="<?php echo e(route('student.messages.show', $message->id)); ?>" class="list-icons-item" data-popup="tooltip" title="Voir le message">
                                     <i class="icon-eye"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="5" class="text-center">
                             <div class="p-4">
                                 <i class="icon-envelop text-muted" style="font-size: 3rem;"></i>
                                 <p class="mt-2">Aucun message trouvé</p>
-                                <a href="{{ route('student.messages.create') }}" class="btn btn-primary mt-2">
+                                <a href="<?php echo e(route('student.messages.create')); ?>" class="btn btn-primary mt-2">
                                     <i class="icon-plus2"></i> Écrire un message
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
-                            @if($conversations->hasPages())
+                            <?php if($conversations->hasPages()): ?>
                             <div class="d-flex justify-content-center mt-3">
-                                {{ $conversations->links() }}
+                                <?php echo e($conversations->links()); ?>
+
                             </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -183,9 +187,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 $(function () {
     // Initialisation des tooltips
@@ -255,4 +259,6 @@ $(function () {
         padding: 0.35em 0.65em;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/student/messages/index.blade.php ENDPATH**/ ?>

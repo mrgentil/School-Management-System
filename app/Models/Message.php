@@ -15,10 +15,12 @@ class Message extends Model
         'receiver_id',
         'subject',
         'message',
+        'content',
         'is_read',
         'read_at',
         'file_path',
-        'priority'
+        'priority',
+        'parent_id'
     ];
 
     protected $casts = [
@@ -34,6 +36,26 @@ class Message extends Model
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    public function recipients()
+    {
+        return $this->hasMany(MessageRecipient::class, 'message_id');
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(MessageAttachment::class, 'message_id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Message::class, 'parent_id');
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(Message::class, 'parent_id');
     }
 
     public function scopeForUser($query, $userId)
@@ -79,5 +101,19 @@ class Message extends Model
         ];
 
         return $icons[$this->priority] ?? 'icon-minus3';
+    }
+
+    public function isReadBy($userId)
+    {
+        // Si l'utilisateur est l'expéditeur, considérer comme lu
+        if ($this->sender_id == $userId) {
+            return true;
+        }
+
+        // Vérifier si le destinataire a lu le message
+        return $this->recipients()
+            ->where('recipient_id', $userId)
+            ->where('is_read', true)
+            ->exists();
     }
 }
