@@ -76,56 +76,53 @@
 
 @endsection
 
-@push('css')
-<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+@section('scripts')
 <style>
     #calendar {
         max-width: 100%;
         margin: 0 auto;
-    }
-    
-    .fc-event {
-        cursor: pointer;
-        border-radius: 4px;
-        padding: 2px 5px;
-    }
-    
-    .fc-daygrid-event {
-        white-space: normal !important;
+        min-height: 600px;
+        background: white;
     }
 </style>
-@endpush
 
-@push('js')
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/fr.js'></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
+    console.log('=== CALENDRIER ÉTUDIANT ===');
+    console.log('jQuery:', typeof $ !== 'undefined' ? 'Chargé' : 'Non chargé');
+    console.log('FullCalendar:', typeof FullCalendar !== 'undefined' ? 'Chargé' : 'Non chargé');
+    
     var calendarEl = document.getElementById('calendar');
     
-    if (calendarEl) {
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'timeGridWeek',
-            locale: 'fr',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'timeGridWeek,timeGridDay'
-            },
-            slotMinTime: '07:00:00',
-            slotMaxTime: '18:00:00',
-            allDaySlot: false,
-            height: 'auto',
-            events: @json($events ?? []),
-            eventClick: function(info) {
-                alert('Matière: ' + info.event.title + '\n' +
-                      'Horaire: ' + info.event.start.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) + 
-                      ' - ' + info.event.end.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}));
-            }
-        });
-        
-        calendar.render();
+    if (!calendarEl) {
+        console.error('Élément #calendar introuvable !');
+        return;
     }
+    
+    var events = @json($events ?? []);
+    console.log('Événements:', events);
+    
+    // Utiliser le FullCalendar qui est déjà chargé dans inc_bottom.blade.php
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        defaultView: 'agendaWeek',
+        locale: 'fr',
+        minTime: '07:00:00',
+        maxTime: '18:00:00',
+        allDaySlot: false,
+        height: 'auto',
+        events: events,
+        eventClick: function(event) {
+            alert('Matière: ' + event.title + '\n' +
+                  'Horaire: ' + event.timeSlot);
+        }
+    });
+    
+    console.log('Calendrier initialisé !');
 });
 </script>
-@endpush
+@endsection

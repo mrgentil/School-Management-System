@@ -106,8 +106,13 @@ class TimetableController extends Controller
             ->with(['subject', 'time_slot'])
             ->get();
         
+        // Filtrer les cours qui ont un time_slot valide
+        $validTimetables = $timetables->filter(function($tt) {
+            return $tt->time_slot !== null;
+        });
+        
         // Convertir en format événements pour le calendrier
-        $events = $this->convertToCalendarEvents($timetables);
+        $events = $this->convertToCalendarEvents($validTimetables);
         
         return view('pages.student.timetable.calendar', [
             'events' => $events,
