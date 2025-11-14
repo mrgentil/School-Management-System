@@ -1,14 +1,14 @@
 <div class="row">
     <div class="col-md-12">
         <div class="alert alert-info text-center">
-            <span>You can Add New Time Slots or Choose To Use Existing Time Slots of Another Timetable. <strong>NB:</strong> Using Exisiting Time Slots Resets The Current Timetable</span>
+            <span>Vous pouvez <strong>ajouter de nouveaux créneaux horaires</strong> ou <strong>utiliser des créneaux existants</strong> d'un autre emploi du temps. <strong>NB:</strong> L'utilisation de créneaux existants réinitialise l'emploi du temps actuel</span>
         </div>
     </div>
 
     <div class="col-md-6">
         <div class="card">
             <div class="card-header header-elements-inline bg-danger">
-                <h6 class="font-weight-bold card-title">Add Time Slots</h6>
+                <h6 class="font-weight-bold card-title">➕ Ajouter des Créneaux Horaires</h6>
                 {!! Qs::getPanelOptions() !!}
             </div>
 
@@ -20,11 +20,11 @@
 
                         {{--TIME BEGIN--}}
                         <div class="form-group row">
-                            <label class="col-lg-3 col-form-label font-weight-semibold">Start Time <span
+                            <label class="col-lg-3 col-form-label font-weight-semibold">Heure de Début <span
                                         class="text-danger">*</span></label>
 
                             <div class="col-lg-3">
-                                <select data-placeholder="Hour" required class="select-search form-control" name="hour_from" id="hour_from">
+                                <select data-placeholder="Heure" required class="select-search form-control" name="hour_from" id="hour_from">
 
                                     <option value=""></option>
                                     @for($t=1; $t<=12; $t++)
@@ -46,7 +46,7 @@
                             </div>
 
                             <div class="col-lg-3">
-                                <select data-placeholder="Meridian" required class="select form-control" name="meridian_from" id="meridian_from">
+                                <select data-placeholder="Période" required class="select form-control" name="meridian_from" id="meridian_from">
 
                                     <option value=""></option>
                                     <option {{ old('meridian_from') == 'AM' ? 'selected' : '' }} value="AM">AM
@@ -59,10 +59,10 @@
 
                         {{--TIME END--}}
                         <div class="form-group row">
-                            <label class="col-lg-3 col-form-label font-weight-semibold">End Time <span class="text-danger">*</span></label>
+                            <label class="col-lg-3 col-form-label font-weight-semibold">Heure de Fin <span class="text-danger">*</span></label>
 
                             <div class="col-lg-3">
-                                <select data-placeholder="Hour" required class="select-search form-control" name="hour_to" id="hour_to">
+                                <select data-placeholder="Heure" required class="select-search form-control" name="hour_to" id="hour_to">
 
                                     <option value=""></option>
                                     @for($t=1; $t<=12; $t++)
@@ -84,7 +84,7 @@
                             </div>
 
                             <div class="col-lg-3">
-                                <select data-placeholder="Meridian" required class="select form-control"
+                                <select data-placeholder="Période" required class="select form-control"
                                         name="meridian_to" id="meridian_to">
 
                                     <option value=""></option>
@@ -98,7 +98,7 @@
 
 
                         <div class="text-right">
-                            <button  type="submit" class="btn btn-primary">Submit form <i class="icon-paperplane ml-2"></i></button>
+                            <button  type="submit" class="btn btn-primary">✅ Ajouter le Créneau <i class="icon-paperplane ml-2"></i></button>
                         </div>
                     </form>
                 </div>
@@ -110,7 +110,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header header-elements-inline bg-dark">
-                <h6 class="font-weight-bold card-title">Use Existing Time Slots</h6>
+                <h6 class="font-weight-bold card-title">🔄 Utiliser des Créneaux Existants</h6>
                 {!! Qs::getPanelOptions() !!}
             </div>
 
@@ -121,10 +121,10 @@
 
                         {{--TIME BEGIN--}}
                         <div class="form-group">
-                            <label for="ttr_id" class="col-form-label-lg font-weight-semibold mb-lg-2">Select Existing Time Slots <span class="text-danger">*</span></label>
+                            <label for="ttr_id" class="col-form-label-lg font-weight-semibold mb-lg-2">Sélectionner un Emploi du Temps Existant <span class="text-danger">*</span></label>
 
                             <div class="col-lg-8">
-                                <select id="ttr_id" data-placeholder="Select..." required class="select-search form-control-lg" name="ttr_id">
+                                <select id="ttr_id" data-placeholder="Sélectionner..." required class="select-search form-control-lg" name="ttr_id">
 
                                     <option value=""></option>
                                     @foreach($ts_existing as $ttr_ts)
@@ -136,7 +136,7 @@
                         </div>
 
                         <div class="text-right">
-                            <button type="submit" class="btn btn-lg btn-success">Submit form <i class="icon-paperplane ml-2"></i></button>
+                            <button type="submit" class="btn btn-lg btn-success">✅ Copier les Créneaux <i class="icon-paperplane ml-2"></i></button>
                         </div>
                     </form>
                 </div>

@@ -37,6 +37,11 @@ class HomeController extends Controller
 
     public function dashboard()
     {
+        // Rediriger les super admins vers leur dashboard spécifique
+        if (auth()->check() && auth()->user()->user_type === 'super_admin') {
+            return redirect()->route('super_admin.dashboard');
+        }
+        
         // Rediriger les étudiants vers leur dashboard spécifique
         if (auth()->check() && auth()->user()->user_type === 'student') {
             return redirect()->route('student.dashboard');

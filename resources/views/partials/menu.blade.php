@@ -46,10 +46,17 @@
                 <!-- Main (Non-Students) -->
                 @if(!Qs::userIsStudent())
                 <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ (Route::is('dashboard')) ? 'active' : '' }}">
-                        <i class="icon-home4"></i>
-                        <span>Tableau de bord</span>
-                    </a>
+                    @if(Qs::userIsSuperAdmin())
+                        <a href="{{ route('super_admin.dashboard') }}" class="nav-link {{ (Route::is('super_admin.dashboard')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>📊 Tableau de bord</span>
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard') }}" class="nav-link {{ (Route::is('dashboard')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>Tableau de bord</span>
+                        </a>
+                    @endif
                 </li>
                 @endif
 

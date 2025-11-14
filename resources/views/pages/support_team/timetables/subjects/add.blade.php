@@ -6,21 +6,21 @@
             @if($ttr->exam_id)
                 {{--EXAM DATE--}}
                 <div class="form-group row">
-                    <label class="col-lg-3 col-form-label font-weight-semibold">Exam Date <span
+                    <label class="col-lg-3 col-form-label font-weight-semibold">Date d'Examen <span
                                 class="text-danger">*</span></label>
                     <div class="col-lg-9">
-                        <input autocomplete="off" name="exam_date" value="{{ old('exam_date') }}" required type="text" class="form-control date-pick" placeholder="Select Date...">
+                        <input autocomplete="off" name="exam_date" value="{{ old('exam_date') }}" required type="text" class="form-control date-pick" placeholder="Sélectionner une date...">
                     </div>
                 </div>
 
             @else
                 {{--DAY--}}
                 <div class="form-group row">
-                    <label for="day" class="col-lg-3 col-form-label font-weight-semibold">Day <span class="text-danger">*</span></label>
+                    <label for="day" class="col-lg-3 col-form-label font-weight-semibold">Jour <span class="text-danger">*</span></label>
 
                     <div class="col-lg-9">
                         <select id="day" name="day" required type="text" class="form-control select"
-                                data-placeholder="Select Day...">
+                                data-placeholder="Sélectionner un jour...">
                             <option value=""></option>
                             @foreach(Qs::getDaysOfTheWeek() as $dw)
                                 <option {{ old('day') == $dw ? 'selected' : '' }} value="{{ $dw }}">{{ $dw }}</option>
@@ -34,10 +34,10 @@
 
             {{--SUBJECT--}}
             <div class="form-group row">
-                <label for="subject_id" class="col-lg-3 col-form-label font-weight-semibold">Subject
+                <label for="subject_id" class="col-lg-3 col-form-label font-weight-semibold">Matière
                     <span class="text-danger">*</span></label>
                 <div class="col-lg-9">
-                    <select required data-placeholder="Select Subject"
+                    <select required data-placeholder="Sélectionner une matière"
                             class="form-control select-search" name="subject_id" id="subject_id">
                         <option value=""></option>
                         @foreach($subjects as $sub)
@@ -50,11 +50,11 @@
             {{--TIME SLOT--}}
             <div class="form-group row">
 
-                <label for="ts_id" class="col-lg-3 col-form-label font-weight-semibold">Time Slot <span
+                <label for="ts_id" class="col-lg-3 col-form-label font-weight-semibold">Créneau Horaire <span
                             class="text-danger">*</span></label>
 
                 <div class="col-lg-9">
-                    <select data-placeholder="Select Time..." required class="select form-control" name="ts_id"
+                    <select data-placeholder="Sélectionner un créneau..." required class="select form-control" name="ts_id"
                             id="ts_id">
 
                         <option value=""></option>
@@ -67,7 +67,7 @@
 
 
             <div class="text-right">
-                <button type="submit" class="btn btn-primary">Submit form <i class="icon-paperplane ml-2"></i></button>
+                <button type="submit" class="btn btn-primary">✅ Ajouter la Matière <i class="icon-paperplane ml-2"></i></button>
             </div>
         </form>
     </div>

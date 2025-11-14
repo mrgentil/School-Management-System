@@ -391,6 +391,14 @@ class Qs
     }
 
     /**
+     * Obtenir la devise (alias pour getCurrencySymbol)
+     */
+    public static function getCurrency()
+    {
+        return self::getCurrencySymbol();
+    }
+
+    /**
      * Obtenir le code de la devise
      */
     public static function getCurrencyCode()

@@ -33,7 +33,7 @@
                             </div>
 
                             <div class="form-group ">
-                                <input required name="password" type="password" class="form-control" placeholder="{{ __('Password') }}">
+                                <input required name="password" type="password" class="form-control" placeholder="Mot de passe">
 
                             </div>
 

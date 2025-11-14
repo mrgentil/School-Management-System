@@ -1,10 +1,10 @@
 @extends('layouts.master')
-@section('page_title', 'Manage System Settings')
+@section('page_title', 'Gérer les Paramètres Système')
 @section('content')
 
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h6 class="card-title font-weight-semibold">Update System Settungs </h6>
+            <h6 class="card-title font-weight-semibold">Mettre à jour les Paramètres Système</h6>
             {!! Qs::getPanelOptions() !!}
         </div>
 
@@ -116,7 +116,7 @@
                 <hr class="divider">
 
                 <div class="text-right">
-                    <button type="submit" class="btn btn-danger">Submit form <i class="icon-paperplane ml-2"></i></button>
+                    <button type="submit" class="btn btn-danger">Enregistrer <i class="icon-paperplane ml-2"></i></button>
                 </div>
             </form>
         </div>

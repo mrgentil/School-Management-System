@@ -47,10 +47,17 @@
                 <!-- Main (Non-Students) -->
                 <?php if(!Qs::userIsStudent()): ?>
                 <li class="nav-item">
-                    <a href="<?php echo e(route('dashboard')); ?>" class="nav-link <?php echo e((Route::is('dashboard')) ? 'active' : ''); ?>">
-                        <i class="icon-home4"></i>
-                        <span>Tableau de bord</span>
-                    </a>
+                    <?php if(Qs::userIsSuperAdmin()): ?>
+                        <a href="<?php echo e(route('super_admin.dashboard')); ?>" class="nav-link <?php echo e((Route::is('super_admin.dashboard')) ? 'active' : ''); ?>">
+                            <i class="icon-home4"></i>
+                            <span>📊 Tableau de bord</span>
+                        </a>
+                    <?php else: ?>
+                        <a href="<?php echo e(route('dashboard')); ?>" class="nav-link <?php echo e((Route::is('dashboard')) ? 'active' : ''); ?>">
+                            <i class="icon-home4"></i>
+                            <span>Tableau de bord</span>
+                        </a>
+                    <?php endif; ?>
                 </li>
                 <?php endif; ?>
 

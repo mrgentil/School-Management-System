@@ -201,10 +201,25 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 /************************ SUPER ADMIN ****************************/
-Route::group(['middleware' => 'super_admin', 'prefix' => 'super_admin'], function(){
-
+// Settings (accessible depuis n'importe où pour le super admin)
+Route::group(['middleware' => 'super_admin'], function(){
     Route::get('/settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'index'])->name('settings');
     Route::put('/settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'update'])->name('settings.update');
+});
+
+Route::group(['middleware' => 'super_admin', 'prefix' => 'super_admin', 'as' => 'super_admin.'], function(){
+
+    // Dashboard Super Admin
+    Route::get('/dashboard', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
+
+    // Messagerie Admin
+    Route::group(['prefix' => 'messages', 'as' => 'messages.'], function() {
+        Route::get('/', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'show'])->name('show');
+        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'destroy'])->name('destroy');
+    });
 
 });
 

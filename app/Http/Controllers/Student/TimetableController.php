@@ -34,8 +34,12 @@ class TimetableController extends Controller
         $classId = $studentRecord->my_class_id;
         $className = $studentRecord->my_class->name ?? 'N/A';
         
-        // Récupérer l'emploi du temps de la classe
+        // Récupérer la session actuelle
+        $currentSession = \App\Helpers\Qs::getCurrentSession();
+        
+        // Récupérer le dernier emploi du temps de la classe pour la session actuelle
         $timetableRecord = TimeTableRecord::where('my_class_id', $classId)
+            ->where('year', $currentSession)
             ->with(['my_class', 'exam'])
             ->latest()
             ->first();
@@ -48,11 +52,9 @@ class TimetableController extends Controller
             ]);
         }
         
-        // Récupérer tous les cours de l'emploi du temps
+        // Récupérer tous les cours de cet emploi du temps
         $timetables = TimeTable::where('ttr_id', $timetableRecord->id)
             ->with(['subject', 'time_slot'])
-            ->orderBy('day')
-            ->orderBy('timestamp_from')
             ->get();
         
         // Organiser les cours par jour
@@ -83,8 +85,12 @@ class TimetableController extends Controller
         
         $classId = $studentRecord->my_class_id;
         
-        // Récupérer l'emploi du temps de la classe
+        // Récupérer la session actuelle
+        $currentSession = \App\Helpers\Qs::getCurrentSession();
+        
+        // Récupérer le dernier emploi du temps de la classe pour la session actuelle
         $timetableRecord = TimeTableRecord::where('my_class_id', $classId)
+            ->where('year', $currentSession)
             ->latest()
             ->first();
         
@@ -95,7 +101,7 @@ class TimetableController extends Controller
             ]);
         }
         
-        // Récupérer tous les cours
+        // Récupérer tous les cours de cet emploi du temps
         $timetables = TimeTable::where('ttr_id', $timetableRecord->id)
             ->with(['subject', 'time_slot'])
             ->get();
@@ -151,15 +157,29 @@ class TimetableController extends Controller
             'Sunday' => '#95a5a6'
         ];
         
+        // Obtenir le lundi de la semaine actuelle
+        $monday = now()->startOfWeek();
+        
         foreach ($timetables as $tt) {
-            if ($tt->time_slot) {
+            if ($tt->time_slot && $tt->subject) {
+                // Calculer la date du cours cette semaine
+                $dayOfWeek = $this->getDayOfWeek($tt->day);
+                $courseDate = $monday->copy()->addDays($dayOfWeek - 1);
+                
+                // Extraire les heures du time_slot
+                $timeFrom = date('H:i:s', $tt->time_slot->timestamp_from);
+                $timeTo = date('H:i:s', $tt->time_slot->timestamp_to);
+                
                 $events[] = [
-                    'title' => $tt->subject->name ?? 'Cours',
-                    'start' => $tt->time_slot->time_from,
-                    'end' => $tt->time_slot->time_to,
-                    'color' => $colors[$tt->day] ?? '#3498db',
-                    'dow' => [$this->getDayOfWeek($tt->day)],
-                    'description' => $tt->subject->name ?? 'N/A'
+                    'title' => $tt->subject->name,
+                    'start' => $courseDate->format('Y-m-d') . 'T' . $timeFrom,
+                    'end' => $courseDate->format('Y-m-d') . 'T' . $timeTo,
+                    'backgroundColor' => $colors[$tt->day] ?? '#3498db',
+                    'borderColor' => $colors[$tt->day] ?? '#3498db',
+                    'extendedProps' => [
+                        'description' => $tt->subject->name,
+                        'timeSlot' => $tt->time_slot->full
+                    ]
                 ];
             }
         }
