@@ -60,6 +60,19 @@
 
                 <div class="col-md-2">
                     <div class="form-group">
+                        <label class="font-weight-semibold">Période</label>
+                        <select name="period" class="form-control">
+                            <option value="">Toutes</option>
+                            <option value="1" <?php echo e($filters['period'] == 1 ? 'selected' : ''); ?>>Période 1 (S1)</option>
+                            <option value="2" <?php echo e($filters['period'] == 2 ? 'selected' : ''); ?>>Période 2 (S1)</option>
+                            <option value="3" <?php echo e($filters['period'] == 3 ? 'selected' : ''); ?>>Période 3 (S2)</option>
+                            <option value="4" <?php echo e($filters['period'] == 4 ? 'selected' : ''); ?>>Période 4 (S2)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group">
                         <label class="font-weight-semibold">Statut</label>
                         <select name="status" class="form-control">
                             <option value="">Tous</option>
@@ -90,6 +103,7 @@
                             <th>Classe</th>
                             <th>Section</th>
                             <th>Matière</th>
+                            <th>Période</th>
                             <th>Date Limite</th>
                             <th>Note Max</th>
                             <th>Statut</th>
@@ -104,6 +118,30 @@
                                 <td><?php echo e($assignment->myClass->name ?? 'N/A'); ?></td>
                                 <td><?php echo e($assignment->section->name ?? 'N/A'); ?></td>
                                 <td><?php echo e($assignment->subject->name ?? 'N/A'); ?></td>
+                                <td>
+                                    <?php
+                                        $periodLabels = [
+                                            1 => 'Période 1',
+                                            2 => 'Période 2',
+                                            3 => 'Période 3',
+                                            4 => 'Période 4'
+                                        ];
+                                        $periodBadges = [
+                                            1 => 'badge-primary',
+                                            2 => 'badge-info',
+                                            3 => 'badge-success',
+                                            4 => 'badge-warning'
+                                        ];
+                                    ?>
+                                    <span class="badge <?php echo e($periodBadges[$assignment->period] ?? 'badge-secondary'); ?>">
+                                        <?php echo e($periodLabels[$assignment->period] ?? 'N/A'); ?>
+
+                                    </span>
+                                    <small class="d-block text-muted mt-1">
+                                        <?php echo e($assignment->period <= 2 ? 'Semestre 1' : 'Semestre 2'); ?>
+
+                                    </small>
+                                </td>
                                 <td>
                                     <?php echo e($assignment->due_date ? $assignment->due_date->format('d/m/Y H:i') : 'N/A'); ?>
 

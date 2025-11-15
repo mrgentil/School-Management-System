@@ -25,6 +25,32 @@
                         <td><?php echo e($assignment->subject->name ?? 'N/A'); ?></td>
                     </tr>
                     <tr>
+                        <th>Période:</th>
+                        <td>
+                            <?php
+                                $periodLabels = [
+                                    1 => 'Période 1',
+                                    2 => 'Période 2',
+                                    3 => 'Période 3',
+                                    4 => 'Période 4'
+                                ];
+                                $periodBadges = [
+                                    1 => 'badge-primary',
+                                    2 => 'badge-info',
+                                    3 => 'badge-success',
+                                    4 => 'badge-warning'
+                                ];
+                            ?>
+                            <span class="badge <?php echo e($periodBadges[$assignment->period] ?? 'badge-secondary'); ?>">
+                                <?php echo e($periodLabels[$assignment->period] ?? 'N/A'); ?>
+
+                            </span>
+                            <small class="text-muted ml-2">
+                                (<?php echo e($assignment->period <= 2 ? 'Semestre 1' : 'Semestre 2'); ?>)
+                            </small>
+                        </td>
+                    </tr>
+                    <tr>
                         <th>Enseignant:</th>
                         <td><?php echo e($assignment->teacher->name ?? 'N/A'); ?></td>
                     </tr>

@@ -25,6 +25,31 @@
                         <td>{{ $assignment->subject->name ?? 'N/A' }}</td>
                     </tr>
                     <tr>
+                        <th>Période:</th>
+                        <td>
+                            @php
+                                $periodLabels = [
+                                    1 => 'Période 1',
+                                    2 => 'Période 2',
+                                    3 => 'Période 3',
+                                    4 => 'Période 4'
+                                ];
+                                $periodBadges = [
+                                    1 => 'badge-primary',
+                                    2 => 'badge-info',
+                                    3 => 'badge-success',
+                                    4 => 'badge-warning'
+                                ];
+                            @endphp
+                            <span class="badge {{ $periodBadges[$assignment->period] ?? 'badge-secondary' }}">
+                                {{ $periodLabels[$assignment->period] ?? 'N/A' }}
+                            </span>
+                            <small class="text-muted ml-2">
+                                ({{ $assignment->period <= 2 ? 'Semestre 1' : 'Semestre 2' }})
+                            </small>
+                        </td>
+                    </tr>
+                    <tr>
                         <th>Enseignant:</th>
                         <td>{{ $assignment->teacher->name ?? 'N/A' }}</td>
                     </tr>

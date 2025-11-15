@@ -1,11 +1,12 @@
-@extends('layouts.master')
-@section('page_title', 'Manage Exams')
-@section('content')
+
+<?php $__env->startSection('page_title', 'Manage Exams'); ?>
+<?php $__env->startSection('content'); ?>
 
     <div class="card">
         <div class="card-header header-elements-inline">
             <h6 class="card-title">Manage Exams</h6>
-            {!! Qs::getPanelOptions() !!}
+            <?php echo Qs::getPanelOptions(); ?>
+
         </div>
 
         <div class="card-body">
@@ -27,12 +28,12 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($exams as $ex)
+                            <?php $__currentLoopData = $exams; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ex): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $ex->name }}</td>
-                                    <td>{{ 'Semestre '.$ex->semester }}</td>
-                                    <td>{{ $ex->year }}</td>
+                                    <td><?php echo e($loop->iteration); ?></td>
+                                    <td><?php echo e($ex->name); ?></td>
+                                    <td><?php echo e('Semestre '.$ex->semester); ?></td>
+                                    <td><?php echo e($ex->year); ?></td>
                                     <td class="text-center">
                                         <div class="list-icons">
                                             <div class="dropdown">
@@ -41,22 +42,22 @@
                                                 </a>
 
                                                 <div class="dropdown-menu dropdown-menu-left">
-                                                    @if(Qs::userIsTeamSA())
-                                                    {{--Edit--}}
-                                                    <a href="{{ route('exams.edit', $ex->id) }}" class="dropdown-item"><i class="icon-pencil"></i> Edit</a>
-                                                   @endif
-                                                    @if(Qs::userIsSuperAdmin())
-                                                    {{--Delete--}}
-                                                    <a id="{{ $ex->id }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Delete</a>
-                                                    <form method="post" id="item-delete-{{ $ex->id }}" action="{{ route('exams.destroy', $ex->id) }}" class="hidden">@csrf @method('delete')</form>
-                                                        @endif
+                                                    <?php if(Qs::userIsTeamSA()): ?>
+                                                    
+                                                    <a href="<?php echo e(route('exams.edit', $ex->id)); ?>" class="dropdown-item"><i class="icon-pencil"></i> Edit</a>
+                                                   <?php endif; ?>
+                                                    <?php if(Qs::userIsSuperAdmin()): ?>
+                                                    
+                                                    <a id="<?php echo e($ex->id); ?>" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Delete</a>
+                                                    <form method="post" id="item-delete-<?php echo e($ex->id); ?>" action="<?php echo e(route('exams.destroy', $ex->id)); ?>" class="hidden"><?php echo csrf_field(); ?> <?php echo method_field('delete'); ?></form>
+                                                        <?php endif; ?>
 
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                         </table>
                     </div>
@@ -67,18 +68,18 @@
                             <div class="alert alert-info border-0 alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
 
-                                <span>You are creating an Exam for the Current Session <strong>{{ Qs::getSetting('current_session') }}</strong></span>
+                                <span>You are creating an Exam for the Current Session <strong><?php echo e(Qs::getSetting('current_session')); ?></strong></span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <form method="post" action="{{ route('exams.store') }}">
-                                @csrf
+                            <form method="post" action="<?php echo e(route('exams.store')); ?>">
+                                <?php echo csrf_field(); ?>
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label font-weight-semibold">Name <span class="text-danger">*</span></label>
                                     <div class="col-lg-9">
-                                        <input name="name" value="{{ old('name') }}" required type="text" class="form-control" placeholder="Name of Exam">
+                                        <input name="name" value="<?php echo e(old('name')); ?>" required type="text" class="form-control" placeholder="Name of Exam">
                                     </div>
                                 </div>
 
@@ -86,8 +87,8 @@
                                     <label for="semester" class="col-lg-3 col-form-label font-weight-semibold">Semestre <span class="text-danger">*</span></label>
                                     <div class="col-lg-9">
                                         <select data-placeholder="Sélectionner le semestre" class="form-control select-search" name="semester" id="semester" required>
-                                            <option {{ old('semester') == 1 ? 'selected' : '' }} value="1">Semestre 1 (Périodes 1 & 2)</option>
-                                            <option {{ old('semester') == 2 ? 'selected' : '' }} value="2">Semestre 2 (Périodes 3 & 4)</option>
+                                            <option <?php echo e(old('semester') == 1 ? 'selected' : ''); ?> value="1">Semestre 1 (Périodes 1 & 2)</option>
+                                            <option <?php echo e(old('semester') == 2 ? 'selected' : ''); ?> value="2">Semestre 2 (Périodes 3 & 4)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -103,6 +104,8 @@
         </div>
     </div>
 
-    {{--Class List Ends--}}
+    
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/exams/index.blade.php ENDPATH**/ ?>

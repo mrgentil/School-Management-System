@@ -32,14 +32,22 @@ class Mk extends Qs
             return $number . '<sup>' . $ends[$number % 10] . '</sup>';
     }
 
-    /*Get Subject Total Per Term*/
-    public static function getSubTotalTerm($st_id, $sub_id, $term, $class_id, $year)
+    /*Get Subject Total Per Period (1-4)*/
+    public static function getSubTotalPeriod($st_id, $sub_id, $period, $class_id, $year)
     {
         $d = ['student_id' => $st_id, 'subject_id' => $sub_id, 'my_class_id' => $class_id, 'year' => $year];
 
-        $tex = 'tex'.$term;
-        $sub_total = Mark::where($d)->select($tex)->get()->where($tex, '>', 0);
-        return $sub_total->count() > 0 ? $sub_total->first()->$tex : '-';
+        // Pour compatibilité: p1_avg, p2_avg, p3_avg, p4_avg
+        $p_col = 'p'.$period.'_avg';
+        $sub_total = Mark::where($d)->select($p_col)->get()->where($p_col, '>', 0);
+        return $sub_total->count() > 0 ? $sub_total->first()->$p_col : '-';
+    }
+
+    /*Get Subject Total Per Term (legacy - maintenant par période)*/
+    public static function getSubTotalTerm($st_id, $sub_id, $term, $class_id, $year)
+    {
+        // Redirection vers la nouvelle méthode par période
+        return self::getSubTotalPeriod($st_id, $sub_id, $term, $class_id, $year);
     }
 
     public static function countDistinctions(Collection $marks)
@@ -86,40 +94,61 @@ class Mk extends Qs
         })->count();
     }
 
-    /*Get Exam Avg Per Term*/
-    public static function getTermAverage($st_id, $term, $year)
+    /*Get Exam Avg Per Semester (1 ou 2)*/
+    public static function getSemesterAverage($st_id, $semester, $year)
     {
-        $exam = self::getExamByTerm($term, $year);
+        $exam = self::getExamBySemester($semester, $year);
+        if (!$exam) return null;
+        
         $d = ['exam_id' => $exam->id, 'student_id' => $st_id, 'year' => $year];
-
-        if($term < 3){
-            $exr = ExamRecord::where($d);
-            $avg = $exr->first()->ave ?: NULL;
+        $exr = ExamRecord::where($d)->first();
+        
+        if ($exr) {
+            $avg = $exr->ave ?: NULL;
             return $avg > 0 ? round($avg, 1) : $avg;
         }
-
-        $mk = Mark::where($d)->whereNotNull('tex3');
-        $avg = $mk->select('tex3')->avg('tex3');
-        return round($avg, 1);
+        
+        return null;
     }
 
+    /*Get Exam Avg Per Term (legacy - compatibilité)*/
+    public static function getTermAverage($st_id, $term, $year)
+    {
+        // Convertir term (1-3) en semester (1-2)
+        $semester = $term <= 2 ? 1 : 2;
+        return self::getSemesterAverage($st_id, $semester, $year);
+    }
+
+    public static function getSemesterTotal($st_id, $semester, $year)
+    {
+        $exam = self::getExamBySemester($semester, $year);
+        if (!$exam) return null;
+        
+        $d = ['exam_id' => $exam->id, 'student_id' => $st_id, 'year' => $year];
+        $exr = ExamRecord::where($d)->first();
+        
+        return $exr ? ($exr->total ?? NULL) : NULL;
+    }
+
+    /*Get Term Total (legacy)*/
     public static function getTermTotal($st_id, $term, $year)
     {
-        $exam = self::getExamByTerm($term, $year);
-        $d = ['exam_id' => $exam->id, 'student_id' => $st_id, 'year' => $year];
-
-        if($term < 3){
-            return ExamRecord::where($d)->first()->total ?? NULL;
-        }
-
-        $mk = Mark::where($d)->whereNotNull('tex3');
-        return $mk->select('tex3')->sum('tex3');
+        $semester = $term <= 2 ? 1 : 2;
+        return self::getSemesterTotal($st_id, $semester, $year);
     }
 
+    public static function getExamBySemester($semester, $year)
+    {
+        $d = ['semester' => $semester, 'year' => $year];
+        return Exam::where($d)->first();
+    }
+
+    /*Get Exam By Term (legacy - compatibilité)*/
     public static function getExamByTerm($term, $year)
     {
-        $d = ['term' => $term, 'year' => $year];
-        return Exam::where($d)->first();
+        // Convertir term en semester
+        $semester = $term <= 2 ? 1 : 2;
+        return self::getExamBySemester($semester, $year);
     }
 
     public static function getGradeList($class_type_id)

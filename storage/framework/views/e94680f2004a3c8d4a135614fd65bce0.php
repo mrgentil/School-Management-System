@@ -1,26 +1,25 @@
-@extends('layouts.master')
-@section('page_title', 'Modifier le Devoir')
-@section('content')
+<?php $__env->startSection('page_title', 'Créer un Devoir'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="card">
-    <div class="card-header header-elements-inline bg-info">
+    <div class="card-header header-elements-inline bg-success">
         <h6 class="card-title text-white">
-            <i class="icon-pencil mr-2"></i>
-            Modifier le Devoir
+            <i class="icon-plus2 mr-2"></i>
+            Créer un Nouveau Devoir
         </h6>
-        {!! Qs::getPanelOptions() !!}
+        <?php echo Qs::getPanelOptions(); ?>
+
     </div>
 
     <div class="card-body">
-        <form method="POST" action="{{ route('assignments.update', $assignment->id) }}" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
+        <form method="POST" action="<?php echo e(route('assignments.store')); ?>" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
 
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
                         <label class="font-weight-semibold">Titre <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="form-control" required value="{{ old('title', $assignment->title) }}">
+                        <input type="text" name="title" class="form-control" required value="<?php echo e(old('title')); ?>">
                     </div>
                 </div>
             </div>
@@ -29,7 +28,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label class="font-weight-semibold">Description <span class="text-danger">*</span></label>
-                        <textarea name="description" class="form-control" rows="5" required>{{ old('description', $assignment->description) }}</textarea>
+                        <textarea name="description" class="form-control" rows="5" required><?php echo e(old('description')); ?></textarea>
                     </div>
                 </div>
             </div>
@@ -40,11 +39,9 @@
                         <label class="font-weight-semibold">Classe <span class="text-danger">*</span></label>
                         <select name="my_class_id" id="my_class_id" class="form-control select" required>
                             <option value="">Sélectionner</option>
-                            @foreach($my_classes as $class)
-                                <option value="{{ $class->id }}" {{ $assignment->my_class_id == $class->id ? 'selected' : '' }}>
-                                    {{ $class->name }}
-                                </option>
-                            @endforeach
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>"><?php echo e($class->name); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -53,11 +50,7 @@
                     <div class="form-group">
                         <label class="font-weight-semibold">Section <span class="text-danger">*</span></label>
                         <select name="section_id" id="section_id" class="form-control select" required>
-                            @foreach($sections as $section)
-                                <option value="{{ $section->id }}" {{ $assignment->section_id == $section->id ? 'selected' : '' }}>
-                                    {{ $section->name }}
-                                </option>
-                            @endforeach
+                            <option value="">Sélectionner une classe d'abord</option>
                         </select>
                     </div>
                 </div>
@@ -67,11 +60,9 @@
                         <label class="font-weight-semibold">Matière <span class="text-danger">*</span></label>
                         <select name="subject_id" class="form-control select" required>
                             <option value="">Sélectionner</option>
-                            @foreach($subjects as $subject)
-                                <option value="{{ $subject->id }}" {{ $assignment->subject_id == $subject->id ? 'selected' : '' }}>
-                                    {{ $subject->name }}
-                                </option>
-                            @endforeach
+                            <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($subject->id); ?>"><?php echo e($subject->name); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -79,7 +70,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-semibold">Note Maximale <span class="text-danger">*</span></label>
-                        <input type="number" name="max_score" class="form-control" value="{{ old('max_score', $assignment->max_score) }}" min="1" max="1000" required>
+                        <input type="number" name="max_score" class="form-control" value="100" min="1" max="1000" required>
                     </div>
                 </div>
             </div>
@@ -90,61 +81,46 @@
                         <label class="font-weight-semibold">Période <span class="text-danger">*</span></label>
                         <select name="period" class="form-control select" required>
                             <option value="">Sélectionner une période</option>
-                            <option value="1" {{ old('period', $assignment->period) == 1 ? 'selected' : '' }}>Période 1 (Semestre 1)</option>
-                            <option value="2" {{ old('period', $assignment->period) == 2 ? 'selected' : '' }}>Période 2 (Semestre 1)</option>
-                            <option value="3" {{ old('period', $assignment->period) == 3 ? 'selected' : '' }}>Période 3 (Semestre 2)</option>
-                            <option value="4" {{ old('period', $assignment->period) == 4 ? 'selected' : '' }}>Période 4 (Semestre 2)</option>
+                            <option value="1" <?php echo e(old('period') == 1 ? 'selected' : ''); ?>>Période 1 (Semestre 1)</option>
+                            <option value="2" <?php echo e(old('period') == 2 ? 'selected' : ''); ?>>Période 2 (Semestre 1)</option>
+                            <option value="3" <?php echo e(old('period') == 3 ? 'selected' : ''); ?>>Période 3 (Semestre 2)</option>
+                            <option value="4" <?php echo e(old('period') == 4 ? 'selected' : ''); ?>>Période 4 (Semestre 2)</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label class="font-weight-semibold">Date Limite <span class="text-danger">*</span></label>
-                        <input type="datetime-local" name="due_date" class="form-control" value="{{ old('due_date', $assignment->due_date ? $assignment->due_date->format('Y-m-d\TH:i') : '') }}" required>
+                        <input type="datetime-local" name="due_date" class="form-control" required>
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-group">
-                        <label class="font-weight-semibold">Statut <span class="text-danger">*</span></label>
-                        <select name="status" class="form-control" required>
-                            <option value="active" {{ $assignment->status == 'active' ? 'selected' : '' }}>Actif</option>
-                            <option value="closed" {{ $assignment->status == 'closed' ? 'selected' : '' }}>Fermé</option>
-                            <option value="draft" {{ $assignment->status == 'draft' ? 'selected' : '' }}>Brouillon</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="font-weight-semibold">Nouveau Fichier (optionnel)</label>
+                        <label class="font-weight-semibold">Fichier Joint (optionnel)</label>
                         <input type="file" name="file" class="form-control-file">
-                        @if($assignment->file_path)
-                            <small class="text-muted">
-                                Fichier actuel: <a href="{{ asset('storage/' . $assignment->file_path) }}" target="_blank">Télécharger</a>
-                            </small>
-                        @endif
+                        <small class="text-muted">PDF, DOC, DOCX, PPT, PPTX, ZIP (Max: 10MB)</small>
                     </div>
                 </div>
             </div>
 
             <div class="text-right">
-                <a href="{{ route('assignments.show', $assignment->id) }}" class="btn btn-light">Annuler</a>
-                <button type="submit" class="btn btn-primary">
+                <a href="<?php echo e(route('assignments.index')); ?>" class="btn btn-light">Annuler</a>
+                <button type="submit" class="btn btn-success">
                     <i class="icon-checkmark3 mr-2"></i>
-                    Mettre à Jour
+                    Créer le Devoir
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
 $(document).ready(function() {
     $('#my_class_id').change(function() {
@@ -169,4 +145,6 @@ $(document).ready(function() {
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/assignments/create.blade.php ENDPATH**/ ?>

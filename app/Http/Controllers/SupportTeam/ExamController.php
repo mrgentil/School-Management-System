@@ -27,7 +27,7 @@ class ExamController extends Controller
 
     public function store(ExamCreate $req)
     {
-        $data = $req->only(['name', 'term']);
+        $data = $req->only(['name', 'semester']);
         $data['year'] = Qs::getSetting('current_session');
 
         $this->exam->create($data);
@@ -42,7 +42,7 @@ class ExamController extends Controller
 
     public function update(ExamUpdate $req, $id)
     {
-        $data = $req->only(['name', 'term']);
+        $data = $req->only(['name', 'semester']);
 
         $this->exam->update($id, $data);
         return back()->with('flash_success', __('msg.update_ok'));

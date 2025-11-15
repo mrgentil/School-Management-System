@@ -72,7 +72,7 @@
         {{-- Filtres --}}
         <form method="GET" action="{{ route('student.assignments.index') }}" class="mb-3">
             <div class="row">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="font-weight-semibold">Matière</label>
                         <select name="subject_id" class="form-control">
@@ -86,7 +86,20 @@
                     </div>
                 </div>
 
-                <div class="col-md-5">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="font-weight-semibold">Période</label>
+                        <select name="period" class="form-control">
+                            <option value="">Toutes</option>
+                            <option value="1" {{ $selected_period == 1 ? 'selected' : '' }}>Période 1 (S1)</option>
+                            <option value="2" {{ $selected_period == 2 ? 'selected' : '' }}>Période 2 (S1)</option>
+                            <option value="3" {{ $selected_period == 3 ? 'selected' : '' }}>Période 3 (S2)</option>
+                            <option value="4" {{ $selected_period == 4 ? 'selected' : '' }}>Période 4 (S2)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-semibold">Statut</label>
                         <select name="status" class="form-control">
@@ -116,6 +129,7 @@
                         <tr>
                             <th>Titre</th>
                             <th>Matière</th>
+                            <th>Période</th>
                             <th>Enseignant</th>
                             <th>Date Limite</th>
                             <th>Note Max</th>
@@ -146,6 +160,20 @@
                             <tr>
                                 <td><strong>{{ $assignment->title }}</strong></td>
                                 <td>{{ $assignment->subject->name ?? 'N/A' }}</td>
+                                <td>
+                                    @php
+                                        $periodLabels = [1 => 'P1', 2 => 'P2', 3 => 'P3', 4 => 'P4'];
+                                        $periodBadges = [
+                                            1 => 'badge-primary',
+                                            2 => 'badge-info',
+                                            3 => 'badge-success',
+                                            4 => 'badge-warning'
+                                        ];
+                                    @endphp
+                                    <span class="badge {{ $periodBadges[$assignment->period] ?? 'badge-secondary' }}">
+                                        {{ $periodLabels[$assignment->period] ?? 'N/A' }}
+                                    </span>
+                                </td>
                                 <td>{{ $assignment->teacher->name ?? 'N/A' }}</td>
                                 <td>
                                     {{ $assignment->due_date ? $assignment->due_date->format('d/m/Y H:i') : 'N/A' }}

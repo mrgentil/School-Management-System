@@ -46,6 +46,10 @@ class AssignmentController extends Controller
             $query->where('subject_id', $request->subject_id);
         }
         
+        if ($request->period) {
+            $query->where('period', $request->period);
+        }
+        
         if ($request->status) {
             $query->where('status', $request->status);
         }
@@ -59,6 +63,7 @@ class AssignmentController extends Controller
             'my_class_id' => $request->my_class_id,
             'section_id' => $request->section_id,
             'subject_id' => $request->subject_id,
+            'period' => $request->period,
             'status' => $request->status
         ];
 
@@ -87,6 +92,7 @@ class AssignmentController extends Controller
             'my_class_id' => 'required|exists:my_classes,id',
             'section_id' => 'required|exists:sections,id',
             'subject_id' => 'required|exists:subjects,id',
+            'period' => 'required|integer|in:1,2,3,4',
             'due_date' => 'required|date|after:now',
             'max_score' => 'required|integer|min:1|max:1000',
             'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,zip|max:10240'
@@ -191,6 +197,7 @@ class AssignmentController extends Controller
             'my_class_id' => 'required|exists:my_classes,id',
             'section_id' => 'required|exists:sections,id',
             'subject_id' => 'required|exists:subjects,id',
+            'period' => 'required|integer|in:1,2,3,4',
             'due_date' => 'required|date',
             'max_score' => 'required|integer|min:1|max:1000',
             'status' => 'required|in:active,closed,draft',

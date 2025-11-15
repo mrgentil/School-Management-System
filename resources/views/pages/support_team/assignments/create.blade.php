@@ -76,6 +76,21 @@
             </div>
 
             <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="font-weight-semibold">Période <span class="text-danger">*</span></label>
+                        <select name="period" class="form-control select" required>
+                            <option value="">Sélectionner une période</option>
+                            <option value="1" {{ old('period') == 1 ? 'selected' : '' }}>Période 1 (Semestre 1)</option>
+                            <option value="2" {{ old('period') == 2 ? 'selected' : '' }}>Période 2 (Semestre 1)</option>
+                            <option value="3" {{ old('period') == 3 ? 'selected' : '' }}>Période 3 (Semestre 2)</option>
+                            <option value="4" {{ old('period') == 4 ? 'selected' : '' }}>Période 4 (Semestre 2)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="font-weight-semibold">Date Limite <span class="text-danger">*</span></label>

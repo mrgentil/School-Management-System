@@ -36,6 +36,11 @@ class StudentAssignmentController extends Controller
             $query->where('subject_id', $request->subject_id);
         }
 
+        // Filter by period
+        if ($request->filled('period')) {
+            $query->where('period', $request->period);
+        }
+
         // Filter by status
         if ($request->filled('status')) {
             if ($request->status === 'submitted') {
@@ -95,6 +100,7 @@ class StudentAssignmentController extends Controller
             'pending_count' => $pendingCount,
             'overdue_count' => $overdueCount,
             'selected_subject' => $request->subject_id,
+            'selected_period' => $request->period,
             'selected_status' => $request->status
         ];
 
