@@ -158,6 +158,10 @@
                                 </ul>
                             </li>
 
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('students.statistics')); ?>" class="nav-link <?php echo e(Route::is('students.statistics') ? 'active' : ''); ?>">Statistiques</a>
+                            </li>
+
                             <?php if(Qs::userIsTeamSA()): ?>
 
                             

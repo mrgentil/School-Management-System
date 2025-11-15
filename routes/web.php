@@ -194,6 +194,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         });
 
+        Route::get('students/statistics', [\App\Http\Controllers\SupportTeam\StudentStatsController::class, 'index'])->name('students.statistics');
         Route::resource('students', '\App\Http\Controllers\SupportTeam\StudentRecordController');
         Route::resource('users', '\App\Http\Controllers\SupportTeam\UserController');
         Route::resource('classes', '\App\Http\Controllers\SupportTeam\MyClassController');

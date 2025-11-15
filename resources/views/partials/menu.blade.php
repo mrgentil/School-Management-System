@@ -157,6 +157,10 @@
                                 </ul>
                             </li>
 
+                            <li class="nav-item">
+                                <a href="{{ route('students.statistics') }}" class="nav-link {{ Route::is('students.statistics') ? 'active' : '' }}">Statistiques</a>
+                            </li>
+
                             @if(Qs::userIsTeamSA())
 
                             {{--Student Promotion--}}
