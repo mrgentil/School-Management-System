@@ -3,35 +3,34 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\LearningMaterial;
+use App\Models\StudyMaterial;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller
 {
     public function index(Request $request)
     {
-        $student = auth()->user()->student;
+        $student = auth()->user()->student_record;
         
         if (!$student) {
-            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+            return redirect()->route('student.dashboard')->with('flash_danger', 'Aucun profil étudiant trouvé pour votre compte.');
         }
 
         $search = $request->input('search');
         $subjectId = $request->input('subject_id');
         $fileType = $request->input('file_type');
 
-        $materials = LearningMaterial::where('is_published', true)
+        $materials = StudyMaterial::query()
             ->where(function($query) use ($student) {
-                $query->where('class_id', $student->class_id)
-                      ->orWhereNull('class_id');
-            })
-            ->where(function($query) use ($student) {
-                $query->where('section_id', $student->section_id)
-                      ->orWhereNull('section_id');
+                // Matériaux pour la classe de l'étudiant ou publics (sans classe spécifique)
+                $query->where('my_class_id', $student->my_class_id)
+                      ->orWhere('is_public', true);
             })
             ->when($search, function($query) use ($search) {
-                $query->where('title', 'like', '%' . $search . '%')
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'like', '%' . $search . '%')
                       ->orWhere('description', 'like', '%' . $search . '%');
+                });
             })
             ->when($subjectId, function($query) use ($subjectId) {
                 $query->where('subject_id', $subjectId);
@@ -39,9 +38,9 @@ class MaterialController extends Controller
             ->when($fileType, function($query) use ($fileType) {
                 $query->where('file_type', $fileType);
             })
-            ->with(['subject', 'attachments', 'uploader'])
+            ->with(['subject', 'myClass', 'uploader'])
             ->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate(12)
             ->appends($request->except('page'));
 
         $subjects = \App\Models\Subject::all();
@@ -55,27 +54,47 @@ class MaterialController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(StudyMaterial $studyMaterial)
     {
-        $student = auth()->user()->student;
+        $student = auth()->user()->student_record;
         
         if (!$student) {
-            return redirect()->route('dashboard')->with('error', 'Aucun profil étudiant trouvé pour votre compte.');
+            return redirect()->route('student.dashboard')->with('flash_danger', 'Aucun profil étudiant trouvé pour votre compte.');
         }
 
-        $material = LearningMaterial::with(['subject', 'attachments', 'user'])
-            ->where('id', $id)
-            ->where('is_published', true)
-            ->where(function($query) use ($student) {
-                $query->where('class_id', $student->class_id)
-                      ->orWhereNull('class_id');
-            })
-            ->where(function($query) use ($student) {
-                $query->where('section_id', $student->section_id)
-                      ->orWhereNull('section_id');
-            })
-            ->firstOrFail();
+        // Vérifier que l'étudiant a accès à ce matériel
+        if (!$studyMaterial->is_public && $studyMaterial->my_class_id != $student->my_class_id) {
+            return redirect()->route('student.materials.index')->with('flash_danger', 'Vous n\'avez pas accès à ce matériel.');
+        }
 
-        return view('pages.student.materials.show', compact('material'));
+        $studyMaterial->load(['subject', 'myClass', 'uploader']);
+
+        return view('pages.student.materials.show', ['material' => $studyMaterial]);
+    }
+
+    /**
+     * Télécharger un matériel pédagogique
+     */
+    public function download(StudyMaterial $studyMaterial)
+    {
+        $student = auth()->user()->student_record;
+        
+        if (!$student) {
+            return redirect()->route('student.dashboard')->with('flash_danger', 'Aucun profil étudiant trouvé.');
+        }
+
+        // Vérifier l'accès
+        if (!$studyMaterial->is_public && $studyMaterial->my_class_id != $student->my_class_id) {
+            return back()->with('flash_danger', 'Vous n\'avez pas accès à ce fichier.');
+        }
+
+        if (!\Storage::disk('public')->exists($studyMaterial->file_path)) {
+            return back()->with('flash_danger', 'Le fichier n\'existe plus sur le serveur.');
+        }
+
+        // Incrémenter le compteur de téléchargements
+        $studyMaterial->incrementDownloadCount();
+
+        return \Storage::disk('public')->download($studyMaterial->file_path, $studyMaterial->file_name);
     }
 }

@@ -71,7 +71,9 @@ class StudyMaterialController extends Controller
         $data['uploaded_by'] = Auth::id();
         
         $this->studyMaterial->create($data);
-        return Qs::jsonStoreOk();
+        
+        return redirect()->route('study-materials.index')
+            ->with('flash_success', 'Matériel pédagogique ajouté avec succès !');
     }
 
     public function show(StudyMaterial $studyMaterial)
@@ -111,7 +113,9 @@ class StudyMaterialController extends Controller
         }
 
         $studyMaterial->update($data);
-        return Qs::jsonUpdateOk();
+        
+        return redirect()->route('study-materials.index')
+            ->with('flash_success', 'Matériel pédagogique modifié avec succès !');
     }
 
     public function destroy(StudyMaterial $studyMaterial)

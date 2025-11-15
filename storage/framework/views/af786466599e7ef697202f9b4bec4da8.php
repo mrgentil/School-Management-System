@@ -1,26 +1,26 @@
-@extends('layouts.master')
-@section('page_title', 'Ajouter un Support Pédagogique')
-@section('content')
+<?php $__env->startSection('page_title', 'Ajouter un Support Pédagogique'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="card">
     <div class="card-header header-elements-inline">
         <h6 class="card-title">Nouveau Support Pédagogique</h6>
-        {!! Qs::getPanelOptions() !!}
+        <?php echo Qs::getPanelOptions(); ?>
+
     </div>
 
-    <form method="post" action="{{ route('study-materials.store') }}" enctype="multipart/form-data">
-        @csrf
+    <form method="post" action="<?php echo e(route('study-materials.store')); ?>" enctype="multipart/form-data">
+        <?php echo csrf_field(); ?>
         <div class="card-body">
             <div class="form-group">
                 <label for="title">Titre du Support <span class="text-danger">*</span></label>
                 <input type="text" name="title" id="title" class="form-control" 
-                       value="{{ old('title') }}" required placeholder="Titre du support pédagogique">
+                       value="<?php echo e(old('title')); ?>" required placeholder="Titre du support pédagogique">
             </div>
 
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea name="description" id="description" class="form-control" rows="4" 
-                          placeholder="Description du support pédagogique">{{ old('description') }}</textarea>
+                          placeholder="Description du support pédagogique"><?php echo e(old('description')); ?></textarea>
             </div>
 
             <div class="alert alert-light border">
@@ -30,7 +30,7 @@
                     <div class="form-check mb-2">
                         <label class="form-check-label">
                             <input type="radio" name="visibility_type" value="public" class="form-check-input" 
-                                   {{ old('visibility_type', 'public') == 'public' ? 'checked' : '' }} onchange="toggleClassSelector()">
+                                   <?php echo e(old('visibility_type', 'public') == 'public' ? 'checked' : ''); ?> onchange="toggleClassSelector()">
                             <strong>📢 Tous les étudiants</strong> (matériel public)
                         </label>
                         <small class="form-text text-muted ml-4">Visible par tous les étudiants, quelle que soit leur classe</small>
@@ -38,7 +38,7 @@
                     <div class="form-check">
                         <label class="form-check-label">
                             <input type="radio" name="visibility_type" value="class" class="form-check-input" 
-                                   {{ old('visibility_type') == 'class' ? 'checked' : '' }} onchange="toggleClassSelector()">
+                                   <?php echo e(old('visibility_type') == 'class' ? 'checked' : ''); ?> onchange="toggleClassSelector()">
                             <strong>🎓 Une classe spécifique</strong>
                         </label>
                         <small class="form-text text-muted ml-4">Visible uniquement par les étudiants de la classe sélectionnée</small>
@@ -52,11 +52,12 @@
                         <label for="my_class_id">Classe <span class="text-danger class-required" style="display:none;">*</span></label>
                         <select name="my_class_id" id="my_class_id" class="form-control select">
                             <option value="">Sélectionner une classe</option>
-                            @foreach($classes as $class)
-                                <option value="{{ $class->id }}" {{ old('my_class_id') == $class->id ? 'selected' : '' }}>
-                                    {{ $class->name }}
+                            <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>" <?php echo e(old('my_class_id') == $class->id ? 'selected' : ''); ?>>
+                                    <?php echo e($class->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                         <small class="form-text text-muted">Requis si vous choisissez "Une classe spécifique"</small>
                     </div>
@@ -66,18 +67,19 @@
                         <label for="subject_id">Matière (Optionnel)</label>
                         <select name="subject_id" id="subject_id" class="form-control select">
                             <option value="">Sélectionner une matière</option>
-                            @foreach($subjects as $subject)
-                                <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                                    {{ $subject->name }}
+                            <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($subject->id); ?>" <?php echo e(old('subject_id') == $subject->id ? 'selected' : ''); ?>>
+                                    <?php echo e($subject->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                         <small class="form-text text-muted">Pour filtrer et organiser les matériaux</small>
                     </div>
                 </div>
             </div>
 
-            <input type="hidden" name="is_public" id="is_public" value="{{ old('is_public', '1') }}">
+            <input type="hidden" name="is_public" id="is_public" value="<?php echo e(old('is_public', '1')); ?>">
 
             <div class="form-group">
                 <label for="file">Fichier <span class="text-danger">*</span></label>
@@ -106,14 +108,14 @@
             <button type="submit" class="btn btn-primary">
                 <i class="icon-checkmark mr-2"></i> Télécharger le Support
             </button>
-            <a href="{{ route('study-materials.index') }}" class="btn btn-link">Annuler</a>
+            <a href="<?php echo e(route('study-materials.index')); ?>" class="btn btn-link">Annuler</a>
         </div>
     </form>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('page_script')
+<?php $__env->startSection('page_script'); ?>
 <script>
 // Mettre à jour le label du fichier sélectionné
 document.getElementById('file').addEventListener('change', function(e) {
@@ -152,4 +154,6 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleClassSelector();
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/study_materials/create.blade.php ENDPATH**/ ?>

@@ -62,7 +62,7 @@
 
                 {{--Academics (Non-Students)--}}
                 @if(Qs::userIsAcademic() && !Qs::userIsStudent())
-                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics']) ? 'nav-item-expanded nav-item-open' : '' }} ">
+                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics', 'study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Académique</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Gestion Académique">
@@ -89,6 +89,17 @@
                                 <ul class="nav nav-group-sub">
                                     <li class="nav-item"><a href="{{ route('assignments.index') }}" class="nav-link {{ Route::is('assignments.index') ? 'active' : '' }}">Liste des devoirs</a></li>
                                     <li class="nav-item"><a href="{{ route('assignments.create') }}" class="nav-link {{ Route::is('assignments.create') ? 'active' : '' }}">Créer un devoir</a></li>
+                                </ul>
+                            </li>
+                        @endif
+
+                        {{--Study Materials--}}
+                        @if(Qs::userIsTeamSA())
+                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit']) ? 'nav-item-expanded' : '' }}">
+                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit']) ? 'active' : '' }}">📖 Matériel Pédagogique</a>
+                                <ul class="nav nav-group-sub">
+                                    <li class="nav-item"><a href="{{ route('study-materials.index') }}" class="nav-link {{ Route::is('study-materials.index') ? 'active' : '' }}">Liste des matériaux</a></li>
+                                    <li class="nav-item"><a href="{{ route('study-materials.create') }}" class="nav-link {{ Route::is('study-materials.create') ? 'active' : '' }}">Ajouter un matériel</a></li>
                                 </ul>
                             </li>
                         @endif

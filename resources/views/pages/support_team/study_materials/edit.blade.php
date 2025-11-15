@@ -1,26 +1,27 @@
 @extends('layouts.master')
-@section('page_title', 'Ajouter un Support Pédagogique')
+@section('page_title', 'Modifier le Support Pédagogique')
 @section('content')
 
 <div class="card">
     <div class="card-header header-elements-inline">
-        <h6 class="card-title">Nouveau Support Pédagogique</h6>
+        <h6 class="card-title">Modifier le Support Pédagogique</h6>
         {!! Qs::getPanelOptions() !!}
     </div>
 
-    <form method="post" action="{{ route('study-materials.store') }}" enctype="multipart/form-data">
+    <form method="post" action="{{ route('study-materials.update', $study_material->id) }}" enctype="multipart/form-data">
         @csrf
+        @method('PUT')
         <div class="card-body">
             <div class="form-group">
                 <label for="title">Titre du Support <span class="text-danger">*</span></label>
                 <input type="text" name="title" id="title" class="form-control" 
-                       value="{{ old('title') }}" required placeholder="Titre du support pédagogique">
+                       value="{{ old('title', $study_material->title) }}" required placeholder="Titre du support pédagogique">
             </div>
 
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea name="description" id="description" class="form-control" rows="4" 
-                          placeholder="Description du support pédagogique">{{ old('description') }}</textarea>
+                          placeholder="Description du support pédagogique">{{ old('description', $study_material->description) }}</textarea>
             </div>
 
             <div class="alert alert-light border">
@@ -30,7 +31,7 @@
                     <div class="form-check mb-2">
                         <label class="form-check-label">
                             <input type="radio" name="visibility_type" value="public" class="form-check-input" 
-                                   {{ old('visibility_type', 'public') == 'public' ? 'checked' : '' }} onchange="toggleClassSelector()">
+                                   {{ old('visibility_type', $study_material->is_public ? 'public' : 'class') == 'public' ? 'checked' : '' }} onchange="toggleClassSelector()">
                             <strong>📢 Tous les étudiants</strong> (matériel public)
                         </label>
                         <small class="form-text text-muted ml-4">Visible par tous les étudiants, quelle que soit leur classe</small>
@@ -38,7 +39,7 @@
                     <div class="form-check">
                         <label class="form-check-label">
                             <input type="radio" name="visibility_type" value="class" class="form-check-input" 
-                                   {{ old('visibility_type') == 'class' ? 'checked' : '' }} onchange="toggleClassSelector()">
+                                   {{ old('visibility_type', $study_material->is_public ? 'public' : 'class') == 'class' ? 'checked' : '' }} onchange="toggleClassSelector()">
                             <strong>🎓 Une classe spécifique</strong>
                         </label>
                         <small class="form-text text-muted ml-4">Visible uniquement par les étudiants de la classe sélectionnée</small>
@@ -53,7 +54,7 @@
                         <select name="my_class_id" id="my_class_id" class="form-control select">
                             <option value="">Sélectionner une classe</option>
                             @foreach($classes as $class)
-                                <option value="{{ $class->id }}" {{ old('my_class_id') == $class->id ? 'selected' : '' }}>
+                                <option value="{{ $class->id }}" {{ old('my_class_id', $study_material->my_class_id) == $class->id ? 'selected' : '' }}>
                                     {{ $class->name }}
                                 </option>
                             @endforeach
@@ -67,7 +68,7 @@
                         <select name="subject_id" id="subject_id" class="form-control select">
                             <option value="">Sélectionner une matière</option>
                             @foreach($subjects as $subject)
-                                <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                                <option value="{{ $subject->id }}" {{ old('subject_id', $study_material->subject_id) == $subject->id ? 'selected' : '' }}>
                                     {{ $subject->name }}
                                 </option>
                             @endforeach
@@ -77,34 +78,38 @@
                 </div>
             </div>
 
-            <input type="hidden" name="is_public" id="is_public" value="{{ old('is_public', '1') }}">
+            <input type="hidden" name="is_public" id="is_public" value="{{ old('is_public', $study_material->is_public ? '1' : '0') }}">
 
             <div class="form-group">
-                <label for="file">Fichier <span class="text-danger">*</span></label>
+                <label>Fichier actuel</label>
+                <div class="alert alert-info mb-2">
+                    <i class="{{ $study_material->file_icon }} mr-2"></i>
+                    <strong>{{ $study_material->file_name }}</strong>
+                    <span class="ml-2 text-muted">({{ $study_material->file_size_formatted }})</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="file">Remplacer le fichier (optionnel)</label>
                 <div class="custom-file">
-                    <input type="file" name="file" id="file" class="custom-file-input" required 
+                    <input type="file" name="file" id="file" class="custom-file-input" 
                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mov,.mp3,.wav">
-                    <label class="custom-file-label" for="file">Choisir un fichier...</label>
+                    <label class="custom-file-label" for="file">Choisir un nouveau fichier...</label>
                 </div>
                 <small class="form-text text-muted">
-                    Formats acceptés : PDF, Word, Excel, PowerPoint, Images, Vidéos, Audio. Taille max : 50 MB
+                    Laissez vide pour conserver le fichier actuel. Formats acceptés : PDF, Word, Excel, PowerPoint, Images, Vidéos, Audio. Taille max : 50 MB
                 </small>
             </div>
 
-            <div class="alert alert-info">
-                <h6><i class="icon-info22 mr-2"></i>Conseils pour l'upload</h6>
-                <ul class="mb-0">
-                    <li>Utilisez des noms de fichiers descriptifs</li>
-                    <li>Organisez vos supports par classe et matière</li>
-                    <li>Vérifiez que le contenu est approprié avant publication</li>
-                    <li>Les fichiers PDF sont recommandés pour une meilleure compatibilité</li>
-                </ul>
+            <div class="alert alert-warning">
+                <h6><i class="icon-warning mr-2"></i>Attention</h6>
+                <p class="mb-0">Si vous remplacez le fichier, l'ancien fichier sera supprimé définitivement.</p>
             </div>
         </div>
 
         <div class="card-footer">
             <button type="submit" class="btn btn-primary">
-                <i class="icon-checkmark mr-2"></i> Télécharger le Support
+                <i class="icon-checkmark mr-2"></i> Mettre à jour
             </button>
             <a href="{{ route('study-materials.index') }}" class="btn btn-link">Annuler</a>
         </div>
@@ -117,7 +122,7 @@
 <script>
 // Mettre à jour le label du fichier sélectionné
 document.getElementById('file').addEventListener('change', function(e) {
-    const fileName = e.target.files[0]?.name || 'Choisir un fichier...';
+    const fileName = e.target.files[0]?.name || 'Choisir un nouveau fichier...';
     const label = document.querySelector('.custom-file-label');
     label.textContent = fileName;
 });

@@ -80,7 +80,8 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
     // Matériel pédagogique
     Route::group(['prefix' => 'materials', 'as' => 'materials.'], function() {
         Route::get('/', [StudentMaterialController::class, 'index'])->name('index');
-        Route::get('/{id}', [StudentMaterialController::class, 'show'])->name('show');
+        Route::get('/{studyMaterial}/download', [StudentMaterialController::class, 'download'])->name('download');
+        Route::get('/{studyMaterial}', [StudentMaterialController::class, 'show'])->name('show');
     });
 
     // Présences
