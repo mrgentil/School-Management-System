@@ -74,29 +74,23 @@ class StudyMaterialController extends Controller
         return Qs::jsonStoreOk();
     }
 
-    public function show($id)
+    public function show(StudyMaterial $studyMaterial)
     {
-        $d['study_material'] = $studyMaterial = $this->studyMaterial->with(['subject', 'myClass', 'uploader'])->find($id);
-        return !is_null($studyMaterial) ? view('pages.support_team.study_materials.show', $d) 
-            : Qs::goWithDanger('study-materials.index', __('msg.invalid_id'));
+        $studyMaterial->load(['subject', 'myClass', 'uploader']);
+        $d['study_material'] = $studyMaterial;
+        return view('pages.support_team.study_materials.show', $d);
     }
 
-    public function edit($id)
+    public function edit(StudyMaterial $studyMaterial)
     {
-        $d['study_material'] = $studyMaterial = $this->studyMaterial->find($id);
+        $d['study_material'] = $studyMaterial;
         $d['classes'] = MyClass::all();
         $d['subjects'] = Subject::all();
-        return !is_null($studyMaterial) ? view('pages.support_team.study_materials.edit', $d) 
-            : Qs::goWithDanger('study-materials.index', __('msg.invalid_id'));
+        return view('pages.support_team.study_materials.edit', $d);
     }
 
-    public function update(StudyMaterialRequest $req, $id)
+    public function update(StudyMaterialRequest $req, StudyMaterial $studyMaterial)
     {
-        $studyMaterial = $this->studyMaterial->find($id);
-        if(!$studyMaterial){
-            return Qs::goWithDanger('study-materials.index', __('msg.invalid_id'));
-        }
-
         $data = $req->validated();
         
         // Si un nouveau fichier est téléchargé
@@ -120,13 +114,8 @@ class StudyMaterialController extends Controller
         return Qs::jsonUpdateOk();
     }
 
-    public function destroy($id)
+    public function destroy(StudyMaterial $studyMaterial)
     {
-        $studyMaterial = $this->studyMaterial->find($id);
-        if(!$studyMaterial){
-            return back()->with('flash_danger', __('msg.invalid_id'));
-        }
-
         // Supprimer le fichier du stockage
         if ($studyMaterial->file_path && Storage::disk('public')->exists($studyMaterial->file_path)) {
             Storage::disk('public')->delete($studyMaterial->file_path);
@@ -136,14 +125,8 @@ class StudyMaterialController extends Controller
         return back()->with('flash_success', __('msg.del_ok'));
     }
 
-    public function download($id)
+    public function download(StudyMaterial $studyMaterial)
     {
-        $studyMaterial = $this->studyMaterial->find($id);
-        
-        if (!$studyMaterial) {
-            return back()->with('flash_danger', 'Fichier introuvable');
-        }
-
         if (!Storage::disk('public')->exists($studyMaterial->file_path)) {
             return back()->with('flash_danger', 'Le fichier n\'existe plus sur le serveur');
         }
