@@ -153,13 +153,15 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="academic_section_id">Section académique :</label>
-                                <select data-placeholder="Choose..." name="academic_section_id" id="academic_section_id" class="select-search form-control">
+                                <label for="academic_section_display">Section académique :</label>
+                                <input type="hidden" name="academic_section_id" id="academic_section_value" value="<?php echo e(old('academic_section_id')); ?>">
+                                <select data-placeholder="Choisir..." id="academic_section_display" class="select-search form-control">
                                     <option value=""></option>
                                     <?php $__currentLoopData = $academic_sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $as): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option <?php echo e(old('academic_section_id') == $as->id ? 'selected' : ''); ?> value="<?php echo e($as->id); ?>"><?php echo e($as->name); ?></option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
+                                <small id="academic_section_lock_notice" class="form-text text-muted d-none">La section est définie automatiquement par l'option choisie.</small>
                             </div>
                         </div>
 
@@ -229,7 +231,7 @@
                                 <select data-placeholder="Choose..." name="option_id" id="option_id" class="select-search form-control">
                                     <option value=""></option>
                                     <?php $__currentLoopData = $options; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option <?php echo e(old('option_id') == $opt->id ? 'selected' : ''); ?> value="<?php echo e($opt->id); ?>"><?php echo e($opt->name); ?></option>
+                                        <option data-section-id="<?php echo e(optional($opt->academic_section)->id); ?>" <?php echo e(old('option_id') == $opt->id ? 'selected' : ''); ?> value="<?php echo e($opt->id); ?>"><?php echo e($opt->name); ?></option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>

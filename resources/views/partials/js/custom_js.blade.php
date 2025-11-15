@@ -22,6 +22,46 @@
         })
     }
 
+    function syncOptionWithAcademicSection() {
+        var optionSelect = $('#option_id');
+        var sectionDisplay = $('#academic_section_display');
+        var sectionHidden = $('#academic_section_value');
+        var notice = $('#academic_section_lock_notice');
+
+        if (!optionSelect.length || !sectionDisplay.length || !sectionHidden.length) {
+            return;
+        }
+
+        function lockSectionToOption() {
+            var selected = optionSelect.find('option:selected');
+            var sectionId = selected.data('section-id');
+
+            if (sectionId) {
+                sectionHidden.val(sectionId);
+                sectionDisplay.val(sectionId).trigger('change');
+                sectionDisplay.prop('disabled', true);
+                notice.removeClass('d-none');
+            } else {
+                sectionHidden.val(sectionDisplay.val());
+                sectionDisplay.prop('disabled', false);
+                notice.addClass('d-none');
+            }
+        }
+
+        optionSelect.on('change', lockSectionToOption);
+        lockSectionToOption();
+
+        sectionDisplay.on('change', function(){
+            if(!sectionDisplay.prop('disabled')){
+                sectionHidden.val($(this).val());
+            }
+        });
+    }
+
+    $(function(){
+        syncOptionWithAcademicSection();
+    });
+
     function getClassSections(class_id, destination){
         var url = '{{ route('get_class_sections', [':id']) }}';
         url = url.replace(':id', class_id);
@@ -33,6 +73,10 @@
             success: function (resp) {
                 //console.log(resp);
                 section.empty();
+                section.append($('<option>', {
+                    value: '',
+                    text: 'Choisir...'
+                }));
                 $.each(resp, function (i, data) {
                     section.append($('<option>', {
                         value: data.id,

@@ -152,13 +152,15 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="academic_section_id">Section académique :</label>
-                                <select data-placeholder="Choose..." name="academic_section_id" id="academic_section_id" class="select-search form-control">
+                                <label for="academic_section_display">Section académique :</label>
+                                <input type="hidden" name="academic_section_id" id="academic_section_value" value="{{ old('academic_section_id') }}">
+                                <select data-placeholder="Choisir..." id="academic_section_display" class="select-search form-control">
                                     <option value=""></option>
                                     @foreach($academic_sections as $as)
                                         <option {{ old('academic_section_id') == $as->id ? 'selected' : '' }} value="{{ $as->id }}">{{ $as->name }}</option>
                                     @endforeach
                                 </select>
+                                <small id="academic_section_lock_notice" class="form-text text-muted d-none">La section est définie automatiquement par l'option choisie.</small>
                             </div>
                         </div>
 
@@ -228,7 +230,7 @@
                                 <select data-placeholder="Choose..." name="option_id" id="option_id" class="select-search form-control">
                                     <option value=""></option>
                                     @foreach($options as $opt)
-                                        <option {{ old('option_id') == $opt->id ? 'selected' : '' }} value="{{ $opt->id }}">{{ $opt->name }}</option>
+                                        <option data-section-id="{{ optional($opt->academic_section)->id }}" {{ old('option_id') == $opt->id ? 'selected' : '' }} value="{{ $opt->id }}">{{ $opt->name }}</option>
                                     @endforeach
                                 </select>
                             </div>

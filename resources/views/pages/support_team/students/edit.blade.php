@@ -19,6 +19,20 @@
                                 <label>Nom complet : <span class="text-danger">*</span></label>
                                 <input value="{{ $sr->user->name }}" required type="text" name="name" placeholder="Full Name" class="form-control">
                             </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="option_id">Option :</label>
+                                <select data-placeholder="Choisir..." name="option_id" id="option_id" class="select-search form-control">
+                                    <option value=""></option>
+                                    @foreach($options as $opt)
+                                        <option data-section-id="{{ optional($opt->academic_section)->id }}" {{ optional($sr->option)->id == $opt->id ? 'selected' : '' }} value="{{ $opt->id }}">{{ $opt->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                         </div>
 
                         <div class="col-md-6">
@@ -155,13 +169,15 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="academic_section_id">Section académique :</label>
-                                <select name="academic_section_id" id="academic_section_id" class="form-control select-search" data-placeholder="Choose Academic Section">
+                                <label for="academic_section_display">Section académique :</label>
+                                <input type="hidden" name="academic_section_id" id="academic_section_value" value="{{ optional($sr->academic_section)->id }}">
+                                <select id="academic_section_display" class="form-control select-search" data-placeholder="Section académique">
                                     <option value=""></option>
                                     @foreach($academic_sections as $as)
                                         <option {{ optional($sr->academic_section)->id == $as->id ? 'selected' : '' }} value="{{ $as->id }}">{{ $as->name }}</option>
                                     @endforeach
                                 </select>
+                                <small id="academic_section_lock_notice" class="form-text text-muted d-none">La section est définie automatiquement par l'option choisie.</small>
                             </div>
                         </div>
 

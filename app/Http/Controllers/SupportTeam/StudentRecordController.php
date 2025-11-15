@@ -49,7 +49,7 @@ class StudentRecordController extends Controller
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
         $data['academic_sections'] = AcademicSection::all();
-        $data['options'] = Option::all();
+        $data['options'] = Option::with('academic_section')->get();
         return view('pages.support_team.students.add', $data);
     }
 
@@ -142,7 +142,7 @@ class StudentRecordController extends Controller
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
         $data['academic_sections'] = AcademicSection::all();
-        $data['options'] = Option::all();
+        $data['options'] = Option::with('academic_section')->get();
         return view('pages.support_team.students.edit', $data);
     }
 
