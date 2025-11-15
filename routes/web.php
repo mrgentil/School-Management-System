@@ -130,14 +130,14 @@ Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => 'assignments', 'middleware' => 'teamSAT'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'index'])->name('assignments.index');
             Route::get('/create', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'create'])->name('assignments.create');
-            Route::post('/', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'store'])->name('assignments.store');
             Route::get('/get-sections/{class_id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'getSections']);
-            Route::get('/export/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'export'])->name('assignments.export');
-            Route::get('/{id}/edit', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'edit'])->name('assignments.edit');
-            Route::put('/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'update'])->name('assignments.update');
-            Route::delete('/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'destroy'])->name('assignments.destroy');
-            Route::post('/grade/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'grade'])->name('assignments.grade');
-            Route::get('/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'show'])->name('assignments.show');
+            Route::get('/{assignment}/edit', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'edit'])->name('assignments.edit');
+            Route::get('/{assignment}/export', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'export'])->name('assignments.export');
+            Route::get('/{assignment}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'show'])->name('assignments.show');
+            Route::post('/', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'store'])->name('assignments.store');
+            Route::put('/{assignment}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'update'])->name('assignments.update');
+            Route::delete('/{assignment}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'destroy'])->name('assignments.destroy');
+            Route::post('/{assignment}/grade', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'grade'])->name('assignments.grade');
         });
 
         /*************** Payments *****************/

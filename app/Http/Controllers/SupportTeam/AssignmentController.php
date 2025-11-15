@@ -112,10 +112,11 @@ class AssignmentController extends Controller
     /**
      * Show assignment details with submissions
      */
-    public function show($id)
+    public function show(Assignment $assignment)
     {
-        $assignment = Assignment::with(['myClass', 'section', 'subject', 'teacher'])
-            ->findOrFail($id);
+        \Log::info('AssignmentController::show called', ['id' => $assignment->id, 'user' => Auth::id()]);
+        
+        $assignment->load(['myClass', 'section', 'subject', 'teacher']);
 
         // Check permission
         if (Qs::userIsTeacher() && $assignment->teacher_id != Auth::id()) {
@@ -123,7 +124,7 @@ class AssignmentController extends Controller
         }
 
         // Get submissions
-        $submissions = AssignmentSubmission::where('assignment_id', $id)
+        $submissions = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->with('student')
             ->orderBy('submitted_at', 'desc')
             ->get();
@@ -157,9 +158,8 @@ class AssignmentController extends Controller
     /**
      * Show edit form
      */
-    public function edit($id)
+    public function edit(Assignment $assignment)
     {
-        $assignment = Assignment::findOrFail($id);
 
         // Check permission
         if (Qs::userIsTeacher() && $assignment->teacher_id != Auth::id()) {
@@ -177,9 +177,8 @@ class AssignmentController extends Controller
     /**
      * Update assignment
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Assignment $assignment)
     {
-        $assignment = Assignment::findOrFail($id);
 
         // Check permission
         if (Qs::userIsTeacher() && $assignment->teacher_id != Auth::id()) {
@@ -248,9 +247,8 @@ class AssignmentController extends Controller
     /**
      * Delete assignment
      */
-    public function destroy($id)
+    public function destroy(Assignment $assignment)
     {
-        $assignment = Assignment::findOrFail($id);
 
         // Check permission
         if (Qs::userIsTeacher() && $assignment->teacher_id != Auth::id()) {
@@ -278,16 +276,16 @@ class AssignmentController extends Controller
     /**
      * Export submissions to Excel
      */
-    public function export($id)
+    public function export(Assignment $assignment)
     {
-        $assignment = Assignment::with(['myClass', 'section', 'subject'])->findOrFail($id);
+        $assignment->load(['myClass', 'section', 'subject']);
 
         // Check permission
         if (Qs::userIsTeacher() && $assignment->teacher_id != Auth::id()) {
             return back()->with('flash_danger', 'Accès non autorisé.');
         }
 
-        $submissions = AssignmentSubmission::where('assignment_id', $id)
+        $submissions = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->with('student')
             ->orderBy('submitted_at', 'desc')
             ->get();
