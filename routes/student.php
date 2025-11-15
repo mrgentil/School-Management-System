@@ -7,6 +7,7 @@ use App\Http\Controllers\Student\FinanceController as StudentFinanceController;
 use App\Http\Controllers\Student\MaterialController as StudentMaterialController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
 use App\Http\Controllers\Student\StudentAssignmentController;
+use App\Http\Controllers\Student\MyGradesController;
 use App\Http\Controllers\Student\MessageController as StudentMessageController;
 use App\Http\Controllers\Student\BookRequestController as StudentBookRequestController;
 use App\Http\Controllers\Student\TimetableController as StudentTimetableController;
@@ -96,6 +97,12 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
         Route::get('/{assignment}', [StudentAssignmentController::class, 'show'])->name('show');
         Route::post('/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('submit');
         Route::get('/{assignment}/download', [StudentAssignmentController::class, 'downloadFile'])->name('download');
+    });
+
+    // Mes Notes
+    Route::group(['prefix' => 'grades', 'as' => 'grades.'], function() {
+        Route::get('/', [MyGradesController::class, 'index'])->name('index');
+        Route::get('/bulletin', [MyGradesController::class, 'bulletin'])->name('bulletin');
     });
 
     // Emploi du temps

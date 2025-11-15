@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SupportTeam;
 
 use App\Helpers\Qs;
+use App\Helpers\PeriodCalculator;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment\Assignment;
 use App\Models\Assignment\AssignmentSubmission;
@@ -248,7 +249,22 @@ class AssignmentController extends Controller
             'status' => 'graded'
         ]);
 
-        return back()->with('flash_success', 'Note enregistrée avec succès!');
+        // Calculer automatiquement la moyenne de période après notation
+        $student = $submission->student;
+        $studentRecord = $student->student_record;
+        
+        if ($studentRecord) {
+            PeriodCalculator::updatePeriodAverageInMarks(
+                $submission->student_id,
+                $assignment->subject_id,
+                $assignment->period,
+                $assignment->my_class_id,
+                $assignment->section_id,
+                Qs::getCurrentSession()
+            );
+        }
+
+        return back()->with('flash_success', 'Note enregistrée avec succès! La moyenne de période a été mise à jour.');
     }
 
     /**
