@@ -114,6 +114,18 @@ Route::group(['middleware' => 'auth'], function () {
 
         });
 
+        /*************** Attendance *****************/
+        Route::group(['prefix' => 'attendance', 'middleware' => 'teamSAT'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'index'])->name('attendance.index');
+            Route::post('/get-students', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'getStudents'])->name('attendance.get_students');
+            Route::post('/store', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'store'])->name('attendance.store');
+            Route::get('/view', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'view'])->name('attendance.view');
+            Route::get('/statistics', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'statistics'])->name('attendance.statistics');
+            Route::get('/export', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'export'])->name('attendance.export');
+            Route::delete('/{id}', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'destroy'])->name('attendance.destroy')->middleware('teamSA');
+            Route::get('/get-sections/{class_id}', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'getSections'])->name('attendance.get_sections');
+        });
+
         /*************** Payments *****************/
         Route::group(['prefix' => 'payments'], function(){
 

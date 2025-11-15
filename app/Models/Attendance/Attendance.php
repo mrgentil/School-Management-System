@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Attendance extends Model
 {
     protected $fillable = [
-        'student_id', 'class_id', 'section_id', 'subject_id', 'status', 'date', 'taken_by'
+        'student_id', 'class_id', 'section_id', 'subject_id', 'status', 'date', 'time', 'end_time', 'notes', 'recorded_by'
     ];
 
-    protected $dates = ['date'];
+    protected $casts = [
+        'date' => 'date',
+    ];
 
     public function student()
     {
@@ -34,6 +36,6 @@ class Attendance extends Model
 
     public function takenBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'taken_by');
+        return $this->belongsTo(\App\Models\User::class, 'recorded_by');
     }
 }

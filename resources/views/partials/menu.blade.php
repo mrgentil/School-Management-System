@@ -62,13 +62,25 @@
 
                 {{--Academics (Non-Students)--}}
                 @if(Qs::userIsAcademic() && !Qs::userIsStudent())
-                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage']) ? 'nav-item-expanded nav-item-open' : '' }} ">
+                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Académique</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Gestion Académique">
 
                         {{--Timetables--}}
                             <li class="nav-item"><a href="{{ route('tt.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['tt.index']) ? 'active' : '' }}">Emplois du temps</a></li>
+
+                        {{--Attendance--}}
+                        @if(Qs::userIsTeamSAT())
+                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['attendance.index', 'attendance.view', 'attendance.statistics']) ? 'nav-item-expanded' : '' }}">
+                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['attendance.index', 'attendance.view', 'attendance.statistics']) ? 'active' : '' }}">✅ Présence</a>
+                                <ul class="nav nav-group-sub">
+                                    <li class="nav-item"><a href="{{ route('attendance.index') }}" class="nav-link {{ Route::is('attendance.index') ? 'active' : '' }}">Prendre la présence</a></li>
+                                    <li class="nav-item"><a href="{{ route('attendance.view') }}" class="nav-link {{ Route::is('attendance.view') ? 'active' : '' }}">Consulter</a></li>
+                                    <li class="nav-item"><a href="{{ route('attendance.statistics') }}" class="nav-link {{ Route::is('attendance.statistics') ? 'active' : '' }}">Statistiques</a></li>
+                                </ul>
+                            </li>
+                        @endif
                         </ul>
                     </li>
                     @endif

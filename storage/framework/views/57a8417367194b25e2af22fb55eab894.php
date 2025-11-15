@@ -1,9 +1,8 @@
-@extends('layouts.master')
-@section('page_title', 'Mes Présences')
+<?php $__env->startSection('page_title', 'Mes Présences'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-{{-- Statistiques --}}
+
 <div class="row">
     <div class="col-sm-6 col-xl-3">
         <div class="card card-body bg-success-400 has-bg-image">
@@ -12,7 +11,7 @@
                     <i class="icon-checkmark3 icon-3x opacity-75"></i>
                 </div>
                 <div class="media-body text-right">
-                    <h3 class="mb-0">{{ $stats['present'] }}</h3>
+                    <h3 class="mb-0"><?php echo e($stats['present']); ?></h3>
                     <span class="text-uppercase font-size-xs">Présent</span>
                 </div>
             </div>
@@ -26,7 +25,7 @@
                     <i class="icon-cross2 icon-3x opacity-75"></i>
                 </div>
                 <div class="media-body text-right">
-                    <h3 class="mb-0">{{ $stats['absent'] }}</h3>
+                    <h3 class="mb-0"><?php echo e($stats['absent']); ?></h3>
                     <span class="text-uppercase font-size-xs">Absent</span>
                 </div>
             </div>
@@ -40,7 +39,7 @@
                     <i class="icon-alarm icon-3x opacity-75"></i>
                 </div>
                 <div class="media-body text-right">
-                    <h3 class="mb-0">{{ $stats['late'] }}</h3>
+                    <h3 class="mb-0"><?php echo e($stats['late']); ?></h3>
                     <span class="text-uppercase font-size-xs">En retard</span>
                 </div>
             </div>
@@ -54,7 +53,7 @@
                     <i class="icon-file-text2 icon-3x opacity-75"></i>
                 </div>
                 <div class="media-body text-right">
-                    <h3 class="mb-0">{{ $stats['excused'] }}</h3>
+                    <h3 class="mb-0"><?php echo e($stats['excused']); ?></h3>
                     <span class="text-uppercase font-size-xs">Excusé</span>
                 </div>
             </div>
@@ -65,22 +64,24 @@
 <div class="card">
     <div class="card-header header-elements-inline">
         <h6 class="card-title">Historique des Présences</h6>
-        {!! Qs::getPanelOptions() !!}
+        <?php echo Qs::getPanelOptions(); ?>
+
     </div>
 
     <div class="card-body">
-        {{-- Filtres --}}
-        <form method="GET" action="{{ route('student.attendance.index') }}" class="mb-3">
+        
+        <form method="GET" action="<?php echo e(route('student.attendance.index')); ?>" class="mb-3">
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-semibold">Mois</label>
                         <select name="month" class="form-control">
-                            @foreach($months as $num => $name)
-                                <option value="{{ $num }}" {{ $filters['month'] == $num ? 'selected' : '' }}>
-                                    {{ $name }}
+                            <?php $__currentLoopData = $months; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $num => $name): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($num); ?>" <?php echo e($filters['month'] == $num ? 'selected' : ''); ?>>
+                                    <?php echo e($name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -89,11 +90,12 @@
                     <div class="form-group">
                         <label class="font-weight-semibold">Année</label>
                         <select name="year" class="form-control">
-                            @for($y = date('Y'); $y >= date('Y') - 3; $y--)
-                                <option value="{{ $y }}" {{ $filters['year'] == $y ? 'selected' : '' }}>
-                                    {{ $y }}
+                            <?php for($y = date('Y'); $y >= date('Y') - 3; $y--): ?>
+                                <option value="<?php echo e($y); ?>" <?php echo e($filters['year'] == $y ? 'selected' : ''); ?>>
+                                    <?php echo e($y); ?>
+
                                 </option>
-                            @endfor
+                            <?php endfor; ?>
                         </select>
                     </div>
                 </div>
@@ -103,10 +105,10 @@
                         <label class="font-weight-semibold">Statut</label>
                         <select name="status" class="form-control">
                             <option value="">Tous</option>
-                            <option value="present" {{ $filters['status'] == 'present' ? 'selected' : '' }}>Présent</option>
-                            <option value="absent" {{ $filters['status'] == 'absent' ? 'selected' : '' }}>Absent</option>
-                            <option value="late" {{ $filters['status'] == 'late' ? 'selected' : '' }}>En retard</option>
-                            <option value="excused" {{ $filters['status'] == 'excused' ? 'selected' : '' }}>Excusé</option>
+                            <option value="present" <?php echo e($filters['status'] == 'present' ? 'selected' : ''); ?>>Présent</option>
+                            <option value="absent" <?php echo e($filters['status'] == 'absent' ? 'selected' : ''); ?>>Absent</option>
+                            <option value="late" <?php echo e($filters['status'] == 'late' ? 'selected' : ''); ?>>En retard</option>
+                            <option value="excused" <?php echo e($filters['status'] == 'excused' ? 'selected' : ''); ?>>Excusé</option>
                         </select>
                     </div>
                 </div>
@@ -132,38 +134,41 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($attendances as $attendance)
+                    <?php $__empty_1 = true; $__currentLoopData = $attendances; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attendance): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
-                            <td>{{ $attendance->date ? $attendance->date->format('d/m/Y') : 'N/A' }}</td>
+                            <td><?php echo e($attendance->date ? $attendance->date->format('d/m/Y') : 'N/A'); ?></td>
                             <td>
-                                @if($attendance->status == 'present')
+                                <?php if($attendance->status == 'present'): ?>
                                     <span class="badge badge-success">Présent</span>
-                                @elseif($attendance->status == 'absent')
+                                <?php elseif($attendance->status == 'absent'): ?>
                                     <span class="badge badge-danger">Absent</span>
-                                @elseif($attendance->status == 'late')
+                                <?php elseif($attendance->status == 'late'): ?>
                                     <span class="badge badge-warning">En retard</span>
-                                @elseif($attendance->status == 'excused')
+                                <?php elseif($attendance->status == 'excused'): ?>
                                     <span class="badge badge-info">Excusé</span>
-                                @else
-                                    <span class="badge badge-secondary">{{ ucfirst($attendance->status) }}</span>
-                                @endif
+                                <?php else: ?>
+                                    <span class="badge badge-secondary"><?php echo e(ucfirst($attendance->status)); ?></span>
+                                <?php endif; ?>
                             </td>
-                            <td>{{ $attendance->notes ?? '-' }}</td>
+                            <td><?php echo e($attendance->notes ?? '-'); ?></td>
                         </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="3" class="text-center text-muted">Aucune présence enregistrée pour le moment.</td>
                         </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
         
-        @if($attendances->hasPages())
+        <?php if($attendances->hasPages()): ?>
             <div class="mt-3">
-                {{ $attendances->links() }}
+                <?php echo e($attendances->links()); ?>
+
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/student/attendance/index.blade.php ENDPATH**/ ?>
