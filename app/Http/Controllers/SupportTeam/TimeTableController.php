@@ -12,6 +12,10 @@ use App\Repositories\MyClassRepo;
 use App\Repositories\TimeTableRepo;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Imports\TimetableImport;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Facades\Storage;
 
 class TimeTableController extends Controller
 {
@@ -252,5 +256,209 @@ class TimeTableController extends Controller
     {
         $this->tt->deleteRecord($ttr_id);
         return back()->with('flash_success', __('msg.delete_ok'));
+    }
+
+    /*********** IMPORT/EXPORT EXCEL *************/
+
+    /**
+     * Download Excel template for timetable import
+     */
+    public function download_template($ttr_id)
+    {
+        $ttr = $this->tt->findRecord($ttr_id);
+        $my_class = $this->my_class->find($ttr->my_class_id);
+        $subjects = $this->my_class->getSubject(['my_class_id' => $ttr->my_class_id])->get();
+
+        // Create new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers
+        $sheet->setCellValue('A1', 'Jour');
+        $sheet->setCellValue('B1', 'Créneau Horaire');
+        $sheet->setCellValue('C1', 'Matière');
+
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'size' => 12],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4CAF50']
+            ],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
+
+        // Add example data
+        $sheet->setCellValue('A2', 'Monday');
+        $sheet->setCellValue('B2', '08:00 AM - 09:00 AM');
+        $sheet->setCellValue('C2', $subjects->first()->name ?? 'Mathématiques');
+
+        $sheet->setCellValue('A3', 'Monday');
+        $sheet->setCellValue('B3', '09:00 AM - 10:00 AM');
+        $sheet->setCellValue('C3', $subjects->skip(1)->first()->name ?? 'Français');
+
+        // Add instructions sheet
+        $instructionsSheet = $spreadsheet->createSheet();
+        $instructionsSheet->setTitle('Instructions');
+        $instructionsSheet->setCellValue('A1', 'INSTRUCTIONS D\'IMPORTATION');
+        $instructionsSheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+
+        $instructionsSheet->setCellValue('A3', 'Format du fichier:');
+        $instructionsSheet->setCellValue('A4', '1. Colonne A: Jour de la semaine (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)');
+        $instructionsSheet->setCellValue('A5', '2. Colonne B: Créneau horaire (Format: HH:MM AM/PM - HH:MM AM/PM ou HH:MM - HH:MM)');
+        $instructionsSheet->setCellValue('A6', '3. Colonne C: Nom de la matière (doit exister dans le système)');
+
+        $instructionsSheet->setCellValue('A8', 'Matières disponibles pour ' . $my_class->name . ':');
+        $row = 9;
+        foreach ($subjects as $subject) {
+            $instructionsSheet->setCellValue('A' . $row, '- ' . $subject->name);
+            $row++;
+        }
+
+        $instructionsSheet->setCellValue('A' . ($row + 1), 'Exemples de créneaux horaires valides:');
+        $instructionsSheet->setCellValue('A' . ($row + 2), '- 08:00 AM - 09:00 AM');
+        $instructionsSheet->setCellValue('A' . ($row + 3), '- 8:00 AM - 9:00 AM');
+        $instructionsSheet->setCellValue('A' . ($row + 4), '- 14:00 - 15:00');
+
+        // Auto-size columns
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        $instructionsSheet->getColumnDimension('A')->setWidth(80);
+
+        // Set active sheet back to first sheet
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // Generate filename
+        $filename = 'emploi_du_temps_template_' . str_replace(' ', '_', $my_class->name) . '.xlsx';
+
+        // Create writer and download
+        $writer = new Xlsx($spreadsheet);
+        
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Import timetable from Excel file
+     */
+    public function import_timetable(Request $req, $ttr_id)
+    {
+        $req->validate([
+            'timetable_file' => 'required|file|mimes:xlsx,xls|max:2048'
+        ]);
+
+        $ttr = $this->tt->findRecord($ttr_id);
+        $file = $req->file('timetable_file');
+        
+        // Save file temporarily
+        $path = $file->store('temp');
+        $full_path = Storage::path($path);
+
+        try {
+            // Import
+            $importer = new TimetableImport($ttr_id, $ttr->my_class_id);
+            $result = $importer->import($full_path);
+
+            // Delete temporary file using Storage facade
+            if (Storage::exists($path)) {
+                Storage::delete($path);
+            }
+
+            if ($result['success']) {
+                return back()->with('flash_success', 
+                    "Import réussi! {$result['imported']} cours importés, {$result['time_slots_created']} créneaux horaires créés."
+                );
+            } else {
+                $error_message = "Erreurs lors de l'import:<br>" . implode("<br>", $result['errors']);
+                return back()->with('flash_danger', $error_message);
+            }
+        } catch (\Exception $e) {
+            // Delete temporary file in case of error
+            if (Storage::exists($path)) {
+                Storage::delete($path);
+            }
+            
+            return back()->with('flash_danger', 'Erreur lors de l\'import: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export current timetable to Excel
+     */
+    public function export_timetable($ttr_id)
+    {
+        $ttr = $this->tt->findRecord($ttr_id);
+        $my_class = $this->my_class->find($ttr->my_class_id);
+        $time_slots = $this->tt->getTimeSlotByTTR($ttr_id);
+        $timetables = $this->tt->getTimeTable(['ttr_id' => $ttr_id]);
+
+        // Create new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set title
+        $sheet->setCellValue('A1', 'Emploi du temps - ' . $my_class->name);
+        $sheet->mergeCells('A1:C1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Set headers
+        $sheet->setCellValue('A3', 'Jour');
+        $sheet->setCellValue('B3', 'Créneau Horaire');
+        $sheet->setCellValue('C3', 'Matière');
+
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4CAF50']
+            ],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        ];
+        $sheet->getStyle('A3:C3')->applyFromArray($headerStyle);
+
+        // Add data
+        $row = 4;
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        
+        foreach ($days as $day) {
+            $day_timetables = $timetables->where('day', $day)->sortBy('timestamp_from');
+            
+            foreach ($day_timetables as $tt) {
+                if ($tt->time_slot && $tt->subject) {
+                    $sheet->setCellValue('A' . $row, $day);
+                    $sheet->setCellValue('B' . $row, $tt->time_slot->full);
+                    $sheet->setCellValue('C' . $row, $tt->subject->name);
+                    $row++;
+                }
+            }
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Generate filename
+        $filename = 'emploi_du_temps_' . str_replace(' ', '_', $my_class->name) . '_' . date('Y-m-d') . '.xlsx';
+
+        // Create writer and download
+        $writer = new Xlsx($spreadsheet);
+        
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

@@ -105,6 +105,13 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::put('/{ts}', [\App\Http\Controllers\SupportTeam\TimeTableController::class, 'update_time_slot'])->name('ts.update');
             });
 
+            /*************** Import/Export Excel *****************/
+            Route::group(['middleware' => 'teamSA'], function(){
+                Route::get('download-template/{ttr}', [\App\Http\Controllers\SupportTeam\TimeTableController::class, 'download_template'])->name('tt.download_template');
+                Route::post('import/{ttr}', [\App\Http\Controllers\SupportTeam\TimeTableController::class, 'import_timetable'])->name('tt.import');
+                Route::get('export/{ttr}', [\App\Http\Controllers\SupportTeam\TimeTableController::class, 'export_timetable'])->name('tt.export');
+            });
+
         });
 
         /*************** Payments *****************/

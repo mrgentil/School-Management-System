@@ -14,6 +14,7 @@
                 <li class="nav-item"><a href="#manage-ts" class="nav-link active" data-toggle="tab">⏰ Gérer les Créneaux Horaires</a></li>
                 <li class="nav-item"><a href="#add-sub" class="nav-link" data-toggle="tab">➕ Ajouter une Matière</a></li>
                 <li class="nav-item"><a href="#edit-subs" class="nav-link " data-toggle="tab">✏️ Modifier les Matières</a></li>
+                <li class="nav-item"><a href="#import-excel" class="nav-link" data-toggle="tab">📥 Import/Export Excel</a></li>
                 <li class="nav-item"><a target="_blank" href="<?php echo e(route('ttr.show', $ttr->id)); ?>" class="nav-link" >👁️ Voir l'Emploi du Temps</a></li>
             </ul>
 
@@ -24,6 +25,8 @@
                 <?php echo $__env->make('pages.support_team.timetables.subjects.add', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 
                 <?php echo $__env->make('pages.support_team.timetables.subjects.edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                
+                <?php echo $__env->make('pages.support_team.timetables.import_excel', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
         </div>
     </div>
