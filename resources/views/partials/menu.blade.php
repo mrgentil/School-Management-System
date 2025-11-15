@@ -192,9 +192,18 @@
                         <a href="{{ route('dorms.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['dorms.index','dorms.edit']) ? 'active' : '' }}"><i class="icon-home9"></i> <span> Dortoirs</span></a>
                     </li>
 
-                    {{--Manage Sections--}}
+                    {{--Manage Sections (Divisions)--}}
                     <li class="nav-item">
-                        <a href="{{ route('sections.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['sections.index','sections.edit',]) ? 'active' : '' }}"><i class="icon-fence"></i> <span>Sections</span></a>
+                        <a href="{{ route('sections.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['sections.index','sections.edit',]) ? 'active' : '' }}"><i class="icon-fence"></i> <span>Divisions (A, B, C...)</span></a>
+                    </li>
+
+                    {{--Academic Sections & Options--}}
+                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['academic_sections.index', 'options.index']) ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span>Sections & Options</span></a>
+                        <ul class="nav nav-group-sub" data-submenu-title="Sections & Options">
+                            <li class="nav-item"><a href="{{ route('academic_sections.index') }}" class="nav-link {{ Route::is('academic_sections.index') ? 'active' : '' }}">Sections académiques</a></li>
+                            <li class="nav-item"><a href="{{ route('options.index') }}" class="nav-link {{ Route::is('options.index') ? 'active' : '' }}">Options</a></li>
+                        </ul>
                     </li>
 
                     {{--Manage Subjects--}}

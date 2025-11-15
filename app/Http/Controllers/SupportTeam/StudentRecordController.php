@@ -6,6 +6,8 @@ use App\Helpers\Qs;
 use App\Helpers\Mk;
 use App\Http\Requests\Student\StudentRecordCreate;
 use App\Http\Requests\Student\StudentRecordUpdate;
+use App\Models\AcademicSection;
+use App\Models\Option;
 use App\Repositories\LocationRepo;
 use App\Repositories\MyClassRepo;
 use App\Repositories\StudentRepo;
@@ -46,6 +48,8 @@ class StudentRecordController extends Controller
         $data['dorms'] = $this->student->getAllDorms();
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
+        $data['academic_sections'] = AcademicSection::all();
+        $data['options'] = Option::all();
         return view('pages.support_team.students.add', $data);
     }
 
@@ -137,6 +141,8 @@ class StudentRecordController extends Controller
         $data['dorms'] = $this->student->getAllDorms();
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
+        $data['academic_sections'] = AcademicSection::all();
+        $data['options'] = Option::all();
         return view('pages.support_team.students.edit', $data);
     }
 

@@ -204,6 +204,15 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('dorms', '\App\Http\Controllers\SupportTeam\DormController');
         Route::resource('payments', '\App\Http\Controllers\SupportTeam\PaymentController');
 
+        /*************** Sections académiques & Options *****************/
+        Route::group(['middleware' => 'teamSA'], function () {
+            Route::resource('academic_sections', \App\Http\Controllers\SupportTeam\AcademicSectionController::class)
+                ->except(['create', 'show', 'edit']);
+
+            Route::resource('options', \App\Http\Controllers\SupportTeam\OptionController::class)
+                ->except(['create', 'show', 'edit']);
+        });
+
     });
 
     /*************** Notices & Events *****************/

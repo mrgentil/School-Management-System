@@ -195,7 +195,16 @@
 
                     
                     <li class="nav-item">
-                        <a href="<?php echo e(route('sections.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['sections.index','sections.edit',]) ? 'active' : ''); ?>"><i class="icon-fence"></i> <span>Sections</span></a>
+                        <a href="<?php echo e(route('sections.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['sections.index','sections.edit',]) ? 'active' : ''); ?>"><i class="icon-fence"></i> <span>Divisions (A, B, C...)</span></a>
+                    </li>
+
+                    
+                    <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['academic_sections.index', 'options.index']) ? 'nav-item-expanded nav-item-open' : ''); ?>">
+                        <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span>Sections & Options</span></a>
+                        <ul class="nav nav-group-sub" data-submenu-title="Sections & Options">
+                            <li class="nav-item"><a href="<?php echo e(route('academic_sections.index')); ?>" class="nav-link <?php echo e(Route::is('academic_sections.index') ? 'active' : ''); ?>">Sections académiques</a></li>
+                            <li class="nav-item"><a href="<?php echo e(route('options.index')); ?>" class="nav-link <?php echo e(Route::is('options.index') ? 'active' : ''); ?>">Options</a></li>
+                        </ul>
                     </li>
 
                     

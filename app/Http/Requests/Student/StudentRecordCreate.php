@@ -35,6 +35,8 @@ class StudentRecordCreate extends FormRequest
             'nal_id' => 'required',
             'my_class_id' => 'required',
             'section_id' => 'required',
+            'academic_section_id' => 'sometimes|nullable|integer',
+            'option_id' => 'sometimes|nullable|integer',
             'my_parent_id' => 'sometimes|nullable',
             'dorm_id' => 'sometimes|nullable',
         ];

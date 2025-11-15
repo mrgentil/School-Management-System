@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateOptionsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('options', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('academic_section_id');
+            $table->string('name', 150);
+            $table->string('code', 50)->nullable();
+            $table->boolean('active')->default(true);
+            $table->timestamps();
+
+            $table->unique(['academic_section_id', 'name']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('options');
+    }
+}
