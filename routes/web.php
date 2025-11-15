@@ -126,6 +126,20 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/get-sections/{class_id}', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'getSections'])->name('attendance.get_sections');
         });
 
+        /*************** Assignments (Devoirs) *****************/
+        Route::group(['prefix' => 'assignments', 'middleware' => 'teamSAT'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'index'])->name('assignments.index');
+            Route::get('/create', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'create'])->name('assignments.create');
+            Route::post('/', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'store'])->name('assignments.store');
+            Route::get('/get-sections/{class_id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'getSections']);
+            Route::get('/export/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'export'])->name('assignments.export');
+            Route::get('/{id}/edit', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'edit'])->name('assignments.edit');
+            Route::put('/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'update'])->name('assignments.update');
+            Route::delete('/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'destroy'])->name('assignments.destroy');
+            Route::post('/grade/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'grade'])->name('assignments.grade');
+            Route::get('/{id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'show'])->name('assignments.show');
+        });
+
         /*************** Payments *****************/
         Route::group(['prefix' => 'payments'], function(){
 

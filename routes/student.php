@@ -6,7 +6,7 @@ use App\Http\Controllers\Student\LibraryController as StudentLibraryController;
 use App\Http\Controllers\Student\FinanceController as StudentFinanceController;
 use App\Http\Controllers\Student\MaterialController as StudentMaterialController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
-use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
+use App\Http\Controllers\Student\StudentAssignmentController;
 use App\Http\Controllers\Student\MessageController as StudentMessageController;
 use App\Http\Controllers\Student\BookRequestController as StudentBookRequestController;
 use App\Http\Controllers\Student\TimetableController as StudentTimetableController;
@@ -92,7 +92,9 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
     // Devoirs
     Route::group(['prefix' => 'assignments', 'as' => 'assignments.'], function() {
         Route::get('/', [StudentAssignmentController::class, 'index'])->name('index');
-        Route::get('/{id}', [StudentAssignmentController::class, 'show'])->name('show');
+        Route::get('/{assignment}', [StudentAssignmentController::class, 'show'])->name('show');
+        Route::post('/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('submit');
+        Route::get('/{assignment}/download', [StudentAssignmentController::class, 'downloadFile'])->name('download');
     });
 
     // Emploi du temps

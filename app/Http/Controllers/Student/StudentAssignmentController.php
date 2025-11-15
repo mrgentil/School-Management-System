@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Assignment;
-use App\Models\AssignmentSubmission;
+use App\Models\Assignment\Assignment;
+use App\Models\Assignment\AssignmentSubmission;
 use App\Models\Subject;
 use App\Helpers\Qs;
 use Illuminate\Http\Request;
@@ -29,7 +29,7 @@ class StudentAssignmentController extends Controller
 
         $query = Assignment::where('my_class_id', $studentRecord->my_class_id)
                           ->where('section_id', $studentRecord->section_id)
-                          ->active();
+                          ->where('status', 'active');
 
         // Filter by subject
         if ($request->filled('subject_id')) {
@@ -60,18 +60,21 @@ class StudentAssignmentController extends Controller
                          ->latest()
                          ->paginate(10);
 
-        // Get subjects for filter
-        $subjects = Subject::whereHas('assignments', function($q) use ($studentRecord) {
-                          $q->where('my_class_id', $studentRecord->my_class_id)
-                            ->where('section_id', $studentRecord->section_id);
-                      })
-                      ->orderBy('name')
-                      ->get();
+        // Get subjects for filter - get unique subjects from assignments
+        $subjectIds = Assignment::where('my_class_id', $studentRecord->my_class_id)
+                                ->where('section_id', $studentRecord->section_id)
+                                ->where('status', 'active')
+                                ->distinct()
+                                ->pluck('subject_id');
+        
+        $subjects = Subject::whereIn('id', $subjectIds)
+                          ->orderBy('name')
+                          ->get();
 
         // Get statistics
         $totalAssignments = Assignment::where('my_class_id', $studentRecord->my_class_id)
                                     ->where('section_id', $studentRecord->section_id)
-                                    ->active()
+                                    ->where('status', 'active')
                                     ->count();
 
         $submittedCount = AssignmentSubmission::where('student_id', $student->id)->count();
@@ -110,7 +113,9 @@ class StudentAssignmentController extends Controller
             return back()->with('flash_danger', 'Accès non autorisé.');
         }
 
-        $submission = $assignment->getSubmissionForStudent($student->id);
+        $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('student_id', $student->id)
+            ->first();
 
         return view('pages.student.assignments.show', compact('assignment', 'submission'));
     }

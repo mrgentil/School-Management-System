@@ -81,6 +81,17 @@
                                 </ul>
                             </li>
                         @endif
+
+                        {{--Assignments--}}
+                        @if(Qs::userIsTeamSAT())
+                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['assignments.index', 'assignments.create', 'assignments.show', 'assignments.edit']) ? 'nav-item-expanded' : '' }}">
+                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['assignments.index', 'assignments.create', 'assignments.show', 'assignments.edit']) ? 'active' : '' }}">📚 Devoirs</a>
+                                <ul class="nav nav-group-sub">
+                                    <li class="nav-item"><a href="{{ route('assignments.index') }}" class="nav-link {{ Route::is('assignments.index') ? 'active' : '' }}">Liste des devoirs</a></li>
+                                    <li class="nav-item"><a href="{{ route('assignments.create') }}" class="nav-link {{ Route::is('assignments.create') ? 'active' : '' }}">Créer un devoir</a></li>
+                                </ul>
+                            </li>
+                        @endif
                         </ul>
                     </li>
                     @endif

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AssignmentSubmission extends Model
 {
     protected $fillable = [
-        'assignment_id', 'student_id', 'submission', 'submitted_at', 'marks', 'feedback'
+        'assignment_id', 'student_id', 'submission_text', 'file_path', 'submitted_at', 'score', 'teacher_feedback', 'status'
     ];
 
     protected $dates = ['submitted_at'];
