@@ -111,6 +111,7 @@
                             <form id="delete-form-<?php echo e($sch->id); ?>" method="POST" action="<?php echo e(route('exam_schedules.destroy', $sch->id)); ?>" style="display:none;">
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
+                                <input type="hidden" name="schedule_id" value="<?php echo e($sch->id); ?>">
                             </form>
                             <?php endif; ?>
 
@@ -163,6 +164,7 @@
                                         <form method="post" action="<?php echo e(route('exam_schedules.update', $sch->id)); ?>">
                                             <?php echo csrf_field(); ?>
                                             <?php echo method_field('PUT'); ?>
+                                            <input type="hidden" name="schedule_id" value="<?php echo e($sch->id); ?>">
                                             <div class="modal-body">
                                                 <div class="row">
                                                     <div class="col-md-6">

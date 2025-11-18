@@ -109,6 +109,7 @@
                             <form id="delete-form-{{ $sch->id }}" method="POST" action="{{ route('exam_schedules.destroy', $sch->id) }}" style="display:none;">
                                 @csrf
                                 @method('DELETE')
+                                <input type="hidden" name="schedule_id" value="{{ $sch->id }}">
                             </form>
                             @endif
 
@@ -161,6 +162,7 @@
                                         <form method="post" action="{{ route('exam_schedules.update', $sch->id) }}">
                                             @csrf
                                             @method('PUT')
+                                            <input type="hidden" name="schedule_id" value="{{ $sch->id }}">
                                             <div class="modal-body">
                                                 <div class="row">
                                                     <div class="col-md-6">

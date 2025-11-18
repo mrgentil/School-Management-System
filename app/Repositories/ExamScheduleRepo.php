@@ -14,7 +14,20 @@ class ExamScheduleRepo
 
     public function update($id, $data)
     {
-        return ExamSchedule::find($id)->update($data);
+        // Sécuriser l'ID et éviter l'appel sur null
+        $id = (int) $id;
+
+        if ($id < 1) {
+            return false;
+        }
+
+        $schedule = ExamSchedule::find($id);
+
+        if (! $schedule) {
+            return false;
+        }
+
+        return $schedule->update($data);
     }
 
     public function find($id)
@@ -24,7 +37,14 @@ class ExamScheduleRepo
 
     public function delete($id)
     {
-        return ExamSchedule::destroy($id);
+        // Sécuriser l'ID pour éviter les erreurs silencieuses
+        $id = (int) $id;
+
+        if ($id < 1) {
+            return false;
+        }
+
+        return ExamSchedule::destroy($id) > 0;
     }
 
     public function getSchedule($data)

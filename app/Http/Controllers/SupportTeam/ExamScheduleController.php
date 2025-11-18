@@ -77,14 +77,20 @@ class ExamScheduleController extends Controller
             'status' => 'nullable|in:scheduled,ongoing,completed,cancelled',
         ]);
 
-        $this->schedule->update($id, $data);
+        // Fallback si le paramètre de route {id} est vide
+        $scheduleId = $id ?: $req->input('schedule_id');
+
+        $this->schedule->update($scheduleId, $data);
         
         return back()->with('flash_success', 'Horaire mis à jour avec succès');
     }
 
     public function destroy($id)
     {
-        $this->schedule->delete($id);
+        // Fallback si le paramètre de route {id} est vide
+        $scheduleId = $id ?: request('schedule_id');
+
+        $this->schedule->delete($scheduleId);
         
         return back()->with('flash_success', 'Horaire supprimé avec succès');
     }
