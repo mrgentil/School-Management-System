@@ -59,6 +59,13 @@
                 <i class="icon-folder-open mr-2"></i>Matériel Pédagogique
             </a>
         </li>
+
+        {{-- Examens & Horaires --}}
+        <li class="nav-item">
+            <a href="{{ route('student.exam_schedule') }}" class="nav-link {{ Route::is('student.exam_schedule') ? 'active' : '' }}">
+                <i class="icon-calendar2 mr-2"></i>Horaires d'Examens
+            </a>
+        </li>
     </ul>
 </li>
 

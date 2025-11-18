@@ -50,7 +50,7 @@ class ExamScheduleRepo
     public function getSchedule($data)
     {
         return ExamSchedule::where($data)
-            ->with(['exam', 'my_class', 'section', 'subject', 'supervisors.teacher'])
+            ->with(['exam', 'my_class', 'section', 'subject', 'supervisors.teacher', 'examRoom', 'placements.room'])
             ->orderBy('exam_date')
             ->orderBy('start_time')
             ->get();
@@ -59,7 +59,7 @@ class ExamScheduleRepo
     public function getScheduleByExam($exam_id)
     {
         return ExamSchedule::where('exam_id', $exam_id)
-            ->with(['my_class', 'section', 'subject', 'supervisors.teacher'])
+            ->with(['my_class', 'section', 'subject', 'supervisors.teacher', 'examRoom', 'placements.room'])
             ->orderBy('exam_date')
             ->orderBy('start_time')
             ->get();
@@ -68,7 +68,7 @@ class ExamScheduleRepo
     public function getScheduleByClass($class_id, $exam_id = null)
     {
         $query = ExamSchedule::where('my_class_id', $class_id)
-            ->with(['exam', 'subject', 'supervisors.teacher']);
+            ->with(['exam', 'subject', 'supervisors.teacher', 'examRoom', 'placements.room']);
 
         if ($exam_id) {
             $query->where('exam_id', $exam_id);
@@ -82,7 +82,7 @@ class ExamScheduleRepo
         $query = ExamSchedule::where('exam_date', '>=', now())
             ->where('exam_date', '<=', now()->addDays($days))
             ->where('status', 'scheduled')
-            ->with(['exam', 'my_class', 'section', 'subject']);
+            ->with(['exam', 'my_class', 'section', 'subject', 'examRoom', 'placements.room']);
 
         if ($class_id) {
             $query->where('my_class_id', $class_id);

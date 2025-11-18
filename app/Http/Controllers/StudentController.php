@@ -30,6 +30,7 @@ class StudentController extends Controller
         }
 
         $d['sr'] = $sr;
+        $d['student_id'] = $student_id;
         $d['my_class'] = $sr->my_class;
         $d['section'] = $sr->section;
         $d['exams'] = $this->exam->getExam(['year' => Qs::getSetting('current_session')]);
