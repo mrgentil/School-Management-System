@@ -19,23 +19,25 @@ class ExamPlacementController extends Controller
     }
 
     /**
-     * Générer les placements automatiques pour un examen SESSION
+     * Générer les placements automatiques pour un examen SESSION complet
+     * LOGIQUE CORRECTE: Un élève a UNE salle et UN numéro de place pour TOUT l'examen
      */
-    public function generate($exam_schedule_id)
+    public function generate($exam_id)
     {
         try {
-            $schedule = ExamSchedule::with('exam')->findOrFail($exam_schedule_id);
+            $exam = Exam::with('schedules')->findOrFail($exam_id);
 
-            // Vérifier que c'est bien un examen SESSION
-            if ($schedule->exam->exam_type !== 'session') {
-                return back()->with('flash_danger', 'Le placement automatique est uniquement pour les examens SESSION');
+            // Vérifier qu'il y a au moins un horaire SESSION
+            $hasSessionSchedules = $exam->schedules->where('exam_type', 'session')->count() > 0;
+            if (!$hasSessionSchedules) {
+                return back()->with('flash_danger', 'Cet examen n\'a aucun horaire de type SESSION');
             }
 
-            // Générer les placements
-            $result = $this->placementService->placeStudentsForSession($exam_schedule_id);
+            // Générer les placements pour tout l'examen
+            $result = $this->placementService->placeStudentsForSession($exam_id);
 
             return back()->with('flash_success', 
-                "Placement réussi ! {$result['total_students']} étudiants placés dans {$result['rooms_used']} salle(s)."
+                "Placement réussi ! {$result['total_students']} étudiants placés dans {$result['rooms_used']} salle(s) pour TOUT l'examen."
             );
 
         } catch (\Exception $e) {
@@ -44,20 +46,21 @@ class ExamPlacementController extends Controller
     }
 
     /**
-     * Afficher les placements d'un examen
+     * Afficher les placements d'un examen SESSION complet
      */
-    public function show($exam_schedule_id)
+    public function show($exam_id)
     {
-        $d['schedule'] = ExamSchedule::with(['exam', 'my_class', 'section', 'subject'])->findOrFail($exam_schedule_id);
+        $d['exam'] = Exam::with('schedules')->findOrFail($exam_id);
         
-        // Vérifier que c'est un examen SESSION
-        if ($d['schedule']->exam->exam_type !== 'session') {
-            return redirect()->route('exam_schedules.show', $d['schedule']->exam_id)
-                ->with('flash_info', 'Cet examen HORS SESSION ne nécessite pas de placement');
+        // Vérifier qu'il y a au moins un horaire SESSION
+        $hasSessionSchedules = $d['exam']->schedules->where('exam_type', 'session')->count() > 0;
+        if (!$hasSessionSchedules) {
+            return redirect()->route('exams.index')
+                ->with('flash_info', 'Cet examen n\'a pas d\'horaires SESSION');
         }
 
         // Récupérer les placements groupés par salle
-        $d['placementsByRoom'] = $this->placementService->getPlacementsByRoom($exam_schedule_id);
+        $d['placementsByRoom'] = $this->placementService->getPlacementsByRoom($exam_id);
         $d['rooms'] = ExamRoom::active()->get();
 
         return view('pages.support_team.exam_placements.show', $d);
@@ -66,27 +69,27 @@ class ExamPlacementController extends Controller
     /**
      * Afficher les placements par salle (pour impression)
      */
-    public function byRoom($exam_schedule_id, $room_id)
+    public function byRoom($exam_id, $room_id)
     {
-        $d['schedule'] = ExamSchedule::with(['exam', 'my_class', 'section', 'subject'])->findOrFail($exam_schedule_id);
+        $d['exam'] = Exam::with('schedules')->findOrFail($exam_id);
         $d['room'] = ExamRoom::findOrFail($room_id);
         
-        $allPlacements = $this->placementService->getPlacementsByRoom($exam_schedule_id);
+        $allPlacements = $this->placementService->getPlacementsByRoom($exam_id);
         $d['placements'] = $allPlacements->get($room_id, collect());
 
         return view('pages.support_team.exam_placements.by_room', $d);
     }
 
     /**
-     * Supprimer tous les placements d'un examen
+     * Supprimer tous les placements d'un examen SESSION complet
      */
-    public function destroy($exam_schedule_id)
+    public function destroy($exam_id)
     {
-        $schedule = ExamSchedule::findOrFail($exam_schedule_id);
+        $exam = Exam::findOrFail($exam_id);
         
-        $count = $schedule->placements()->count();
-        $schedule->placements()->delete();
+        $count = $exam->placements()->count();
+        $exam->placements()->delete();
 
-        return back()->with('flash_success', "$count placement(s) supprimé(s)");
+        return back()->with('flash_success', "$count placement(s) supprimé(s) pour tout l'examen");
     }
 }

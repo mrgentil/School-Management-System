@@ -14,31 +14,37 @@ use Illuminate\Support\Facades\DB;
 class ExamPlacementService
 {
     /**
-     * Placer automatiquement les étudiants pour un examen SESSION
+     * Placer automatiquement les étudiants pour un examen SESSION complet
+     * LOGIQUE CORRECTE: Un élève a UNE salle et UN numéro de place pour TOUT l'examen SESSION
      * Classe les étudiants par performance et les répartit dans les salles A, B, C
      * 
-     * @param int $exam_schedule_id
+     * @param int $exam_id
      * @return array Statistiques du placement
      */
-    public function placeStudentsForSession($exam_schedule_id)
+    public function placeStudentsForSession($exam_id)
     {
-        $schedule = ExamSchedule::with(['exam', 'my_class', 'section', 'subject'])->findOrFail($exam_schedule_id);
+        $exam = Exam::with('schedules')->findOrFail($exam_id);
         
-        // Vérifier que c'est bien un examen SESSION
-        if ($schedule->exam->exam_type !== 'session') {
-            throw new \Exception("Cette méthode est uniquement pour les examens SESSION");
+        // Vérifier qu'il y a au moins un horaire SESSION
+        $hasSessionSchedules = $exam->schedules->where('exam_type', 'session')->count() > 0;
+        if (!$hasSessionSchedules) {
+            throw new \Exception("Cet examen n'a aucun horaire de type SESSION");
         }
 
         DB::beginTransaction();
         try {
-            // 1. Supprimer les placements existants
-            ExamStudentPlacement::where('exam_schedule_id', $exam_schedule_id)->delete();
+            // 1. Supprimer les placements existants pour cet examen
+            ExamStudentPlacement::where('exam_id', $exam_id)->delete();
 
-            // 2. Récupérer tous les étudiants concernés (même matière, mélange de classes)
-            $students = $this->getStudentsForPlacement($schedule);
+            // 2. Récupérer tous les étudiants concernés par les horaires SESSION de cet examen
+            $students = $this->getStudentsForExam($exam);
+            
+            if ($students->isEmpty()) {
+                throw new \Exception("Aucun étudiant trouvé pour cet examen");
+            }
 
             // 3. Calculer le score de performance pour chaque étudiant
-            $studentsWithScores = $this->calculateStudentScores($students, $schedule);
+            $studentsWithScores = $this->calculateStudentScores($students, $exam);
 
             // 4. Trier par performance (meilleurs en premier)
             $sortedStudents = $studentsWithScores->sortByDesc('ranking_score');
@@ -51,7 +57,7 @@ class ExamPlacementService
             }
 
             // 6. Répartir les étudiants dans les salles
-            $placements = $this->distributeStudentsToRooms($sortedStudents, $rooms, $exam_schedule_id);
+            $placements = $this->distributeStudentsToRooms($sortedStudents, $rooms, $exam_id);
 
             // 7. Sauvegarder les placements
             foreach ($placements as $placement) {
@@ -74,33 +80,36 @@ class ExamPlacementService
     }
 
     /**
-     * Récupérer les étudiants qui passent cet examen
-     * Pour SESSION: tous les étudiants des classes qui ont cette matière
+     * Récupérer tous les étudiants qui passent cet examen SESSION
+     * On prend tous les élèves concernés par les horaires SESSION de l'examen
      */
-    protected function getStudentsForPlacement($schedule)
+    protected function getStudentsForExam($exam)
     {
-        // Récupérer toutes les classes du même niveau (par example toutes les JSS2)
-        $classType = $schedule->my_class->class_type;
+        // Récupérer toutes les classes concernées par les horaires SESSION
+        $sessionSchedules = $exam->schedules->where('exam_type', 'session');
         
-        // Récupérer tous les étudiants de ce niveau qui ont cette matière
-        return StudentRecord::whereHas('my_class', function($q) use ($classType) {
-            $q->where('class_type_id', $classType->id);
-        })
-        ->whereHas('my_class.subjects', function($q) use ($schedule) {
-            $q->where('subjects.id', $schedule->subject_id);
-        })
-        ->with(['user', 'my_class', 'section'])
-        ->get();
+        $classIds = $sessionSchedules->pluck('my_class_id')->unique()->toArray();
+        
+        if (empty($classIds)) {
+            return collect([]);
+        }
+        
+        // Récupérer tous les étudiants de ces classes
+        // Note: On pourrait filtrer par option_id/section_id si nécessaire,
+        // mais pour un examen SESSION, généralement tous les élèves du niveau passent ensemble
+        return StudentRecord::whereIn('my_class_id', $classIds)
+            ->with(['user', 'my_class', 'section', 'option'])
+            ->get();
     }
 
     /**
      * Calculer le score de performance pour chaque étudiant
      * Basé sur la moyenne générale de la période précédente
      */
-    protected function calculateStudentScores($students, $schedule)
+    protected function calculateStudentScores($students, $exam)
     {
-        $current_year = $schedule->exam->year;
-        $semester = $schedule->exam->semester;
+        $current_year = $exam->year;
+        $semester = $exam->semester;
 
         return $students->map(function($studentRecord) use ($current_year, $semester) {
             // Calculer la moyenne générale basée sur les périodes précédentes
@@ -168,53 +177,53 @@ class ExamPlacementService
      * Distribuer les étudiants dans les salles
      * Salle A = Top performers, Salle B = Moyens, Salle C = Faibles
      */
-    protected function distributeStudentsToRooms($sortedStudents, $rooms, $exam_schedule_id)
+    protected function distributeStudentsToRooms($sortedStudents, $rooms, $exam_id)
     {
         $placements = [];
         $totalStudents = $sortedStudents->count();
         
-        // Répartir par tiers
+        // Répartir par niveau de performance
         $excellenceCount = ceil($totalStudents * 0.30); // 30% meilleurs
         $moyenCount = ceil($totalStudents * 0.40); // 40% moyens
         // Le reste = faibles (30%)
 
+        // Grouper les salles par niveau
+        $excellenceRooms = $rooms->where('level', 'excellence');
+        $moyenRooms = $rooms->where('level', 'moyen');
+        $faibleRooms = $rooms->where('level', 'faible');
+
         $studentIndex = 0;
-        $currentRoom = null;
         $seatNumber = 1;
 
         foreach ($sortedStudents as $student) {
-            // Déterminer le niveau actuel
+            // Déterminer le niveau et la salle
             if ($studentIndex < $excellenceCount) {
+                $targetRooms = $excellenceRooms;
                 $level = 'excellence';
             } elseif ($studentIndex < ($excellenceCount + $moyenCount)) {
+                $targetRooms = $moyenRooms;
                 $level = 'moyen';
             } else {
+                $targetRooms = $faibleRooms;
                 $level = 'faible';
             }
 
-            // Trouver une salle du niveau approprié
-            if (!$currentRoom || $currentRoom->level !== $level || $seatNumber > $currentRoom->capacity) {
-                $currentRoom = $rooms->where('level', $level)->first();
-                $seatNumber = 1;
-                
-                if (!$currentRoom) {
-                    // Fallback: prendre n'importe quelle salle disponible
-                    $currentRoom = $rooms->first();
-                }
+            // Choisir la première salle disponible du niveau
+            $room = $targetRooms->first();
+            if (!$room) {
+                // Fallback si pas de salle du niveau, utiliser n'importe quelle salle
+                $room = $rooms->first();
             }
 
             $placements[] = [
-                'exam_schedule_id' => $exam_schedule_id,
+                'exam_id' => $exam_id,
                 'student_id' => $student->user_id,
-                'exam_room_id' => $currentRoom->id,
-                'seat_number' => $seatNumber,
+                'exam_room_id' => $room->id,
+                'seat_number' => $seatNumber++,
                 'ranking_score' => $student->ranking_score,
                 'performance_level' => $level,
-                'created_at' => now(),
-                'updated_at' => now(),
             ];
 
-            $seatNumber++;
             $studentIndex++;
         }
 
@@ -222,26 +231,27 @@ class ExamPlacementService
     }
 
     /**
-     * Obtenir la liste des étudiants placés par salle
+     * Obtenir les placements groupés par salle pour un examen
      */
-    public function getPlacementsByRoom($exam_schedule_id)
+    public function getPlacementsByRoom($exam_id)
     {
-        return ExamStudentPlacement::where('exam_schedule_id', $exam_schedule_id)
-            ->with(['student.student_record.my_class', 'student.student_record.section', 'room'])
+        $placements = ExamStudentPlacement::where('exam_id', $exam_id)
+            ->with(['student', 'room', 'studentRecord.my_class'])
             ->orderBy('exam_room_id')
             ->orderBy('seat_number')
-            ->get()
-            ->groupBy('exam_room_id');
+            ->get();
+        
+        return $placements->groupBy('exam_room_id');
     }
 
     /**
-     * Obtenir le placement d'un étudiant spécifique
+     * Obtenir le placement d'un étudiant spécifique pour un examen
      */
-    public function getStudentPlacement($exam_schedule_id, $student_id)
+    public function getStudentPlacement($exam_id, $student_id)
     {
-        return ExamStudentPlacement::where('exam_schedule_id', $exam_schedule_id)
+        return ExamStudentPlacement::where('exam_id', $exam_id)
             ->where('student_id', $student_id)
-            ->with(['room', 'schedule.subject'])
+            ->with(['room', 'exam'])
             ->first();
     }
 }

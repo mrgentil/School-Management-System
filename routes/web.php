@@ -239,11 +239,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('exam-rooms', '\App\Http\Controllers\SupportTeam\ExamRoomController');
 
         /*************** Exam Placements (Placements Étudiants - SESSION) *****************/
+        // LOGIQUE CORRECTE: Placements au niveau de l'EXAMEN, pas de l'horaire individuel
         Route::group(['prefix' => 'exam-placements', 'as' => 'exam_placements.'], function () {
-            Route::post('{schedule_id}/generate', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'generate'])->name('generate');
-            Route::get('{schedule_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'show'])->name('show');
-            Route::get('{schedule_id}/room/{room_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'byRoom'])->name('by_room');
-            Route::delete('{schedule_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'destroy'])->name('destroy');
+            Route::post('{exam_id}/generate', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'generate'])->name('generate');
+            Route::get('{exam_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'show'])->name('show');
+            Route::get('{exam_id}/room/{room_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'byRoom'])->name('by_room');
+            Route::delete('{exam_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'destroy'])->name('destroy');
         });
         
         Route::resource('dorms', '\App\Http\Controllers\SupportTeam\DormController');

@@ -32,4 +32,9 @@ class Exam extends Eloquent
     {
         return $this->hasMany(ExamRecord::class);
     }
+
+    public function placements()
+    {
+        return $this->hasMany(ExamStudentPlacement::class);
+    }
 }

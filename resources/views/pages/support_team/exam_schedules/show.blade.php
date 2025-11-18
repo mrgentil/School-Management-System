@@ -9,6 +9,53 @@
         </div>
 
         <div class="card-body">
+            {{-- Gestion des Placements SESSION pour tout l'examen --}}
+            @php
+                $hasSessionSchedules = $schedules->where('exam_type', 'session')->count() > 0;
+                $placementsCount = \App\Models\ExamStudentPlacement::where('exam_id', $exam->id)->count();
+            @endphp
+            
+            @if($hasSessionSchedules)
+                <div class="alert alert-info border-0 mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1"><i class="icon-shuffle mr-2"></i>Placements SESSION (pour tout l'examen)</h6>
+                            <p class="mb-0">
+                                @if($placementsCount > 0)
+                                    <span class="badge badge-success"><i class="icon-checkmark-circle mr-1"></i>{{ $placementsCount }} élèves placés</span>
+                                    <small class="text-muted ml-2">Les élèves ont leur salle et place pour TOUTE la durée de l'examen.</small>
+                                @else
+                                    <span class="badge badge-warning"><i class="icon-hour-glass2 mr-1"></i>Aucun placement généré</span>
+                                    <small class="text-muted ml-2">Cliquez sur "Générer" pour placer les élèves dans les salles.</small>
+                                @endif
+                            </p>
+                        </div>
+                        <div>
+                            @if($placementsCount > 0)
+                                <a href="{{ route('exam_placements.show', $exam->id) }}" class="btn btn-success mr-2">
+                                    <i class="icon-eye mr-2"></i>Voir Placements
+                                </a>
+                                @if(Qs::userIsSuperAdmin())
+                                <form method="POST" action="{{ route('exam_placements.generate', $exam->id) }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning" onclick="return confirm('Régénérer les placements ? Cela supprimera les placements existants.')">
+                                        <i class="icon-loop2 mr-2"></i>Régénérer
+                                    </button>
+                                </form>
+                                @endif
+                            @else
+                                <form method="POST" action="{{ route('exam_placements.generate', $exam->id) }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary" onclick="return confirm('Générer les placements automatiques pour cet examen SESSION ?')">
+                                        <i class="icon-users4 mr-2"></i>Générer Placements
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#schedules-list" class="nav-link active" data-toggle="tab">Horaires</a></li>
                 <li class="nav-item"><a href="#add-schedule" class="nav-link" data-toggle="tab"><i class="icon-plus2"></i> Ajouter Horaire</a></li>
@@ -93,7 +140,9 @@
                                                    data-target="#edit-schedule-{{ $sch->id }}">
                                                     <i class="icon-pencil"></i> Modifier
                                                 </a>
+
                                                 @if(Qs::userIsSuperAdmin())
+                                                <div class="dropdown-divider"></div>
                                                 <a href="#" class="dropdown-item text-danger" onclick="event.preventDefault(); if(confirm('Êtes-vous sûr de vouloir supprimer cet horaire?')) { document.getElementById('delete-form-{{ $sch->id }}').submit(); }">
                                                     <i class="icon-trash"></i> Supprimer
                                                 </a>

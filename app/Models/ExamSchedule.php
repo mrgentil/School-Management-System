@@ -52,17 +52,9 @@ class ExamSchedule extends Eloquent
         return $this->belongsTo(ExamRoom::class, 'exam_room_id');
     }
 
-    // Placements des étudiants (pour SESSION uniquement)
-    public function placements()
-    {
-        return $this->hasMany(ExamStudentPlacement::class, 'exam_schedule_id');
-    }
-
-    // Vérifier si des placements existent
-    public function hasPlacementsGenerated()
-    {
-        return $this->placements()->count() > 0;
-    }
+    // NOTE: Les placements sont maintenant au niveau de l'EXAMEN (exam->placements), 
+    // pas au niveau de l'horaire. Un élève a UNE salle et UN numéro de place 
+    // pour TOUT l'examen SESSION.
 
     // Vérifier si c'est un horaire SESSION (placement automatique)
     public function isSession()

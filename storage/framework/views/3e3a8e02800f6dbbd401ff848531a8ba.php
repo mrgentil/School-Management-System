@@ -95,7 +95,32 @@
                                                    data-target="#edit-schedule-<?php echo e($sch->id); ?>">
                                                     <i class="icon-pencil"></i> Modifier
                                                 </a>
+
+                                                
+                                                <?php if($sch->exam_type == 'session'): ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <?php
+                                                        $hasPlacement = $sch->placements()->count() > 0;
+                                                    ?>
+                                                    
+                                                    <?php if($hasPlacement): ?>
+                                                        <a href="<?php echo e(route('exam_placements.show', $sch->id)); ?>" class="dropdown-item text-success">
+                                                            <i class="icon-eye"></i> Voir Placements (<?php echo e($sch->placements()->count()); ?>)
+                                                        </a>
+                                                        <?php if(Qs::userIsSuperAdmin()): ?>
+                                                        <a href="#" class="dropdown-item text-warning" onclick="event.preventDefault(); if(confirm('Régénérer le placement ? Cela supprimera les placements existants.')) { document.getElementById('regenerate-form-<?php echo e($sch->id); ?>').submit(); }">
+                                                            <i class="icon-loop2"></i> Régénérer Placement
+                                                        </a>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <a href="#" class="dropdown-item text-primary" onclick="event.preventDefault(); if(confirm('Générer le placement automatique pour cet examen SESSION ?')) { document.getElementById('generate-form-<?php echo e($sch->id); ?>').submit(); }">
+                                                            <i class="icon-users4"></i> Générer Placement
+                                                        </a>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+
                                                 <?php if(Qs::userIsSuperAdmin()): ?>
+                                                <div class="dropdown-divider"></div>
                                                 <a href="#" class="dropdown-item text-danger" onclick="event.preventDefault(); if(confirm('Êtes-vous sûr de vouloir supprimer cet horaire?')) { document.getElementById('delete-form-<?php echo e($sch->id); ?>').submit(); }">
                                                     <i class="icon-trash"></i> Supprimer
                                                 </a>
@@ -112,6 +137,16 @@
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
                                 <input type="hidden" name="schedule_id" value="<?php echo e($sch->id); ?>">
+                            </form>
+                            <?php endif; ?>
+
+                            
+                            <?php if($sch->exam_type == 'session'): ?>
+                            <form id="generate-form-<?php echo e($sch->id); ?>" method="POST" action="<?php echo e(route('exam_placements.generate', $sch->id)); ?>" style="display:none;">
+                                <?php echo csrf_field(); ?>
+                            </form>
+                            <form id="regenerate-form-<?php echo e($sch->id); ?>" method="POST" action="<?php echo e(route('exam_placements.generate', $sch->id)); ?>" style="display:none;">
+                                <?php echo csrf_field(); ?>
                             </form>
                             <?php endif; ?>
 

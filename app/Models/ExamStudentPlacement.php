@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ExamStudentPlacement extends Model
 {
     protected $fillable = [
-        'exam_schedule_id',
+        'exam_id',
         'student_id',
         'exam_room_id',
         'seat_number',
@@ -20,10 +20,10 @@ class ExamStudentPlacement extends Model
         'seat_number' => 'integer',
     ];
 
-    // Relation avec l'horaire d'examen
-    public function schedule()
+    // Relation avec l'examen
+    public function exam()
     {
-        return $this->belongsTo(ExamSchedule::class, 'exam_schedule_id');
+        return $this->belongsTo(Exam::class, 'exam_id');
     }
 
     // Relation avec l'étudiant
