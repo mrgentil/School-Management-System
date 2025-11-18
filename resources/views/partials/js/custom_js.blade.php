@@ -193,28 +193,64 @@
     }
 
     function confirmDelete(id) {
-        swal({
-            title: "Are you sure?",
-            text: "Once deleted, you will not be able to recover this item!",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true
-        }).then(function(willDelete){
-            if (willDelete) {
-             $('form#item-delete-'+id).submit();
+        if (typeof Swal !== 'undefined') {
+            // SweetAlert2
+            Swal.fire({
+                title: "Êtes-vous sûr?",
+                text: "Cette action est irréversible!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Oui, supprimer!",
+                cancelButtonText: "Annuler"
+            }).then(function(result){
+                if (result.isConfirmed || result.value) {
+                    $('form#item-delete-'+id).submit();
+                }
+            });
+        } else if (typeof swal !== 'undefined') {
+            // SweetAlert1
+            swal({
+                title: "Êtes-vous sûr?",
+                text: "Cette action est irréversible!",
+                icon: "warning",
+                buttons: {
+                    cancel: {
+                        text: "Annuler",
+                        visible: true,
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "Oui, supprimer!",
+                    }
+                },
+                dangerMode: true
+            }).then(function(willDelete){
+                if (willDelete) {
+                    $('form#item-delete-'+id).submit();
+                }
+            });
+        } else {
+            // Fallback - confirmation native
+            if (confirm("Êtes-vous sûr de vouloir supprimer cet élément?")) {
+                $('form#item-delete-'+id).submit();
             }
-        });
+        }
     }
 
     function confirmReset(id) {
-        swal({
-            title: "Are you sure?",
-            text: "This will reset this item to default state",
+        Swal.fire({
+            title: "Êtes-vous sûr?",
+            text: "Ceci réinitialisera l'élément à l'état par défaut",
             icon: "warning",
-            buttons: true,
-            dangerMode: true
-        }).then(function(willDelete){
-            if (willDelete) {
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Oui, réinitialiser!",
+            cancelButtonText: "Annuler"
+        }).then(function(result){
+            if (result.isConfirmed) {
              $('form#item-reset-'+id).submit();
             }
         });

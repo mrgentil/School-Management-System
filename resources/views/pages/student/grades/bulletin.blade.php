@@ -3,6 +3,30 @@
 
 @section('content')
 
+    {{-- Menu Rapide Étudiant --}}
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <a href="{{ route('student.exams.index') }}" class="btn btn-primary btn-block">
+                <i class="icon-home mr-2"></i>Accueil Examens
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('student.exam_schedule') }}" class="btn btn-info btn-block">
+                <i class="icon-calendar mr-2"></i>Calendrier
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('student.progress.index') }}" class="btn btn-success btn-block">
+                <i class="icon-graph mr-2"></i>Ma Progression
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('student.grades.index') }}" class="btn btn-warning btn-block">
+                <i class="icon-certificate mr-2"></i>Mes Notes
+            </a>
+        </div>
+    </div>
+
 <div class="card">
     <div class="card-header header-elements-inline bg-success">
         <h6 class="card-title text-white">
@@ -10,8 +34,11 @@
             Bulletin Scolaire - {{ $year }}
         </h6>
         <div class="header-elements">
+            <button onclick="window.print()" class="btn btn-light btn-sm mr-2">
+                <i class="icon-printer mr-2"></i>Imprimer
+            </button>
             <a href="{{ route('student.grades.index') }}" class="btn btn-light btn-sm">
-                <i class="icon-arrow-left7 mr-2"></i>Retour aux Notes
+                <i class="icon-arrow-left7 mr-2"></i>Retour
             </a>
         </div>
     </div>

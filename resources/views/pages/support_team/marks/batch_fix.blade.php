@@ -1,6 +1,37 @@
 @extends('layouts.master')
 @section('page_title', 'Fix Mark Errors')
 @section('content')
+
+    {{-- Alerte d'information --}}
+    <div class="alert alert-warning border-0">
+        <div class="d-flex align-items-center">
+            <i class="icon-warning mr-3 icon-2x"></i>
+            <div>
+                <h6 class="font-weight-bold mb-1">Correction en Masse des Notes</h6>
+                <p class="mb-0">Cette fonctionnalité recalcule automatiquement les grades, positions et moyennes pour une classe entière.</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Menu Rapide --}}
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <a href="{{ route('marks.index') }}" class="btn btn-primary btn-block">
+                <i class="icon-pencil5 mr-2"></i>Retour à la Saisie
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('marks.tabulation') }}" class="btn btn-info btn-block">
+                <i class="icon-table2 mr-2"></i>Tabulation
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('exam_analytics.index') }}" class="btn btn-success btn-block">
+                <i class="icon-stats-dots mr-2"></i>Analytics
+            </a>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header header-elements-inline">
             <h5 class="card-title"><i class="icon-wrench mr-2"></i> Batch Fix </h5>

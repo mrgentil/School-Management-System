@@ -1,9 +1,34 @@
 @extends('layouts.master')
 @section('page_title', 'Tabulation Sheet')
 @section('content')
+
+    {{-- Menu Rapide --}}
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <a href="{{ route('exam_analytics.index') }}" class="btn btn-success btn-block">
+                <i class="icon-stats-dots mr-2"></i>Analytics & Rapports
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('exam_schedules.index') }}" class="btn btn-primary btn-block">
+                <i class="icon-calendar mr-2"></i>Calendrier d'Examens
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('marks.index') }}" class="btn btn-info btn-block">
+                <i class="icon-pencil5 mr-2"></i>Saisir les Notes
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('exams.dashboard') }}" class="btn btn-warning btn-block">
+                <i class="icon-grid mr-2"></i>Dashboard Examens
+            </a>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h5 class="card-title"><i class="icon-books mr-2"></i> Tabulation Sheet</h5>
+            <h5 class="card-title"><i class="icon-table2 mr-2"></i> Tabulation Sheet</h5>
             {!! Qs::getPanelOptions() !!}
         </div>
 

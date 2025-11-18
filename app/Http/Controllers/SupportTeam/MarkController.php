@@ -117,7 +117,7 @@ class MarkController extends Controller
         $d['my_class'] = $mc = $this->my_class->find($exr->my_class_id);
         $d['section_id'] = $exr->section_id;
         $d['ex'] = $exam = $this->exam->find($exam_id);
-        $d['tex'] = 'tex'.$exam->term;
+        $d['tex'] = 'tex'.$exam->semester;
         $d['sr'] = $sr =$this->student->getRecord(['user_id' => $student_id])->first();
         $d['class_type'] = $this->my_class->findTypeByClass($mc->id);
         $d['subjects'] = $this->my_class->findSubjectByClass($mc->id);
@@ -206,10 +206,10 @@ class MarkController extends Controller
 
             /** SubTotal Grade, Remark, Cum, CumAvg**/
 
-            $d['tex'.$exam->term] = $total = $tca + $exm;
+            $d['tex'.$exam->semester] = $total = $tca + $exm;
 
             if($total > 100){
-                $d['tex'.$exam->term] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
+                $d['tex'.$exam->semester] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
             }
 
          /*   if($exam->term < 3){
@@ -283,7 +283,7 @@ class MarkController extends Controller
         /** Marks Fix Begin **/
 
         $class_type = $this->my_class->findTypeByClass($class_id);
-        $tex = 'tex'.$exam->term;
+        $tex = 'tex'.$exam->semester;
 
         foreach($marks as $mk){
 
@@ -395,7 +395,7 @@ class MarkController extends Controller
             $d['my_class'] = $mc = $this->my_class->find($class_id);
             $d['section']  = $this->my_class->findSection($section_id);
             $d['ex'] = $exam = $this->exam->find($exam_id);
-            $d['tex'] = 'tex'.$exam->term;
+            $d['tex'] = 'tex'.$exam->semester;
             //$d['class_type'] = $this->my_class->findTypeByClass($mc->id);
             //$d['ct'] = $ct = $d['class_type']->code;
         }
@@ -427,7 +427,7 @@ class MarkController extends Controller
         $d['my_class'] = $mc = $this->my_class->find($class_id);
         $d['section']  = $this->my_class->findSection($section_id);
         $d['ex'] = $exam = $this->exam->find($exam_id);
-        $d['tex'] = 'tex'.$exam->term;
+        $d['tex'] = 'tex'.$exam->semester;
         $d['s'] = Setting::all()->flatMap(function($s){
             return [$s->type => $s->description];
         });

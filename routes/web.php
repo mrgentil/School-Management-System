@@ -201,7 +201,51 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('sections', '\App\Http\Controllers\SupportTeam\SectionController');
         Route::resource('subjects', '\App\Http\Controllers\SupportTeam\SubjectController');
         Route::resource('grades', '\App\Http\Controllers\SupportTeam\GradeController');
+        
+        // Exams
+        Route::get('exams/dashboard', [\App\Http\Controllers\SupportTeam\ExamController::class, 'dashboard'])->name('exams.dashboard');
         Route::resource('exams', '\App\Http\Controllers\SupportTeam\ExamController');
+        
+        /*************** Exam Schedules & Calendar *****************/
+        Route::group(['prefix' => 'exam-schedules', 'as' => 'exam_schedules.'], function () {
+            Route::get('/', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'index'])->name('index');
+            Route::get('calendar', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'calendar'])->name('calendar');
+            Route::get('{exam}', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'show'])->name('show');
+            Route::post('/', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'store'])->name('store');
+            Route::put('{id}', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'update'])->name('update');
+            Route::delete('{id}', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'destroy'])->name('destroy');
+            Route::post('add-supervisor', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'addSupervisor'])->name('add_supervisor');
+            Route::delete('supervisor/{id}', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'removeSupervisor'])->name('remove_supervisor');
+        });
+
+        /*************** Exam Analytics & Reports *****************/
+        Route::group(['prefix' => 'exam-analytics', 'as' => 'exam_analytics.'], function () {
+            Route::get('/', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'index'])->name('index');
+            Route::get('exam/{exam}/overview', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'overview'])->name('overview');
+            Route::get('exam/{exam}/class/{class}', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'classAnalysis'])->name('class_analysis');
+            Route::get('student/{student}/progress', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'studentProgress'])->name('student_progress');
+            Route::post('export', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'export'])->name('export');
+        });
+
+        /*************** Exam Publication *****************/
+        Route::group(['prefix' => 'exam-publication', 'as' => 'exam_publication.'], function () {
+            Route::get('{exam}', [\App\Http\Controllers\SupportTeam\ExamPublicationController::class, 'show'])->name('show');
+            Route::post('{exam}/publish', [\App\Http\Controllers\SupportTeam\ExamPublicationController::class, 'publish'])->name('publish');
+            Route::post('{exam}/unpublish', [\App\Http\Controllers\SupportTeam\ExamPublicationController::class, 'unpublish'])->name('unpublish');
+            Route::post('{exam}/notify', [\App\Http\Controllers\SupportTeam\ExamPublicationController::class, 'sendNotification'])->name('notify');
+        });
+
+        /*************** Exam Rooms (Salles d'Examen) *****************/
+        Route::resource('exam-rooms', '\App\Http\Controllers\SupportTeam\ExamRoomController');
+
+        /*************** Exam Placements (Placements Étudiants - SESSION) *****************/
+        Route::group(['prefix' => 'exam-placements', 'as' => 'exam_placements.'], function () {
+            Route::post('{schedule_id}/generate', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'generate'])->name('generate');
+            Route::get('{schedule_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'show'])->name('show');
+            Route::get('{schedule_id}/room/{room_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'byRoom'])->name('by_room');
+            Route::delete('{schedule_id}', [\App\Http\Controllers\SupportTeam\ExamPlacementController::class, 'destroy'])->name('destroy');
+        });
+        
         Route::resource('dorms', '\App\Http\Controllers\SupportTeam\DormController');
         Route::resource('payments', '\App\Http\Controllers\SupportTeam\PaymentController');
 

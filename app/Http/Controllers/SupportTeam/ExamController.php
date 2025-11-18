@@ -6,17 +6,35 @@ use App\Helpers\Qs;
 use App\Http\Requests\Exam\ExamCreate;
 use App\Http\Requests\Exam\ExamUpdate;
 use App\Repositories\ExamRepo;
+use App\Repositories\ExamScheduleRepo;
 use App\Http\Controllers\Controller;
 
 class ExamController extends Controller
 {
-    protected $exam;
-    public function __construct(ExamRepo $exam)
+    protected $exam, $schedule;
+    public function __construct(ExamRepo $exam, ExamScheduleRepo $schedule)
     {
-        $this->middleware('teamSA', ['except' => ['destroy',] ]);
+        $this->middleware('teamSA', ['except' => ['destroy', 'dashboard'] ]);
         $this->middleware('super_admin', ['only' => ['destroy',] ]);
 
         $this->exam = $exam;
+        $this->schedule = $schedule;
+    }
+
+    public function dashboard()
+    {
+        $year = Qs::getSetting('current_session');
+        $d['exams'] = $this->exam->getExam(['year' => $year]);
+        
+        // Statistiques
+        $d['stats'] = [
+            'total_exams' => $d['exams']->count(),
+            'published' => $d['exams']->where('results_published', true)->count(),
+            'scheduled' => $this->schedule->getSchedule(['year' => $year])->count(),
+            'upcoming' => $this->schedule->getUpcomingSchedules(null, 30)->count(),
+        ];
+
+        return view('pages.support_team.exams.dashboard', $d);
     }
 
     public function index()

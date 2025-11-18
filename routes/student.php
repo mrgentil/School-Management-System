@@ -105,6 +105,15 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
         Route::get('/bulletin', [MyGradesController::class, 'bulletin'])->name('bulletin');
     });
 
+    // Examens - Hub principal
+    Route::get('/exams', [\App\Http\Controllers\Student\ExamController::class, 'index'])->name('exams.index');
+    
+    // Calendrier d'Examens
+    Route::get('/exam-schedule', [\App\Http\Controllers\StudentController::class, 'examSchedule'])->name('exam_schedule');
+    
+    // Ma Progression
+    Route::get('/my-progress', [\App\Http\Controllers\Student\ProgressController::class, 'index'])->name('progress.index');
+
     // Emploi du temps
     Route::group(['prefix' => 'timetable', 'as' => 'timetable.'], function() {
         Route::get('/', [StudentTimetableController::class, 'index'])->name('index');
