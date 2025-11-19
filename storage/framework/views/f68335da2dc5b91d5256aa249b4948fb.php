@@ -136,7 +136,7 @@
 
                 
                 <?php if(Qs::userIsTeamSAT()): ?>
-                    <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['students.create', 'students.list', 'students.edit', 'students.show', 'students.promotion', 'students.promotion_manage', 'students.graduated']) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
+                    <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['students.create', 'students.list', 'students.edit', 'students.show', 'students.promotion', 'students.promotion_manage', 'students.graduated', 'students.assign_class']) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
                         <a href="#" class="nav-link"><i class="icon-users"></i> <span> Étudiants</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Gestion des Étudiants">
@@ -145,6 +145,14 @@
                                 <li class="nav-item">
                                     <a href="<?php echo e(route('students.create')); ?>"
                                        class="nav-link <?php echo e((Route::is('students.create')) ? 'active' : ''); ?>">Admettre un étudiant</a>
+                                </li>
+                            <?php endif; ?>
+
+                            
+                            <?php if(Qs::userIsTeamSA()): ?>
+                                <li class="nav-item">
+                                    <a href="<?php echo e(route('students.assign_class')); ?>"
+                                       class="nav-link <?php echo e((Route::is('students.assign_class')) ? 'active' : ''); ?>">Assigner aux Classes</a>
                                 </li>
                             <?php endif; ?>
 

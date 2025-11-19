@@ -59,25 +59,25 @@
                                     <td class="font-weight-bold">Birthday</td>
                                     <td>{{$user->dob }}</td>
                                 </tr>
-                                @if($user->bg_id)
+                                @if($user->bg_id && $user->blood_group)
                                     <tr>
                                         <td class="font-weight-bold">Blood Group</td>
                                         <td>{{$user->blood_group->name }}</td>
                                     </tr>
                                 @endif
-                                @if($user->nal_id)
+                                @if($user->nal_id && $user->nationality)
                                     <tr>
                                         <td class="font-weight-bold">Nationality</td>
                                         <td>{{$user->nationality->name }}</td>
                                     </tr>
                                 @endif
-                                @if($user->state_id)
+                                @if($user->state_id && $user->state)
                                     <tr>
                                         <td class="font-weight-bold">State</td>
                                         <td>{{$user->state->name }}</td>
                                     </tr>
                                 @endif
-                                @if($user->lga_id)
+                                @if($user->lga_id && $user->lga)
                                     <tr>
                                         <td class="font-weight-bold">LGA</td>
                                         <td>{{$user->lga->name }}</td>

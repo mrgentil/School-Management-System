@@ -46,6 +46,11 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('not_graduated/{id}', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'not_graduated'])->name('st.not_graduated');
             Route::get('list/{class_id}', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'listByClass'])->name('students.list')->middleware('teamSAT');
 
+            /* Assignation de classes */
+            Route::get('assign-class', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'assign_class'])->name('students.assign_class');
+            Route::post('assign-class', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'store_assignment'])->name('students.store_assignment');
+            Route::put('update-assignment/{sr_id}', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'update_assignment'])->name('students.update_assignment');
+
             /* Promotions */
             Route::post('promote_selector', [\App\Http\Controllers\SupportTeam\PromotionController::class, 'selector'])->name('students.promote_selector');
             Route::get('promotion/manage', [\App\Http\Controllers\SupportTeam\PromotionController::class, 'manage'])->name('students.promotion_manage');

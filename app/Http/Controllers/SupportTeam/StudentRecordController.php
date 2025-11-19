@@ -188,4 +188,97 @@ class StudentRecordController extends Controller
         return back()->with('flash_success', __('msg.del_ok'));
     }
 
+    public function assign_class()
+    {
+        $data['my_classes'] = $this->my_class->all();
+        $data['sections'] = $this->my_class->getAllSections();
+        
+        // Récupérer tous les étudiants qui n'ont pas d'enregistrement pour l'année courante
+        $currentSession = Qs::getCurrentSession();
+        $data['unassigned_students'] = \App\Models\User::where('user_type', 'student')
+            ->whereDoesntHave('student_record', function($query) use ($currentSession) {
+                $query->where('session', $currentSession);
+            })
+            ->orderBy('name')
+            ->get();
+            
+        // Récupérer tous les étudiants assignés pour l'année courante
+        $data['assigned_students'] = $this->student->getRecord(['session' => $currentSession])
+            ->with(['user', 'my_class', 'section'])
+            ->get();
+            
+        return view('pages.support_team.students.assign_class', $data);
+    }
+
+    public function store_assignment(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|exists:users,id',
+            'my_class_id' => 'required|exists:my_classes,id',
+            'section_id' => 'required|exists:sections,id',
+        ]);
+
+        $currentSession = Qs::getCurrentSession();
+        
+        // Vérifier si l'étudiant n'est pas déjà assigné pour cette session
+        $existingRecord = $this->student->getRecord([
+            'user_id' => $request->student_id,
+            'session' => $currentSession
+        ])->first();
+        
+        if ($existingRecord) {
+            return back()->with('flash_danger', 'Cet étudiant est déjà assigné à une classe pour cette session.');
+        }
+
+        // Créer l'enregistrement étudiant
+        $data = [
+            'user_id' => $request->student_id,
+            'my_class_id' => $request->my_class_id,
+            'section_id' => $request->section_id,
+            'session' => $currentSession,
+            'adm_no' => $this->generateAdmissionNumber(),
+        ];
+
+        $this->student->createRecord($data);
+
+        return back()->with('flash_success', 'Étudiant assigné à la classe avec succès!');
+    }
+
+    public function update_assignment(\Illuminate\Http\Request $request, $sr_id)
+    {
+        $sr_id = Qs::decodeHash($sr_id);
+        if(!$sr_id){return Qs::goWithDanger();}
+
+        $request->validate([
+            'my_class_id' => 'required|exists:my_classes,id',
+            'section_id' => 'required|exists:sections,id',
+        ]);
+
+        $sr = $this->student->getRecord(['id' => $sr_id])->first();
+        if (!$sr) {
+            return back()->with('flash_danger', 'Enregistrement étudiant non trouvé.');
+        }
+
+        $data = [
+            'my_class_id' => $request->my_class_id,
+            'section_id' => $request->section_id,
+        ];
+
+        $this->student->updateRecord($sr_id, $data);
+
+        return back()->with('flash_success', 'Assignation de classe mise à jour avec succès!');
+    }
+
+    private function generateAdmissionNumber()
+    {
+        $year = date('Y');
+        $lastRecord = $this->student->getRecord(['session' => Qs::getCurrentSession()])
+            ->orderBy('id', 'desc')
+            ->first();
+        
+        $nextNumber = $lastRecord ? (intval(substr($lastRecord->adm_no, -4)) + 1) : 1;
+        
+        return $year . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
+
 }

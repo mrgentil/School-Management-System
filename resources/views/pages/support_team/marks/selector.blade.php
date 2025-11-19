@@ -22,7 +22,7 @@
                                 <select required onchange="getClassSubjects(this.value)" id="my_class_id" name="my_class_id" class="form-control select">
                                     <option value="">-- Choisir une classe --</option>
                                     @foreach($my_classes as $c)
-                                        <option {{ ($selected && $my_class_id == $c->id) ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->name }}</option>
+                                        <option {{ ($selected && $my_class_id == $c->id) ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->full_name ?: $c->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -69,3 +69,52 @@
         </div>
 
     </form>
+
+<script>
+    // Données des matières par classe (passées depuis le contrôleur)
+    const subjectsByClass = @json($subjects->groupBy('my_class_id'));
+    const sectionsByClass = @json($sections->groupBy('my_class_id'));
+    
+    function getClassSubjects(classId) {
+        const subjectSelect = document.getElementById('subject_id');
+        const sectionSelect = document.getElementById('section_id');
+        
+        // Vider les options actuelles
+        subjectSelect.innerHTML = '<option value="">-- Sélectionner une matière --</option>';
+        sectionSelect.innerHTML = '<option value="">-- Sélectionner une section --</option>';
+        
+        if (classId && subjectsByClass[classId]) {
+            // Ajouter les matières de cette classe
+            subjectsByClass[classId].forEach(function(subject) {
+                const option = document.createElement('option');
+                option.value = subject.id;
+                option.textContent = subject.name;
+                subjectSelect.appendChild(option);
+            });
+        }
+        
+        if (classId && sectionsByClass[classId]) {
+            // Ajouter les sections de cette classe
+            sectionsByClass[classId].forEach(function(section) {
+                const option = document.createElement('option');
+                option.value = section.id;
+                option.textContent = section.name;
+                sectionSelect.appendChild(option);
+            });
+        }
+        
+        // Réinitialiser les selects
+        if (typeof $ !== 'undefined') {
+            $('#subject_id').trigger('change');
+            $('#section_id').trigger('change');
+        }
+    }
+    
+    // Initialiser au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        const classSelect = document.getElementById('my_class_id');
+        if (classSelect.value) {
+            getClassSubjects(classSelect.value);
+        }
+    });
+</script>

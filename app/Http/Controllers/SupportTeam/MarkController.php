@@ -144,6 +144,7 @@ class MarkController extends Controller
         $d = $req->only(['my_class_id', 'section_id']);
         $d['session'] = $data['year'] = $d2['year'] = $this->year;
 
+
         $students = $this->student->getRecord($d)->get();
         if($students->count() < 1){
             return back()->with('pop_error', __('msg.rnf'));
