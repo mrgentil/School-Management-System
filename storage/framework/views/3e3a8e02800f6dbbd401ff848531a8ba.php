@@ -72,8 +72,7 @@
                             <th>Type</th>
                             <th>Date</th>
                             <th>Heure</th>
-                            <th>Classe</th>
-                            <th>Option / Section</th>
+                            <th colspan="2">Classe Complète</th>
                             <th>Matière</th>
                             <th>Salle</th>
                             <th>Surveillants</th>
@@ -97,18 +96,8 @@
                                 </td>
                                 <td><?php echo e($sch->exam_date->format('d/m/Y')); ?></td>
                                 <td><?php echo e(date('H:i', strtotime($sch->start_time))); ?> - <?php echo e(date('H:i', strtotime($sch->end_time))); ?></td>
-                                <td><?php echo e($sch->my_class->name); ?></td>
-                                <td>
-                                    <?php if($sch->option): ?>
-                                        <span class="badge badge-primary">
-                                            <?php echo e($sch->option->academic_section->name ?? ''); ?> - <?php echo e($sch->option->name); ?>
-
-                                        </span>
-                                    <?php elseif($sch->section): ?>
-                                        <span class="badge badge-secondary"><?php echo e($sch->section->name); ?></span>
-                                    <?php else: ?>
-                                        <span class="text-muted">Toutes</span>
-                                    <?php endif; ?>
+                                <td colspan="2">
+                                    <strong><?php echo e(Qs::getFullClassName($sch)); ?></strong>
                                 </td>
                                 <td><?php echo e($sch->subject->name); ?></td>
                                 <td><?php echo e($sch->room ?: '-'); ?></td>
