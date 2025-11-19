@@ -26,13 +26,23 @@ class MyClassController extends Controller
     {
         $d['my_classes'] = $this->my_class->all();
         $d['class_types'] = $this->my_class->getTypes();
+        $d['academic_sections'] = \App\Models\AcademicSection::all(); // Gardé pour le groupement des options
+        $d['options'] = \App\Models\Option::with('academic_section')->get();
 
         return view('pages.support_team.classes.index', $d);
     }
 
     public function store(ClassCreate $req)
     {
-        $data = $req->only(['class_type_id', 'academic_level', 'division', 'academic_option']);
+        $data = $req->only(['class_type_id', 'academic_level', 'division', 'academic_option', 'option_id']);
+        
+        // Si une option est sélectionnée, récupérer automatiquement sa section académique
+        if ($req->option_id) {
+            $option = \App\Models\Option::find($req->option_id);
+            if ($option && $option->academic_section_id) {
+                $data['academic_section_id'] = $option->academic_section_id;
+            }
+        }
         
         // Générer le nom automatiquement si pas fourni
         if (!$req->filled('name')) {

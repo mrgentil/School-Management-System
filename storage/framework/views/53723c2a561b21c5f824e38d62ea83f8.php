@@ -146,35 +146,17 @@
                                 <div class="form-group row" id="option-group">
                                     <label class="col-lg-3 col-form-label font-weight-semibold">Option/Spécialisation</label>
                                     <div class="col-lg-9">
-                                        <select data-placeholder="Sélectionner l'option" class="form-control select" name="academic_option" id="academic_option">
-                                            <option value="">-- Aucune (Générale) --</option>
-                                            <optgroup label="Sciences">
-                                                <option value="Biochimie">Biochimie</option>
-                                                <option value="Mathématiques-Physique">Mathématiques-Physique</option>
-                                                <option value="Sciences Naturelles">Sciences Naturelles</option>
-                                            </optgroup>
-                                            <optgroup label="Technique">
-                                                <option value="Électronique">Électronique</option>
-                                                <option value="Mécanique">Mécanique</option>
-                                                <option value="Informatique">Informatique</option>
-                                                <option value="Construction">Construction</option>
-                                                <option value="Électricité">Électricité</option>
-                                                <option value="Menuiserie">Menuiserie</option>
-                                            </optgroup>
-                                            <optgroup label="Commercial">
-                                                <option value="Comptabilité">Comptabilité</option>
-                                                <option value="Gestion">Gestion</option>
-                                                <option value="Secrétariat">Secrétariat</option>
-                                                <option value="Commerce">Commerce</option>
-                                                <option value="Marketing">Marketing</option>
-                                            </optgroup>
-                                            <optgroup label="Autres">
-                                                <option value="Pédagogie">Pédagogie</option>
-                                                <option value="Littéraire">Littéraire</option>
-                                                <option value="Sociale">Sociale</option>
-                                            </optgroup>
+                                        <select data-placeholder="Sélectionner l'option" class="form-control select" name="option_id" id="option_id">
+                                            <option value="">-- Choisir une option --</option>
+                                            <?php $__currentLoopData = $academic_sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <optgroup label="<?php echo e($section->name); ?>">
+                                                    <?php $__currentLoopData = $options->where('academic_section_id', $section->id); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $option): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($option->id); ?>"><?php echo e($option->name); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                </optgroup>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
-                                        <small class="form-text text-muted">Laissez vide pour une classe générale (ex: "1ère A")</small>
+                                        <small class="form-text text-muted">Choisissez l'option/spécialisation de la classe</small>
                                     </div>
                                 </div>
 

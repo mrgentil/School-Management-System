@@ -38,7 +38,7 @@ class User extends Authenticatable
 
     public function student_record()
     {
-        return $this->hasOne(StudentRecord::class);
+        return $this->hasOne(StudentRecord::class, 'user_id');
     }
     
     public function student()

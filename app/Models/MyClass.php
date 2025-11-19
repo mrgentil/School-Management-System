@@ -9,8 +9,8 @@ class MyClass extends Eloquent
     protected $fillable = [
         'name', 
         'class_type_id', 
-        'academic_level_id', 
-        'academic_option_id', 
+        'academic_section_id', 
+        'option_id', 
         'division',
         'academic_level',
         'academic_option'
@@ -26,14 +26,14 @@ class MyClass extends Eloquent
         return $this->belongsTo(ClassType::class);
     }
 
-    public function academicLevel()
+    public function academicSection()
     {
-        return $this->belongsTo(AcademicLevel::class);
+        return $this->belongsTo(AcademicSection::class, 'academic_section_id');
     }
 
-    public function academicOption()
+    public function option()
     {
-        return $this->belongsTo(AcademicOption::class);
+        return $this->belongsTo(Option::class, 'option_id');
     }
 
     public function student_record()
@@ -52,8 +52,8 @@ class MyClass extends Eloquent
         // Utiliser les champs temporaires d'abord, puis les relations
         if ($this->academic_level) {
             $parts[] = $this->academic_level;
-        } elseif ($this->academicLevel) {
-            $parts[] = $this->academicLevel->name;
+        } elseif ($this->academicSection) {
+            $parts[] = $this->academicSection->name;
         }
         
         if ($this->division) {
@@ -62,8 +62,8 @@ class MyClass extends Eloquent
         
         if ($this->academic_option) {
             $parts[] = $this->academic_option;
-        } elseif ($this->academicOption) {
-            $parts[] = $this->academicOption->name;
+        } elseif ($this->option) {
+            $parts[] = $this->option->name;
         }
         
         return implode(' ', $parts) ?: $this->name;
@@ -78,10 +78,18 @@ class MyClass extends Eloquent
     }
 
     /**
-     * Scope pour filtrer par niveau académique
+     * Scope pour filtrer par section académique
      */
-    public function scopeByLevel($query, $levelId)
+    public function scopeByAcademicSection($query, $sectionId)
     {
-        return $query->where('academic_level_id', $levelId);
+        return $query->where('academic_section_id', $sectionId);
+    }
+    
+    /**
+     * Scope pour filtrer par option
+     */
+    public function scopeByOption($query, $optionId)
+    {
+        return $query->where('option_id', $optionId);
     }
 }

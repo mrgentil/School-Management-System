@@ -191,20 +191,24 @@ class StudentRecordController extends Controller
     public function assign_class()
     {
         $data['my_classes'] = $this->my_class->all();
-        $data['sections'] = $this->my_class->getAllSections();
         
         // Récupérer tous les étudiants qui n'ont pas d'enregistrement pour l'année courante
         $currentSession = Qs::getCurrentSession();
+        
+        // Récupérer les IDs des étudiants déjà assignés pour cette session
+        $assignedStudentIds = \App\Models\StudentRecord::where('session', $currentSession)
+            ->pluck('user_id')
+            ->toArray();
+        
+        // Récupérer tous les étudiants non assignés
         $data['unassigned_students'] = \App\Models\User::where('user_type', 'student')
-            ->whereDoesntHave('student_record', function($query) use ($currentSession) {
-                $query->where('session', $currentSession);
-            })
+            ->whereNotIn('id', $assignedStudentIds)
             ->orderBy('name')
             ->get();
             
         // Récupérer tous les étudiants assignés pour l'année courante
         $data['assigned_students'] = $this->student->getRecord(['session' => $currentSession])
-            ->with(['user', 'my_class', 'section'])
+            ->with(['user', 'my_class'])
             ->get();
             
         return view('pages.support_team.students.assign_class', $data);
@@ -215,7 +219,6 @@ class StudentRecordController extends Controller
         $request->validate([
             'student_id' => 'required|exists:users,id',
             'my_class_id' => 'required|exists:my_classes,id',
-            'section_id' => 'required|exists:sections,id',
         ]);
 
         $currentSession = Qs::getCurrentSession();
@@ -230,11 +233,20 @@ class StudentRecordController extends Controller
             return back()->with('flash_danger', 'Cet étudiant est déjà assigné à une classe pour cette session.');
         }
 
+        // Récupérer la première section de cette classe
+        $defaultSection = \App\Models\Section::where('my_class_id', $request->my_class_id)->first();
+        
+        if (!$defaultSection) {
+            $class = \App\Models\MyClass::find($request->my_class_id);
+            $className = $class->name ?? 'Inconnue';
+            return back()->with('flash_danger', "Aucune section trouvée pour la classe '{$className}'.");
+        }
+
         // Créer l'enregistrement étudiant
         $data = [
             'user_id' => $request->student_id,
             'my_class_id' => $request->my_class_id,
-            'section_id' => $request->section_id,
+            'section_id' => $defaultSection->id,
             'session' => $currentSession,
             'adm_no' => $this->generateAdmissionNumber(),
         ];
@@ -251,7 +263,6 @@ class StudentRecordController extends Controller
 
         $request->validate([
             'my_class_id' => 'required|exists:my_classes,id',
-            'section_id' => 'required|exists:sections,id',
         ]);
 
         $sr = $this->student->getRecord(['id' => $sr_id])->first();
@@ -259,9 +270,17 @@ class StudentRecordController extends Controller
             return back()->with('flash_danger', 'Enregistrement étudiant non trouvé.');
         }
 
+        // Récupérer la première section de la nouvelle classe
+        $defaultSection = \App\Models\Section::where('my_class_id', $request->my_class_id)->first();
+        
+        if (!$defaultSection) {
+            $className = \App\Models\MyClass::find($request->my_class_id)->name ?? 'Inconnue';
+            return back()->with('flash_danger', "Aucune section trouvée pour la classe '{$className}'. Veuillez d'abord créer une section pour cette classe.");
+        }
+
         $data = [
             'my_class_id' => $request->my_class_id,
-            'section_id' => $request->section_id,
+            'section_id' => $defaultSection->id,
         ];
 
         $this->student->updateRecord($sr_id, $data);

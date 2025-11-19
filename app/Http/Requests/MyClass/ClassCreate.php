@@ -25,6 +25,7 @@ class ClassCreate extends FormRequest
             'academic_level' => 'required|string',
             'division' => 'required|string|in:A,B,C,D',
             'academic_option' => 'nullable|string',
+            'option_id' => 'nullable|exists:options,id',
         ];
     }
 

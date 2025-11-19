@@ -1,6 +1,6 @@
-@extends('layouts.master')
-@section('page_title', 'Assigner des Étudiants aux Classes')
-@section('content')
+
+<?php $__env->startSection('page_title', 'Assigner des Étudiants aux Classes'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="row">
     <!-- Formulaire d'assignation -->
@@ -10,12 +10,13 @@
                 <h6 class="card-title">
                     <i class="icon-user-plus mr-2"></i>Assigner un Étudiant à une Classe
                 </h6>
-                {!! Qs::getPanelOptions() !!}
+                <?php echo Qs::getPanelOptions(); ?>
+
             </div>
 
             <div class="card-body">
-                <form method="post" action="{{ route('students.store_assignment') }}">
-                    @csrf
+                <form method="post" action="<?php echo e(route('students.store_assignment')); ?>">
+                    <?php echo csrf_field(); ?>
                     
                     <div class="form-group">
                         <label for="student_id" class="col-form-label font-weight-bold">
@@ -23,14 +24,14 @@
                         </label>
                         <select required id="student_id" name="student_id" class="form-control select-search" data-placeholder="Rechercher un étudiant...">
                             <option value="">-- Choisir un étudiant --</option>
-                            @foreach($unassigned_students as $student)
-                                <option value="{{ $student->id }}">
-                                    {{ $student->name }} ({{ $student->email }})
+                            <?php $__currentLoopData = $unassigned_students; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($student->id); ?>">
+                                    <?php echo e($student->name); ?> (<?php echo e($student->email); ?>)
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                         <small class="form-text text-muted">
-                            Seuls les étudiants non assignés pour la session {{ Qs::getCurrentSession() }} sont affichés.
+                            Seuls les étudiants non assignés pour la session <?php echo e(Qs::getCurrentSession()); ?> sont affichés.
                         </small>
                     </div>
 
@@ -40,9 +41,9 @@
                         </label>
                         <select required id="my_class_id" name="my_class_id" class="form-control select">
                             <option value="">-- Choisir une classe --</option>
-                            @foreach($my_classes as $class)
-                                <option value="{{ $class->id }}">{{ $class->full_name ?: $class->name }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>"><?php echo e($class->full_name ?: $class->name); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
 
@@ -69,7 +70,7 @@
                     <div class="col-6">
                         <div class="card bg-success text-white">
                             <div class="card-body">
-                                <h3 class="mb-0">{{ $assigned_students->count() }}</h3>
+                                <h3 class="mb-0"><?php echo e($assigned_students->count()); ?></h3>
                                 <small>Étudiants Assignés</small>
                             </div>
                         </div>
@@ -77,7 +78,7 @@
                     <div class="col-6">
                         <div class="card bg-warning text-white">
                             <div class="card-body">
-                                <h3 class="mb-0">{{ $unassigned_students->count() }}</h3>
+                                <h3 class="mb-0"><?php echo e($unassigned_students->count()); ?></h3>
                                 <small>Non Assignés</small>
                             </div>
                         </div>
@@ -92,13 +93,14 @@
 <div class="card">
     <div class="card-header header-elements-inline">
         <h6 class="card-title">
-            <i class="icon-users mr-2"></i>Étudiants Assignés (Session {{ Qs::getCurrentSession() }})
+            <i class="icon-users mr-2"></i>Étudiants Assignés (Session <?php echo e(Qs::getCurrentSession()); ?>)
         </h6>
-        {!! Qs::getPanelOptions() !!}
+        <?php echo Qs::getPanelOptions(); ?>
+
     </div>
 
     <div class="card-body">
-        @if($assigned_students->count() > 0)
+        <?php if($assigned_students->count() > 0): ?>
             <table class="table datatable-button-html5-columns">
                 <thead>
                     <tr>
@@ -112,17 +114,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($assigned_students as $sr)
+                    <?php $__currentLoopData = $assigned_students; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sr): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td><?php echo e($loop->iteration); ?></td>
                             <td>
                                 <img class="rounded-circle" style="height: 40px; width: 40px;" 
-                                     src="{{ $sr->user->photo }}" alt="photo">
+                                     src="<?php echo e($sr->user->photo); ?>" alt="photo">
                             </td>
-                            <td>{{ $sr->user->name }}</td>
-                            <td>{{ $sr->user->email }}</td>
-                            <td><strong>{{ $sr->my_class->full_name ?: $sr->my_class->name }}</strong></td>
-                            <td>{{ $sr->adm_no }}</td>
+                            <td><?php echo e($sr->user->name); ?></td>
+                            <td><?php echo e($sr->user->email); ?></td>
+                            <td><strong><?php echo e($sr->my_class->full_name ?: $sr->my_class->name); ?></strong></td>
+                            <td><?php echo e($sr->adm_no); ?></td>
                             <td class="text-center">
                                 <div class="list-icons">
                                     <div class="dropdown">
@@ -131,10 +133,10 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right">
                                             <a href="#" class="dropdown-item" 
-                                               onclick="editAssignment('{{ Qs::hash($sr->id) }}', '{{ $sr->my_class_id }}', '{{ $sr->section_id }}', '{{ $sr->user->name }}')">
+                                               onclick="editAssignment('<?php echo e(Qs::hash($sr->id)); ?>', '<?php echo e($sr->my_class_id); ?>', '<?php echo e($sr->section_id); ?>', '<?php echo e($sr->user->name); ?>')">
                                                 <i class="icon-pencil"></i> Modifier Classe
                                             </a>
-                                            <a href="{{ route('students.show', Qs::hash($sr->user_id)) }}" class="dropdown-item">
+                                            <a href="<?php echo e(route('students.show', Qs::hash($sr->user_id))); ?>" class="dropdown-item">
                                                 <i class="icon-eye"></i> Voir Profil
                                             </a>
                                         </div>
@@ -142,16 +144,16 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
-        @else
+        <?php else: ?>
             <div class="text-center py-4">
                 <i class="icon-users icon-3x text-muted mb-3"></i>
                 <h5 class="text-muted">Aucun étudiant assigné</h5>
                 <p class="text-muted">Commencez par assigner des étudiants aux classes.</p>
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
@@ -164,8 +166,8 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form id="editAssignmentForm" method="post">
-                @csrf
-                @method('PUT')
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PUT'); ?>
                 <div class="modal-body">
                     <p>Étudiant: <strong id="studentName"></strong></p>
                     
@@ -175,9 +177,9 @@
                         </label>
                         <select required id="edit_my_class_id" name="my_class_id" class="form-control select">
                             <option value="">-- Choisir une classe --</option>
-                            @foreach($my_classes as $class)
-                                <option value="{{ $class->id }}">{{ $class->full_name ?: $class->name }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>"><?php echo e($class->full_name ?: $class->name); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -195,11 +197,13 @@
 <script>
     function editAssignment(srId, classId, sectionId, studentName) {
         document.getElementById('studentName').textContent = studentName;
-        document.getElementById('editAssignmentForm').action = '{{ url("students/update-assignment") }}/' + srId;
+        document.getElementById('editAssignmentForm').action = '<?php echo e(url("students/update-assignment")); ?>/' + srId;
         document.getElementById('edit_my_class_id').value = classId;
         
         $('#editAssignmentModal').modal('show');
     }
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/students/assign_class.blade.php ENDPATH**/ ?>
