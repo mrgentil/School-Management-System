@@ -212,6 +212,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('calendar', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'calendar'])->name('calendar');
             Route::get('{exam}', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'show'])->name('show');
             Route::post('/', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'store'])->name('store');
+            Route::post('{exam}/bulk-store', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'bulkStore'])->name('bulk_store');
             Route::put('{id}', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'update'])->name('update');
             Route::delete('{id}', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'destroy'])->name('destroy');
             Route::post('add-supervisor', [\App\Http\Controllers\SupportTeam\ExamScheduleController::class, 'addSupervisor'])->name('add_supervisor');

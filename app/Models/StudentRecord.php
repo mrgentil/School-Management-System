@@ -48,4 +48,30 @@ class StudentRecord extends Eloquent
     {
         return $this->belongsTo(Dorm::class);
     }
+
+    /**
+     * Obtenir le nom complet de la classe formaté
+     * Ex: "3e Mécanique A" ou "JSS 2 Scientifique Blue"
+     */
+    public function getFullClassNameAttribute()
+    {
+        $parts = [];
+        
+        // Nom de la classe
+        if ($this->my_class) {
+            $parts[] = $this->my_class->name;
+        }
+        
+        // Option (si existe)
+        if ($this->option) {
+            $parts[] = $this->option->name;
+        }
+        
+        // Division (si existe)
+        if ($this->section) {
+            $parts[] = $this->section->name;
+        }
+        
+        return implode(' ', $parts);
+    }
 }

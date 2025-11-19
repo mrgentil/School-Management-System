@@ -21,7 +21,7 @@
                             <i class="icon-user icon-2x mr-3"></i>
                             <div>
                                 <h6 class="mb-0 text-white"><?php echo e(Auth::user()->name); ?></h6>
-                                <small class="text-white"><?php echo e($my_class->name); ?> - <?php echo e($section->name); ?></small>
+                                <small class="text-white font-weight-bold"><?php echo e($sr->full_class_name); ?></small>
                             </div>
                         </div>
                     </div>
@@ -229,12 +229,19 @@
                                             <tbody>
                                             <?php $__currentLoopData = $sessionSchedules->sortBy('exam_date'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <?php
-                                                    $myPlacement = $schedule->placements->firstWhere('student_id', $student_id);
+                                                    // LOGIQUE CORRECTE: Récupérer le placement au niveau de l'EXAMEN
+                                                    $myPlacement = null;
+                                                    if ($schedule->exam_id) {
+                                                        $myPlacement = \App\Models\ExamStudentPlacement::where('exam_id', $schedule->exam_id)
+                                                            ->where('student_id', $student_id)
+                                                            ->with('room')
+                                                            ->first();
+                                                    }
                                                 ?>
                                                 <tr>
                                                     <td>
                                                         <strong><?php echo e($schedule->subject->name); ?></strong><br>
-                                                        <small class="text-muted"><?php echo e($schedule->exam->name); ?></small>
+                                                        <small class="text-muted"><?php echo e($schedule->exam ? $schedule->exam->name : 'N/A'); ?></small>
                                                     </td>
                                                     <td>
                                                         <span class="badge badge-flat border-danger text-danger-600">

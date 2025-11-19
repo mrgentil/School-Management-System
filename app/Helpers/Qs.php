@@ -414,4 +414,37 @@ class Qs
         return 'Dollar Américain';
     }
 
+    /**
+     * Formater le nom complet d'une classe avec option et division
+     * Ex: "3e Mécanique A", "JSS 2 Scientifique Blue"
+     * 
+     * @param object $record - Peut être StudentRecord, ExamSchedule, ou tout objet avec my_class, option, section
+     * @return string
+     */
+    public static function getFullClassName($record)
+    {
+        if (!$record) {
+            return 'N/A';
+        }
+
+        $parts = [];
+        
+        // Nom de la classe
+        if (isset($record->my_class) && $record->my_class) {
+            $parts[] = $record->my_class->name;
+        }
+        
+        // Option (si existe)
+        if (isset($record->option) && $record->option) {
+            $parts[] = $record->option->name;
+        }
+        
+        // Division (si existe)
+        if (isset($record->section) && $record->section) {
+            $parts[] = $record->section->name;
+        }
+        
+        return implode(' ', $parts) ?: 'N/A';
+    }
+
 }

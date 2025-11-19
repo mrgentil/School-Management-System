@@ -105,7 +105,6 @@ class ExamPlacementService
         // Dans un examen SESSION, on mélange tout le monde et on classe par performance
         // Exemple: Salle A peut contenir JSS2A, JSS3, JSS2 Technique, etc.
         return StudentRecord::whereIn('my_class_id', $classIds)
-            ->where('year', $exam->year)
             ->with(['user', 'my_class', 'section', 'option'])
             ->get();
     }

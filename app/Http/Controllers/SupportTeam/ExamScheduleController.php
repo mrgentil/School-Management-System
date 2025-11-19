@@ -37,6 +37,8 @@ class ExamScheduleController extends Controller
         $d['schedules'] = $this->schedule->getScheduleByExam($exam_id);
         $d['my_classes'] = $this->my_class->all();
         $d['academic_sections'] = \App\Models\AcademicSection::with('options')->where('active', 1)->get();
+        $d['sections'] = \App\Models\Section::orderBy('name')->get();
+        $d['options'] = \App\Models\Option::with('academic_section')->orderBy('name')->get();
         $d['subjects'] = $this->my_class->getAllSubjects();
         $d['teachers'] = $this->user->getUserByType('teacher');
         
@@ -122,5 +124,52 @@ class ExamScheduleController extends Controller
         $d['upcoming'] = $this->schedule->getUpcomingSchedules(null, 30);
         
         return view('pages.support_team.exam_schedules.calendar', $d);
+    }
+
+    /**
+     * Créer plusieurs horaires d'examens en masse
+     * Permet de sélectionner plusieurs matières pour le même créneau horaire
+     */
+    public function bulkStore(Request $req, $exam_id)
+    {
+        $req->validate([
+            'subject_ids' => 'required|array|min:1',
+            'subject_ids.*' => 'exists:subjects,id',
+            'exam_type' => 'required|in:hors_session,session',
+            'my_class_id' => 'required|exists:my_classes,id',
+            'section_id' => 'nullable|exists:sections,id',
+            'option_id' => 'nullable|exists:options,id',
+            'exam_date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'room' => 'nullable|string',
+            'instructions' => 'nullable|string',
+        ]);
+
+        $created_count = 0;
+
+        // Créer un horaire pour chaque matière sélectionnée
+        foreach ($req->subject_ids as $subject_id) {
+            $data = [
+                'exam_id' => $exam_id,
+                'subject_id' => $subject_id,
+                'exam_type' => $req->exam_type,
+                'my_class_id' => $req->my_class_id,
+                'section_id' => $req->section_id,
+                'option_id' => $req->option_id,
+                'exam_date' => $req->exam_date,
+                'start_time' => $req->start_time,
+                'end_time' => $req->end_time,
+                'room' => $req->room,
+                'instructions' => $req->instructions,
+                'status' => 'scheduled',
+            ];
+
+            $this->schedule->create($data);
+            $created_count++;
+        }
+
+        return redirect()->route('exam_schedules.show', $exam_id)
+            ->with('flash_success', "$created_count horaires créés avec succès !");
     }
 }

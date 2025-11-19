@@ -60,6 +60,7 @@
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#schedules-list" class="nav-link active" data-toggle="tab">Horaires</a></li>
                 <li class="nav-item"><a href="#add-schedule" class="nav-link" data-toggle="tab"><i class="icon-plus2"></i> Ajouter Horaire</a></li>
+                <li class="nav-item"><a href="#bulk-add-schedule" class="nav-link" data-toggle="tab"><i class="icon-stack-plus"></i> Ajout Multiple</a></li>
             </ul>
 
             <div class="tab-content">
@@ -422,6 +423,128 @@
 
                         <div class="text-right">
                             <button type="submit" class="btn btn-primary">Créer Horaire <i class="icon-paperplane ml-2"></i></button>
+                        </div>
+                    </form>
+                </div>
+
+                
+                <div class="tab-pane fade" id="bulk-add-schedule">
+                    <div class="alert alert-success border-0">
+                        <h6><i class="icon-info22 mr-2"></i>Ajout Multiple d'Horaires</h6>
+                        <p class="mb-0">Créez plusieurs horaires d'examens en une seule fois en sélectionnant plusieurs matières pour le même créneau horaire.</p>
+                        <p class="mb-0"><strong>Exemple:</strong> Lundi 8h-10h → Cochez Math, Anglais, Sciences → 3 horaires créés automatiquement !</p>
+                    </div>
+
+                    <form method="POST" action="<?php echo e(route('exam_schedules.bulk_store', $exam->id)); ?>">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="exam_id" value="<?php echo e($exam->id); ?>">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Type d'Examen <span class="text-danger">*</span></label>
+                                    <select name="exam_type" class="form-control" required>
+                                        <option value="">-- Sélectionner --</option>
+                                        <option value="session">SESSION (Placement automatique par performance)</option>
+                                        <option value="hors_session">HORS SESSION (Dans leurs salles habituelles)</option>
+                                    </select>
+                                    <small class="text-muted">SESSION = élèves répartis par performance. HORS SESSION = élèves dans leurs classes.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Classe <span class="text-danger">*</span></label>
+                                    <select name="my_class_id" id="bulk-class-select" class="form-control select-search" required>
+                                        <option value="">-- Sélectionner une classe --</option>
+                                        <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($class->id); ?>"><?php echo e($class->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Division</label>
+                                    <select name="section_id" id="bulk-section-select" class="form-control select-search">
+                                        <option value="">Toutes les divisions</option>
+                                        <?php $__currentLoopData = $sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($section->id); ?>"><?php echo e($section->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                    <small class="text-muted">Division de la classe (A, B, Blue, Brown, etc.) - Détermine la salle</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Option</label>
+                                    <select name="option_id" id="bulk-option-select" class="form-control select-search">
+                                        <option value="">Toutes les options</option>
+                                        <?php $__currentLoopData = $options; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $option): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($option->id); ?>"><?php echo e($option->academic_section->name ?? ''); ?> - <?php echo e($option->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                    <small class="text-muted">Option académique (Technique, Littéraire, etc.)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Matières <span class="text-danger">*</span></label>
+                                    <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                        <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <div class="form-check mb-2">
+                                                <label class="form-check-label">
+                                                    <input type="checkbox" name="subject_ids[]" value="<?php echo e($subject->id); ?>" class="form-check-input-styled">
+                                                    <?php echo e($subject->name); ?>
+
+                                                </label>
+                                            </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </div>
+                                    <small class="text-muted">Cochez toutes les matières pour ce créneau horaire</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Date <span class="text-danger">*</span></label>
+                                    <input type="date" name="exam_date" class="form-control" required>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Heure Début <span class="text-danger">*</span></label>
+                                            <input type="time" name="start_time" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Heure Fin <span class="text-danger">*</span></label>
+                                            <input type="time" name="end_time" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Salle</label>
+                                    <input type="text" name="room" class="form-control" placeholder="Ex: Salle A1 (optionnel)">
+                                    <small class="text-muted">Cette salle sera assignée à tous les horaires créés</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Instructions</label>
+                                    <textarea name="instructions" class="form-control" rows="5" 
+                                              placeholder="Instructions spéciales pour ces examens..."></textarea>
+                                    <small class="text-muted">Ces instructions seront appliquées à tous les horaires</small>
+                                </div>
+
+                                <div class="alert alert-info border-0 mb-0">
+                                    <i class="icon-info22 mr-2"></i>
+                                    <strong>Aperçu:</strong> Un horaire sera créé pour chaque matière cochée avec les mêmes date, heure, classe et paramètres.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-right mt-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="icon-stack-plus mr-2"></i>Créer Tous les Horaires
+                            </button>
                         </div>
                     </form>
                 </div>
