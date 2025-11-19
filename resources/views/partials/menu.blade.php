@@ -233,12 +233,12 @@
                             {{--Grades list--}}
                             <li class="nav-item">
                                     <a href="{{ route('grades.index') }}"
-                                       class="nav-link {{ in_array(Route::currentRouteName(), ['grades.index', 'grades.edit']) ? 'active' : '' }}">Notes</a>
+                                       class="nav-link {{ in_array(Route::currentRouteName(), ['grades.index', 'grades.edit']) ? 'active' : '' }}">Barème de notation</a>
                             </li>
 
                             {{--Tabulation Sheet--}}
                             <li class="nav-item">
-                                <a href="{{ route('marks.tabulation') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['marks.tabulation']) ? 'active' : '' }}">Feuille de tabulation</a>
+                                <a href="{{ route('marks.tabulation') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['marks.tabulation']) ? 'active' : '' }}">Feuille de Tabulation</a>
                             </li>
 
                             {{--Marks Batch Fix--}}
@@ -251,7 +251,7 @@
                             {{--Marks Manage--}}
                             <li class="nav-item">
                                 <a href="{{ route('marks.index') }}"
-                                   class="nav-link {{ in_array(Route::currentRouteName(), ['marks.index']) ? 'active' : '' }}">Notes</a>
+                                   class="nav-link {{ in_array(Route::currentRouteName(), ['marks.index']) ? 'active' : '' }}">Saisie des notes</a>
                             </li>
 
                             {{--Marksheet--}}

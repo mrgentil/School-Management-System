@@ -14,18 +14,24 @@ class ClassTypesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('class_types')->delete();
+        // Désactiver les contraintes de clés étrangères
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        // Vider la table
+        DB::table('class_types')->truncate();
+        
+        // Réactiver les contraintes
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $data = [
-            ['name' => 'Creche', 'code' => 'C'],
-            ['name' => 'Pre Nursery', 'code' => 'PN'],
-            ['name' => 'Nursery', 'code' => 'N'],
-            ['name' => 'Primary', 'code' => 'P'],
-            ['name' => 'Junior Secondary', 'code' => 'J'],
-            ['name' => 'Senior Secondary', 'code' => 'S'],
+            ['name' => 'Crèche', 'code' => 'C'],
+            ['name' => 'Pré-Maternelle', 'code' => 'PM'],
+            ['name' => 'Maternelle', 'code' => 'M'],
+            ['name' => 'Primaire', 'code' => 'P'],
+            ['name' => 'Secondaire 1er Cycle', 'code' => 'S1'],
+            ['name' => 'Secondaire 2ème Cycle', 'code' => 'S2'],
         ];
 
         DB::table('class_types')->insert($data);
-
     }
 }

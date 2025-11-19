@@ -12,7 +12,7 @@ return
     'p_reset_fail' => 'Vous avez saisi un mot de passe incorrect !',
     'lock_exam' => 'Un code PIN sera requis pour voir les résultats si le verrouillage d\'examen est activé',
     'rnf' => 'Enregistrement non trouvé',
-    'srnf' => 'Dossier étudiant non trouvé',
+    'srnf' => 'Aucune note trouvée pour cette combinaison examen/classe/section. Veuillez d\'abord saisir des notes.',
     'ernf' => 'Dossier d\'examen non trouvé',
     'nstp' => 'Il n\'y a AUCUN étudiant à promouvoir',
     'pin_max' => 'Limite de génération de PIN (500) dépassée',

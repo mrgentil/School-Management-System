@@ -15,23 +15,31 @@ class SectionsTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('sections')->delete();
+        // Désactiver les contraintes de clés étrangères
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        // Vider la table
+        DB::table('sections')->truncate();
+        
+        // Réactiver les contraintes
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $c = MyClass::pluck('id')->all();
 
-        $data = [
-            ['name' => 'Gold', 'my_class_id' => $c[0], 'active' => 1],
-            ['name' => 'Diamond', 'my_class_id' => $c[0], 'active' => 0],
-            ['name' => 'Silver', 'my_class_id' => $c[1], 'active' => 1],
-            ['name' => 'Lemon', 'my_class_id' => $c[1], 'active' => 0],
-            ['name' => 'Bronze', 'my_class_id' => $c[2], 'active' => 1],
-            ['name' => 'Silver', 'my_class_id' => $c[3], 'active' => 1],
-            ['name' => 'Diamond', 'my_class_id' => $c[4], 'active' => 1],
-            ['name' => 'Blue', 'my_class_id' => $c[5], 'active' => 1],
-            ['name' => 'A', 'my_class_id' => $c[6], 'active' => 1],
-            ['name' => 'A', 'my_class_id' => $c[7], 'active' => 1],
-            ['name' => 'A', 'my_class_id' => $c[8], 'active' => 1],
-            ['name' => 'A', 'my_class_id' => $c[9], 'active' => 1],
-        ];
+        // Créer des divisions A, B, C, D pour chaque classe
+        $data = [];
+        $divisions = ['A', 'B', 'C', 'D'];
+        
+        // Pour chaque classe, créer les divisions A, B, C, D
+        foreach ($c as $index => $class_id) {
+            foreach ($divisions as $division) {
+                $data[] = [
+                    'name' => $division,
+                    'my_class_id' => $class_id,
+                    'active' => 1
+                ];
+            }
+        }
 
         DB::table('sections')->insert($data);
     }

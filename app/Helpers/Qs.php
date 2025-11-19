@@ -34,6 +34,27 @@ class Qs
         return asset('global_assets/images/user.png');
     }
 
+    /**
+     * Vérifie et retourne une photo valide ou l'image par défaut
+     */
+    public static function getUserPhoto($photo)
+    {
+        // Si aucune photo n'est définie
+        if (!$photo || $photo === '') {
+            return self::getDefaultUserImage();
+        }
+
+        // Si la photo est une URL complète, vérifier si le fichier existe
+        if (filter_var($photo, FILTER_VALIDATE_URL)) {
+            $relativePath = str_replace(url('/'), '', $photo);
+            if (!file_exists(public_path($relativePath))) {
+                return self::getDefaultUserImage();
+            }
+        }
+
+        return $photo;
+    }
+
     public static function getPanelOptions()
     {
         return '    <div class="header-elements">

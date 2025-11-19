@@ -234,12 +234,12 @@
                             
                             <li class="nav-item">
                                     <a href="<?php echo e(route('grades.index')); ?>"
-                                       class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['grades.index', 'grades.edit']) ? 'active' : ''); ?>">Notes</a>
+                                       class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['grades.index', 'grades.edit']) ? 'active' : ''); ?>">Barème de notation</a>
                             </li>
 
                             
                             <li class="nav-item">
-                                <a href="<?php echo e(route('marks.tabulation')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['marks.tabulation']) ? 'active' : ''); ?>">Feuille de tabulation</a>
+                                <a href="<?php echo e(route('marks.tabulation')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['marks.tabulation']) ? 'active' : ''); ?>">Feuille de Tabulation</a>
                             </li>
 
                             
@@ -252,7 +252,7 @@
                             
                             <li class="nav-item">
                                 <a href="<?php echo e(route('marks.index')); ?>"
-                                   class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['marks.index']) ? 'active' : ''); ?>">Notes</a>
+                                   class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['marks.index']) ? 'active' : ''); ?>">Saisie des notes</a>
                             </li>
 
                             

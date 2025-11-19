@@ -1,12 +1,12 @@
 @extends('layouts.master')
-@section('page_title', 'Tabulation Sheet')
+@section('page_title', 'Feuille de Tabulation')
 @section('content')
 
     {{-- Menu Rapide --}}
     <div class="row mb-3">
         <div class="col-md-3">
             <a href="{{ route('exam_analytics.index') }}" class="btn btn-success btn-block">
-                <i class="icon-stats-dots mr-2"></i>Analytics & Rapports
+                <i class="icon-stats-dots mr-2"></i>Analyses & Rapports
             </a>
         </div>
         <div class="col-md-3">
@@ -21,26 +21,37 @@
         </div>
         <div class="col-md-3">
             <a href="{{ route('exams.dashboard') }}" class="btn btn-warning btn-block">
-                <i class="icon-grid mr-2"></i>Dashboard Examens
+                <i class="icon-grid mr-2"></i>Tableau de Bord Examens
             </a>
         </div>
     </div>
 
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h5 class="card-title"><i class="icon-table2 mr-2"></i> Tabulation Sheet</h5>
+            <h5 class="card-title"><i class="icon-table2 mr-2"></i> Feuille de Tabulation</h5>
             {!! Qs::getPanelOptions() !!}
         </div>
 
         <div class="card-body">
+            <div class="alert alert-info">
+                <h6><i class="icon-info22 mr-2"></i>Comment utiliser la Feuille de Tabulation :</h6>
+                <ul class="mb-0">
+                    <li><strong>Sélectionnez un examen</strong> - Choisissez l'examen pour lequel vous voulez voir les résultats</li>
+                    <li><strong>Choisissez une classe</strong> - Sélectionnez la classe concernée</li>
+                    <li><strong>Sélectionnez une section</strong> - Choisissez la section/division de la classe</li>
+                    <li><strong>Cliquez sur "Afficher la Feuille"</strong> - Le tableau avec toutes les notes apparaîtra</li>
+                </ul>
+                <small class="text-muted"><strong>Note :</strong> Des notes doivent avoir été saisies au préalable pour que la feuille s'affiche.</small>
+            </div>
+            
         <form method="post" action="{{ route('marks.tabulation_select') }}">
                     @csrf
                     <div class="row">
 
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="exam_id" class="col-form-label font-weight-bold">Exam:</label>
-                                            <select required id="exam_id" name="exam_id" class="form-control select" data-placeholder="Select Exam">
+                                            <label for="exam_id" class="col-form-label font-weight-bold">Examen :</label>
+                                            <select required id="exam_id" name="exam_id" class="form-control select" data-placeholder="Sélectionner un examen">
                                                 @foreach($exams as $exm)
                                                     <option {{ ($selected && $exam_id == $exm->id) ? 'selected' : '' }} value="{{ $exm->id }}">{{ $exm->name }}</option>
                                                 @endforeach
@@ -50,11 +61,11 @@
 
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label for="my_class_id" class="col-form-label font-weight-bold">Class:</label>
-                                            <select onchange="getClassSections(this.value)" required id="my_class_id" name="my_class_id" class="form-control select" data-placeholder="Select Class">
+                                            <label for="my_class_id" class="col-form-label font-weight-bold">Classe :</label>
+                                            <select onchange="getClassSections(this.value)" required id="my_class_id" name="my_class_id" class="form-control select" data-placeholder="Sélectionner une classe">
                                                 <option value=""></option>
                                                 @foreach($my_classes as $c)
-                                                    <option {{ ($selected && $my_class_id == $c->id) ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->name }}</option>
+                                                    <option {{ ($selected && $my_class_id == $c->id) ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->full_name ?: $c->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -62,8 +73,8 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="section_id" class="col-form-label font-weight-bold">Section:</label>
-                                <select required id="section_id" name="section_id" data-placeholder="Select Class First" class="form-control select">
+                                <label for="section_id" class="col-form-label font-weight-bold">Section :</label>
+                                <select required id="section_id" name="section_id" data-placeholder="Sélectionner d'abord une classe" class="form-control select">
                                     @if($selected)
                                         @foreach($sections->where('my_class_id', $my_class_id) as $s)
                                             <option {{ $section_id == $s->id ? 'selected' : '' }} value="{{ $s->id }}">{{ $s->name }}</option>
@@ -76,7 +87,7 @@
 
                         <div class="col-md-2 mt-4">
                             <div class="text-right mt-1">
-                                <button type="submit" class="btn btn-primary">View Sheet <i class="icon-paperplane ml-2"></i></button>
+                                <button type="submit" class="btn btn-primary">Afficher la Feuille <i class="icon-paperplane ml-2"></i></button>
                             </div>
                         </div>
 
@@ -86,32 +97,32 @@
         </div>
     </div>
 
-    {{--if Selction Has Been Made --}}
+    {{--Si une sélection a été faite --}}
 
     @if($selected)
         <div class="card">
             <div class="card-header">
-                <h6 class="card-title font-weight-bold">Tabulation Sheet for {{ $my_class->name.' '.$section->name.' - '.$ex->name.' ('.$year.')' }}</h6>
+                <h6 class="card-title font-weight-bold">Feuille de Tabulation pour {{ ($my_class->full_name ?: $my_class->name).' '.$section->name.' - '.$ex->name.' ('.$year.')' }}</h6>
             </div>
             <div class="card-body">
                 <table class="table table-responsive table-striped">
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th>NAMES_OF_STUDENTS_IN_CLASS</th>
+                        <th>NOMS DES ÉTUDIANTS</th>
                        @foreach($subjects as $sub)
                        <th title="{{ $sub->name }}" rowspan="2">{{ strtoupper($sub->slug ?: $sub->name) }}</th>
                        @endforeach
                         {{--@if($ex->term == 3)
-                        <th>1ST TERM TOTAL</th>
-                        <th>2ND TERM TOTAL</th>
-                        <th>3RD TERM TOTAL</th>
-                        <th style="color: darkred">CUM Total</th>
-                        <th style="color: darkblue">CUM Average</th>
+                        <th>TOTAL 1ER SEMESTRE</th>
+                        <th>TOTAL 2ÈME SEMESTRE</th>
+                        <th>TOTAL 3ÈME SEMESTRE</th>
+                        <th style="color: darkred">TOTAL CUMULÉ</th>
+                        <th style="color: darkblue">MOYENNE CUMULÉE</th>
                         @endif--}}
-                        <th style="color: darkred">Total</th>
-                        <th style="color: darkblue">Average</th>
-                        <th style="color: darkgreen">Position</th>
+                        <th style="color: darkred">TOTAL</th>
+                        <th style="color: darkblue">MOYENNE</th>
+                        <th style="color: darkgreen">POSITION</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -139,9 +150,9 @@
                     @endforeach
                     </tbody>
                 </table>
-                {{--Print Button--}}
+                {{--Bouton d'impression--}}
                 <div class="text-center mt-4">
-                    <a target="_blank" href="{{  route('marks.print_tabulation', [$exam_id, $my_class_id, $section_id]) }}" class="btn btn-danger btn-lg"><i class="icon-printer mr-2"></i> Print Tabulation Sheet</a>
+                    <a target="_blank" href="{{  route('marks.print_tabulation', [$exam_id, $my_class_id, $section_id]) }}" class="btn btn-danger btn-lg"><i class="icon-printer mr-2"></i> Imprimer la Feuille de Tabulation</a>
                 </div>
             </div>
         </div>

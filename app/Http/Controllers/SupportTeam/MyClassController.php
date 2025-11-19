@@ -32,17 +32,37 @@ class MyClassController extends Controller
 
     public function store(ClassCreate $req)
     {
-        $data = $req->all();
+        $data = $req->only(['class_type_id', 'academic_level', 'division', 'academic_option']);
+        
+        // Générer le nom automatiquement si pas fourni
+        if (!$req->filled('name')) {
+            $nameParts = [];
+            if ($req->academic_level) {
+                $nameParts[] = $req->academic_level;
+            }
+            if ($req->division) {
+                $nameParts[] = $req->division;
+            }
+            if ($req->academic_option) {
+                $nameParts[] = $req->academic_option;
+            }
+            $data['name'] = implode(' ', $nameParts);
+        } else {
+            $data['name'] = $req->name;
+        }
+        
         $mc = $this->my_class->create($data);
 
-        // Create Default Section
-        $s =['my_class_id' => $mc->id,
-            'name' => 'A',
-            'active' => 1,
-            'teacher_id' => NULL,
-        ];
+        // Create Default Section - Ne pas créer si division est déjà spécifiée
+        if (!$req->has('division')) {
+            $s =['my_class_id' => $mc->id,
+                'name' => 'A',
+                'active' => 1,
+                'teacher_id' => NULL,
+            ];
 
-        $this->my_class->createSection($s);
+            $this->my_class->createSection($s);
+        }
 
         return Qs::jsonStoreOk();
     }

@@ -13,14 +13,41 @@ class DormitoriesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('dormitories')->delete();
+        // Désactiver les contraintes de clés étrangères
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        // Vider la table
+        DB::table('dorms')->truncate();
+        
+        // Réactiver les contraintes
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $data = [
-            ['name' => 'Faith Hostel'],
-            ['name' => 'Peace Hostel'],
-            ['name' => 'Grace Hostel'],
-            ['name' => 'Success Hostel'],
-            ['name' => 'Trust Hostel'],
+            [
+                'name' => 'Internat Foi',
+                'description' => 'Internat pour garçons - Bâtiment principal (50 places)'
+            ],
+            [
+                'name' => 'Internat Paix',
+                'description' => 'Internat pour filles - Bâtiment nord (45 places)'
+            ],
+            [
+                'name' => 'Internat Grâce',
+                'description' => 'Internat mixte - Bâtiment sud (60 places)'
+            ],
+            [
+                'name' => 'Internat Succès',
+                'description' => 'Internat pour élèves du secondaire (40 places)'
+            ],
+            [
+                'name' => 'Internat Confiance',
+                'description' => 'Internat pour élèves du primaire (35 places)'
+            ],
+            [
+                'name' => 'Internat Excellence',
+                'description' => 'Internat pour élèves méritants (30 places)'
+            ],
         ];
-        DB::table('dormitories')->insert($data);
+        DB::table('dorms')->insert($data);
     }
 }

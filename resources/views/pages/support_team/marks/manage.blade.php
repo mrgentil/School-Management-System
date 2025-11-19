@@ -16,7 +16,7 @@
         </div>
         <div class="col-md-3">
             <a href="{{ route('marks.tabulation') }}" class="btn btn-warning btn-block">
-                <i class="icon-table2 mr-2"></i>Tabulation
+                <i class="icon-table2 mr-2"></i>Feuille de Tabulation
             </a>
         </div>
         <div class="col-md-3">

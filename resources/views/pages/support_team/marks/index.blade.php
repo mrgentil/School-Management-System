@@ -40,7 +40,7 @@
             <a href="{{ route('marks.tabulation') }}" class="card bg-warning text-white">
                 <div class="card-body text-center">
                     <i class="icon-table2 icon-2x mb-2"></i>
-                    <h6 class="mb-0">Tabulation des Notes</h6>
+                    <h6 class="mb-0">Feuille de Tabulation</h6>
                 </div>
             </a>
         </div>

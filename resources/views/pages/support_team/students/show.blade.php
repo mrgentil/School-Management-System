@@ -73,33 +73,33 @@
                                 <td class="font-weight-bold">Birthday</td>
                                 <td>{{$sr->user->dob }}</td>
                             </tr>
-                            @if($sr->user->bg_id)
+                            @if($sr->user->bg_id && $sr->user->blood_group)
                             <tr>
-                                <td class="font-weight-bold">Blood Group</td>
+                                <td class="font-weight-bold">Groupe sanguin</td>
                                 <td>{{$sr->user->blood_group->name }}</td>
                             </tr>
                             @endif
-                            @if($sr->user->nal_id)
+                            @if($sr->user->nal_id && $sr->user->nationality)
                             <tr>
-                                <td class="font-weight-bold">Nationality</td>
+                                <td class="font-weight-bold">Nationalité</td>
                                 <td>{{$sr->user->nationality->name }}</td>
                             </tr>
                             @endif
-                            @if($sr->user->state_id)
+                            @if($sr->user->state_id && $sr->user->state)
                             <tr>
-                                <td class="font-weight-bold">State</td>
+                                <td class="font-weight-bold">Province</td>
                                 <td>{{$sr->user->state->name }}</td>
                             </tr>
                             @endif
-                            @if($sr->user->lga_id)
+                            @if($sr->user->lga_id && $sr->user->lga)
                             <tr>
-                                <td class="font-weight-bold">LGA</td>
+                                <td class="font-weight-bold">Commune</td>
                                 <td>{{$sr->user->lga->name }}</td>
                             </tr>
                             @endif
-                            @if($sr->dorm_id)
+                            @if($sr->dorm_id && $sr->dorm)
                                 <tr>
-                                    <td class="font-weight-bold">Dormitory</td>
+                                    <td class="font-weight-bold">Internat</td>
                                     <td>{{$sr->dorm->name.' '.$sr->dorm_room_no }}</td>
                                 </tr>
                             @endif

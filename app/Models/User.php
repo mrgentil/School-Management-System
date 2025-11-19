@@ -70,4 +70,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(StaffRecord::class);
     }
+
+    /**
+     * Accesseur pour la photo - retourne l'image par défaut si aucune photo n'est définie
+     */
+    public function getPhotoAttribute($value)
+    {
+        // Si aucune photo n'est définie ou si le fichier n'existe pas
+        if (!$value || $value === '' || !file_exists(public_path(str_replace(url('/'), '', $value)))) {
+            return asset('global_assets/images/user.png');
+        }
+        
+        return $value;
+    }
 }

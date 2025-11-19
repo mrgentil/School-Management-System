@@ -10,14 +10,47 @@ class StatesTableSeeder extends Seeder
 
     public function run()
     {
-        DB::table('states')->delete();
+        // Désactiver les contraintes de clés étrangères
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        // Vider la table
+        DB::table('states')->truncate();
+        
+        // Réactiver les contraintes
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $states = [
-            'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa','Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara',
+        // Provinces de la République Démocratique du Congo
+        $provinces = [
+            'Kinshasa',
+            'Kongo Central',
+            'Kwilu',
+            'Kwango',
+            'Mai-Ndombe',
+            'Kasaï',
+            'Kasaï Oriental',
+            'Kasaï Central',
+            'Lomami',
+            'Sankuru',
+            'Maniema',
+            'Sud-Kivu',
+            'Nord-Kivu',
+            'Ituri',
+            'Haut-Uélé',
+            'Bas-Uélé',
+            'Tshopo',
+            'Mongala',
+            'Nord-Ubangi',
+            'Sud-Ubangi',
+            'Équateur',
+            'Tshuapa',
+            'Haut-Lomami',
+            'Lualaba',
+            'Haut-Katanga',
+            'Tanganyika'
         ];
 
-        foreach ($states as $state) {
-            State::create(['name' => $state]);
+        foreach ($provinces as $province) {
+            State::create(['name' => $province]);
         }
     }
 

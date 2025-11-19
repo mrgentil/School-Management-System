@@ -194,6 +194,27 @@ Route::group(['middleware' => 'auth'], function () {
 
         });
 
+        /*************** Analytics Avancés *****************/
+        Route::group(['prefix' => 'exam-analytics', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'index'])->name('exam_analytics.index');
+            Route::get('/dashboard', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'dashboard'])->name('exam_analytics.dashboard');
+            Route::get('/overview/{exam_id}', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'overview'])->name('exam_analytics.overview');
+            Route::get('/class-analysis/{exam_id}/{class_id}', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'classAnalysis'])->name('exam_analytics.class_analysis');
+            Route::get('/student-progress/{student_id}', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'studentProgress'])->name('exam_analytics.student_progress');
+            Route::get('/student-progress-chart/{student_id}', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'studentProgressChart'])->name('exam_analytics.student_progress_chart');
+            Route::get('/historical-comparison', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'historicalComparison'])->name('exam_analytics.historical_comparison');
+            Route::get('/struggling-students', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'strugglingStudentsAlert'])->name('exam_analytics.struggling_students');
+            Route::get('/subject-teacher-reports', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'subjectTeacherReports'])->name('exam_analytics.subject_teacher_reports');
+            Route::get('/rankings', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'rankings'])->name('exam_analytics.rankings');
+            
+            // Import/Export
+            Route::post('/import-marks', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'importMarks'])->name('exam_analytics.import_marks');
+            Route::post('/export-results', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'exportResults'])->name('exam_analytics.export_results');
+            
+            // Notifications
+            Route::post('/send-parent-notifications', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'sendParentNotifications'])->name('exam_analytics.send_parent_notifications');
+        });
+
         Route::get('students/statistics', [\App\Http\Controllers\SupportTeam\StudentStatsController::class, 'index'])->name('students.statistics');
         Route::resource('students', '\App\Http\Controllers\SupportTeam\StudentRecordController');
         Route::resource('users', '\App\Http\Controllers\SupportTeam\UserController');
