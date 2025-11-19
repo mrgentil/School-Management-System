@@ -16,7 +16,20 @@ class RefactorExamPlacementsToExamLevel extends Migration
      */
     public function up()
     {
-        // Vérifier et supprimer la foreign key existante si elle existe
+        // 1. Supprimer l'ancien index unique (exam_schedule_id, student_id)
+        $oldIndexExists = DB::select("
+            SELECT INDEX_NAME 
+            FROM information_schema.STATISTICS 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'exam_student_placements' 
+            AND INDEX_NAME = 'exam_student_placements_exam_schedule_id_student_id_unique'
+        ");
+        
+        if (!empty($oldIndexExists)) {
+            DB::statement("ALTER TABLE exam_student_placements DROP INDEX exam_student_placements_exam_schedule_id_student_id_unique");
+        }
+        
+        // 2. Vérifier et supprimer la foreign key existante si elle existe
         $foreignKeys = DB::select("
             SELECT CONSTRAINT_NAME 
             FROM information_schema.KEY_COLUMN_USAGE 
@@ -66,17 +79,45 @@ class RefactorExamPlacementsToExamLevel extends Migration
      */
     public function down()
     {
+        // Supprimer le nouvel index unique s'il existe
+        $newIndexExists = DB::select("
+            SELECT INDEX_NAME 
+            FROM information_schema.STATISTICS 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'exam_student_placements' 
+            AND INDEX_NAME = 'unique_student_exam_placement'
+        ");
+        
+        if (!empty($newIndexExists)) {
+            DB::statement("ALTER TABLE exam_student_placements DROP INDEX unique_student_exam_placement");
+        }
+        
+        // Supprimer la foreign key exam_id si elle existe
+        $examIdFk = DB::select("
+            SELECT CONSTRAINT_NAME 
+            FROM information_schema.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'exam_student_placements' 
+            AND COLUMN_NAME = 'exam_id'
+        ");
+        
+        if (!empty($examIdFk)) {
+            $fkName = $examIdFk[0]->CONSTRAINT_NAME;
+            DB::statement("ALTER TABLE exam_student_placements DROP FOREIGN KEY {$fkName}");
+        }
+        
         Schema::table('exam_student_placements', function (Blueprint $table) {
-            // Retirer l'index unique
-            $table->dropUnique('unique_student_exam_placement');
-            
             // Retirer exam_id
-            $table->dropForeign(['exam_id']);
-            $table->dropColumn('exam_id');
+            if (Schema::hasColumn('exam_student_placements', 'exam_id')) {
+                $table->dropColumn('exam_id');
+            }
             
             // Remettre exam_schedule_id
-            $table->unsignedInteger('exam_schedule_id')->after('id');
-            $table->foreign('exam_schedule_id')->references('id')->on('exam_schedules')->onDelete('cascade');
+            if (!Schema::hasColumn('exam_student_placements', 'exam_schedule_id')) {
+                $table->unsignedInteger('exam_schedule_id')->after('id');
+                $table->foreign('exam_schedule_id')->references('id')->on('exam_schedules')->onDelete('cascade');
+                $table->unique(['exam_schedule_id', 'student_id']);
+            }
         });
     }
 }

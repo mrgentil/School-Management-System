@@ -10,6 +10,53 @@
         </div>
 
         <div class="card-body">
+            
+            <?php
+                $hasSessionSchedules = $schedules->where('exam_type', 'session')->count() > 0;
+                $placementsCount = \App\Models\ExamStudentPlacement::where('exam_id', $exam->id)->count();
+            ?>
+            
+            <?php if($hasSessionSchedules): ?>
+                <div class="alert alert-info border-0 mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1"><i class="icon-shuffle mr-2"></i>Placements SESSION (pour tout l'examen)</h6>
+                            <p class="mb-0">
+                                <?php if($placementsCount > 0): ?>
+                                    <span class="badge badge-success"><i class="icon-checkmark-circle mr-1"></i><?php echo e($placementsCount); ?> élèves placés</span>
+                                    <small class="text-muted ml-2">Les élèves ont leur salle et place pour TOUTE la durée de l'examen.</small>
+                                <?php else: ?>
+                                    <span class="badge badge-warning"><i class="icon-hour-glass2 mr-1"></i>Aucun placement généré</span>
+                                    <small class="text-muted ml-2">Cliquez sur "Générer" pour placer les élèves dans les salles.</small>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <div>
+                            <?php if($placementsCount > 0): ?>
+                                <a href="<?php echo e(route('exam_placements.show', $exam->id)); ?>" class="btn btn-success mr-2">
+                                    <i class="icon-eye mr-2"></i>Voir Placements
+                                </a>
+                                <?php if(Qs::userIsSuperAdmin()): ?>
+                                <form method="POST" action="<?php echo e(route('exam_placements.generate', $exam->id)); ?>" style="display: inline;">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-warning" onclick="return confirm('Régénérer les placements ? Cela supprimera les placements existants.')">
+                                        <i class="icon-loop2 mr-2"></i>Régénérer
+                                    </button>
+                                </form>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <form method="POST" action="<?php echo e(route('exam_placements.generate', $exam->id)); ?>" style="display: inline;">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-primary" onclick="return confirm('Générer les placements automatiques pour cet examen SESSION ?')">
+                                        <i class="icon-users4 mr-2"></i>Générer Placements
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#schedules-list" class="nav-link active" data-toggle="tab">Horaires</a></li>
                 <li class="nav-item"><a href="#add-schedule" class="nav-link" data-toggle="tab"><i class="icon-plus2"></i> Ajouter Horaire</a></li>
@@ -96,29 +143,6 @@
                                                     <i class="icon-pencil"></i> Modifier
                                                 </a>
 
-                                                
-                                                <?php if($sch->exam_type == 'session'): ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <?php
-                                                        $hasPlacement = $sch->placements()->count() > 0;
-                                                    ?>
-                                                    
-                                                    <?php if($hasPlacement): ?>
-                                                        <a href="<?php echo e(route('exam_placements.show', $sch->id)); ?>" class="dropdown-item text-success">
-                                                            <i class="icon-eye"></i> Voir Placements (<?php echo e($sch->placements()->count()); ?>)
-                                                        </a>
-                                                        <?php if(Qs::userIsSuperAdmin()): ?>
-                                                        <a href="#" class="dropdown-item text-warning" onclick="event.preventDefault(); if(confirm('Régénérer le placement ? Cela supprimera les placements existants.')) { document.getElementById('regenerate-form-<?php echo e($sch->id); ?>').submit(); }">
-                                                            <i class="icon-loop2"></i> Régénérer Placement
-                                                        </a>
-                                                        <?php endif; ?>
-                                                    <?php else: ?>
-                                                        <a href="#" class="dropdown-item text-primary" onclick="event.preventDefault(); if(confirm('Générer le placement automatique pour cet examen SESSION ?')) { document.getElementById('generate-form-<?php echo e($sch->id); ?>').submit(); }">
-                                                            <i class="icon-users4"></i> Générer Placement
-                                                        </a>
-                                                    <?php endif; ?>
-                                                <?php endif; ?>
-
                                                 <?php if(Qs::userIsSuperAdmin()): ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a href="#" class="dropdown-item text-danger" onclick="event.preventDefault(); if(confirm('Êtes-vous sûr de vouloir supprimer cet horaire?')) { document.getElementById('delete-form-<?php echo e($sch->id); ?>').submit(); }">
@@ -137,16 +161,6 @@
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
                                 <input type="hidden" name="schedule_id" value="<?php echo e($sch->id); ?>">
-                            </form>
-                            <?php endif; ?>
-
-                            
-                            <?php if($sch->exam_type == 'session'): ?>
-                            <form id="generate-form-<?php echo e($sch->id); ?>" method="POST" action="<?php echo e(route('exam_placements.generate', $sch->id)); ?>" style="display:none;">
-                                <?php echo csrf_field(); ?>
-                            </form>
-                            <form id="regenerate-form-<?php echo e($sch->id); ?>" method="POST" action="<?php echo e(route('exam_placements.generate', $sch->id)); ?>" style="display:none;">
-                                <?php echo csrf_field(); ?>
                             </form>
                             <?php endif; ?>
 

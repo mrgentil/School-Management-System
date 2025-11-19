@@ -81,23 +81,31 @@ class ExamPlacementService
 
     /**
      * Récupérer tous les étudiants qui passent cet examen SESSION
-     * On prend tous les élèves concernés par les horaires SESSION de l'examen
+     * LOGIQUE: Tous les élèves sont mélangés (toutes classes, toutes options)
+     * et classés uniquement par performance globale
      */
     protected function getStudentsForExam($exam)
     {
-        // Récupérer toutes les classes concernées par les horaires SESSION
+        // Récupérer tous les horaires SESSION de l'examen
         $sessionSchedules = $exam->schedules->where('exam_type', 'session');
         
-        $classIds = $sessionSchedules->pluck('my_class_id')->unique()->toArray();
+        if ($sessionSchedules->isEmpty()) {
+            return collect([]);
+        }
+        
+        // Récupérer TOUTES les classes concernées par les horaires SESSION
+        $classIds = $sessionSchedules->pluck('my_class_id')->unique()->filter()->toArray();
         
         if (empty($classIds)) {
             return collect([]);
         }
         
-        // Récupérer tous les étudiants de ces classes
-        // Note: On pourrait filtrer par option_id/section_id si nécessaire,
-        // mais pour un examen SESSION, généralement tous les élèves du niveau passent ensemble
+        // Récupérer TOUS les étudiants de ces classes
+        // PAS de filtrage par option_id ou section_id
+        // Dans un examen SESSION, on mélange tout le monde et on classe par performance
+        // Exemple: Salle A peut contenir JSS2A, JSS3, JSS2 Technique, etc.
         return StudentRecord::whereIn('my_class_id', $classIds)
+            ->where('year', $exam->year)
             ->with(['user', 'my_class', 'section', 'option'])
             ->get();
     }
@@ -175,7 +183,9 @@ class ExamPlacementService
 
     /**
      * Distribuer les étudiants dans les salles
-     * Salle A = Top performers, Salle B = Moyens, Salle C = Faibles
+     * LOGIQUE: Tous les élèves (toutes classes/options mélangées) sont classés par performance
+     * et distribués dans les salles A (excellence), B (moyen), C (faible)
+     * Respecte les capacités des salles et distribue équitablement
      */
     protected function distributeStudentsToRooms($sortedStudents, $rooms, $exam_id)
     {
@@ -187,16 +197,21 @@ class ExamPlacementService
         $moyenCount = ceil($totalStudents * 0.40); // 40% moyens
         // Le reste = faibles (30%)
 
-        // Grouper les salles par niveau
-        $excellenceRooms = $rooms->where('level', 'excellence');
-        $moyenRooms = $rooms->where('level', 'moyen');
-        $faibleRooms = $rooms->where('level', 'faible');
+        // Grouper les salles par niveau et préparer les compteurs
+        $excellenceRooms = $rooms->where('level', 'excellence')->values();
+        $moyenRooms = $rooms->where('level', 'moyen')->values();
+        $faibleRooms = $rooms->where('level', 'faible')->values();
+
+        // Compteurs pour chaque salle
+        $roomCounters = [];
+        foreach ($rooms as $room) {
+            $roomCounters[$room->id] = 0;
+        }
 
         $studentIndex = 0;
-        $seatNumber = 1;
 
         foreach ($sortedStudents as $student) {
-            // Déterminer le niveau et la salle
+            // Déterminer le niveau de performance
             if ($studentIndex < $excellenceCount) {
                 $targetRooms = $excellenceRooms;
                 $level = 'excellence';
@@ -208,18 +223,40 @@ class ExamPlacementService
                 $level = 'faible';
             }
 
-            // Choisir la première salle disponible du niveau
-            $room = $targetRooms->first();
-            if (!$room) {
-                // Fallback si pas de salle du niveau, utiliser n'importe quelle salle
-                $room = $rooms->first();
+            // Trouver la salle avec le moins d'élèves dans ce niveau
+            $selectedRoom = null;
+            $minCount = PHP_INT_MAX;
+            
+            foreach ($targetRooms as $room) {
+                if ($roomCounters[$room->id] < $room->capacity && $roomCounters[$room->id] < $minCount) {
+                    $selectedRoom = $room;
+                    $minCount = $roomCounters[$room->id];
+                }
             }
+
+            // Si aucune salle disponible dans le niveau, utiliser n'importe quelle salle
+            if (!$selectedRoom) {
+                foreach ($rooms as $room) {
+                    if ($roomCounters[$room->id] < $room->capacity) {
+                        $selectedRoom = $room;
+                        break;
+                    }
+                }
+            }
+
+            // Fallback absolu
+            if (!$selectedRoom) {
+                $selectedRoom = $rooms->first();
+            }
+
+            // Incrémenter le compteur de la salle
+            $roomCounters[$selectedRoom->id]++;
 
             $placements[] = [
                 'exam_id' => $exam_id,
                 'student_id' => $student->user_id,
-                'exam_room_id' => $room->id,
-                'seat_number' => $seatNumber++,
+                'exam_room_id' => $selectedRoom->id,
+                'seat_number' => $roomCounters[$selectedRoom->id],
                 'ranking_score' => $student->ranking_score,
                 'performance_level' => $level,
             ];

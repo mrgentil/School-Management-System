@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SupportTeam;
 
 use App\Http\Controllers\Controller;
+use App\Models\Exam;
 use App\Models\ExamSchedule;
 use App\Models\ExamRoom;
 use App\Services\ExamPlacementService;

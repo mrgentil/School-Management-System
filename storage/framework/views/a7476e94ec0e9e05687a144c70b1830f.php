@@ -66,7 +66,11 @@
                                                 
                                                 <?php if($schedule->exam_type == 'session'): ?>
                                                     <?php
-                                                        $myPlacement = $schedule->placements->firstWhere('student_id', $student_id);
+                                                        // LOGIQUE CORRECTE: Récupérer le placement au niveau de l'EXAMEN
+                                                        $myPlacement = \App\Models\ExamStudentPlacement::where('exam_id', $schedule->exam_id)
+                                                            ->where('student_id', $student_id)
+                                                            ->with('room')
+                                                            ->first();
                                                     ?>
                                                     <?php if($myPlacement): ?>
                                                         <div class="alert alert-success mb-2 py-2">
@@ -251,6 +255,13 @@
                                                         ?>
                                                         <span class="badge badge-secondary"><?php echo e($duration); ?> min</span>
                                                     </td>
+                                                    <?php
+                                                        // LOGIQUE CORRECTE: Récupérer le placement au niveau de l'EXAMEN
+                                                        $myPlacement = \App\Models\ExamStudentPlacement::where('exam_id', $schedule->exam_id)
+                                                            ->where('student_id', $student_id)
+                                                            ->with('room')
+                                                            ->first();
+                                                    ?>
                                                     <td>
                                                         <?php if($myPlacement): ?>
                                                             <span class="badge badge-success">

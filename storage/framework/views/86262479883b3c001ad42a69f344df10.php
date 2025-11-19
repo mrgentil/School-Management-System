@@ -1,39 +1,42 @@
 
-<?php $__env->startSection('page_title', 'Placements - ' . $schedule->exam->name); ?>
+<?php $__env->startSection('page_title', 'Placements SESSION - ' . $exam->name); ?>
 <?php $__env->startSection('content'); ?>
 
 <div class="card">
     <div class="card-header header-elements-inline bg-primary text-white">
         <h5 class="card-title">
             <i class="icon-users4 mr-2"></i>
-            Placements - <?php echo e($schedule->exam->name); ?>
+            Placements SESSION - <?php echo e($exam->name); ?>
 
         </h5>
         <div class="header-elements">
-            <a href="<?php echo e(route('exam_schedules.show', $schedule->exam_id)); ?>" class="btn btn-sm btn-light">
+            <a href="<?php echo e(route('exam_schedules.show', $exam->id)); ?>" class="btn btn-sm btn-light">
                 <i class="icon-arrow-left8 mr-2"></i> Retour aux horaires
             </a>
         </div>
     </div>
 
     <div class="card-body">
-        <div class="alert alert-info border-0">
+        <div class="alert alert-success border-0">
             <div class="row">
-                <div class="col-md-3">
-                    <strong>Classe:</strong> <?php echo e($schedule->my_class->name); ?>
+                <div class="col-md-4">
+                    <strong>Examen:</strong> <?php echo e($exam->name); ?>
 
                 </div>
-                <div class="col-md-3">
-                    <strong>Matière:</strong> <?php echo e($schedule->subject->name); ?>
+                <div class="col-md-4">
+                    <strong>Année:</strong> <?php echo e($exam->year); ?> - Semestre <?php echo e($exam->semester); ?>
 
                 </div>
-                <div class="col-md-3">
-                    <strong>Date:</strong> <?php echo e($schedule->exam_date->format('d/m/Y')); ?>
-
+                <div class="col-md-4">
+                    <strong>Horaires SESSION:</strong> <?php echo e($exam->schedules->where('exam_type', 'session')->count()); ?> horaire(s)
                 </div>
-                <div class="col-md-3">
-                    <strong>Heure:</strong> <?php echo e(date('H:i', strtotime($schedule->start_time))); ?> - <?php echo e(date('H:i', strtotime($schedule->end_time))); ?>
-
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <small class="text-muted">
+                        <i class="icon-info22 mr-1"></i>
+                        Les élèves ont la <strong>même salle et la même place</strong> pour TOUS les horaires SESSION de cet examen.
+                    </small>
                 </div>
             </div>
         </div>
