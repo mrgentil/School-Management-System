@@ -1,6 +1,5 @@
-@extends('layouts.master')
-@section('page_title', 'Créer un Devoir')
-@section('content')
+<?php $__env->startSection('page_title', 'Créer un Devoir'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="card">
     <div class="card-header header-elements-inline bg-success">
@@ -8,18 +7,19 @@
             <i class="icon-plus2 mr-2"></i>
             Créer un Nouveau Devoir
         </h6>
-        {!! Qs::getPanelOptions() !!}
+        <?php echo Qs::getPanelOptions(); ?>
+
     </div>
 
     <div class="card-body">
-        <form method="POST" action="{{ route('assignments.store') }}" enctype="multipart/form-data">
-            @csrf
+        <form method="POST" action="<?php echo e(route('assignments.store')); ?>" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
 
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
                         <label class="font-weight-semibold">Titre <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="form-control" required value="{{ old('title') }}">
+                        <input type="text" name="title" class="form-control" required value="<?php echo e(old('title')); ?>">
                     </div>
                 </div>
             </div>
@@ -28,7 +28,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label class="font-weight-semibold">Description <span class="text-danger">*</span></label>
-                        <textarea name="description" class="form-control" rows="5" required>{{ old('description') }}</textarea>
+                        <textarea name="description" class="form-control" rows="5" required><?php echo e(old('description')); ?></textarea>
                     </div>
                 </div>
             </div>
@@ -39,13 +39,14 @@
                         <label class="font-weight-semibold">Classe <span class="text-danger">*</span></label>
                         <select name="my_class_id" id="my_class_id" class="form-control select" required>
                             <option value="">Sélectionner</option>
-                            @foreach($my_classes as $class)
-                                <option value="{{ $class->id }}" 
-                                        data-section="{{ $class->academicSection ? $class->academicSection->name : '' }}"
-                                        data-option="{{ $class->option ? $class->option->name : '' }}">
-                                    {{ $class->full_name ?: $class->name }}
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>" 
+                                        data-section="<?php echo e($class->academicSection ? $class->academicSection->name : ''); ?>"
+                                        data-option="<?php echo e($class->option ? $class->option->name : ''); ?>">
+                                    <?php echo e($class->full_name ?: $class->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                         <small class="form-text text-muted">La classe contient déjà la section et l'option</small>
                     </div>
@@ -75,11 +76,11 @@
                         <label class="font-weight-semibold">Période <span class="text-danger">*</span></label>
                         <select name="period" class="form-control select" required>
                             <option value="">Sélectionner une période</option>
-                            @foreach($periods as $period)
-                                <option value="{{ $period['id'] }}" {{ old('period') == $period['id'] ? 'selected' : '' }}>
-                                    {{ $period['name'] }} (Semestre {{ $period['semester'] }})
+                            <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($period['id']); ?>" <?php echo e(old('period') == $period['id'] ? 'selected' : ''); ?>>
+                                    <?php echo e($period['name']); ?> (Semestre <?php echo e($period['semester']); ?>)
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -103,7 +104,7 @@
             </div>
 
             <div class="text-right">
-                <a href="{{ route('assignments.index') }}" class="btn btn-light">Annuler</a>
+                <a href="<?php echo e(route('assignments.index')); ?>" class="btn btn-light">Annuler</a>
                 <button type="submit" class="btn btn-success">
                     <i class="icon-checkmark3 mr-2"></i>
                     Créer le Devoir
@@ -113,13 +114,13 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
 $(document).ready(function() {
     // Données des matières
-    const allSubjects = @json($subjects);
+    const allSubjects = <?php echo json_encode($subjects, 15, 512) ?>;
     
     // Pour l'instant, utilisons un filtrage basé sur les mots-clés dans les noms de matières
     // au lieu de noms exacts qui n'existent pas dans la base
@@ -213,8 +214,10 @@ $(document).ready(function() {
     });
     
     // Debug initial
-    console.log('Classes chargées:', @json($my_classes->count()), 'classes');
+    console.log('Classes chargées:', <?php echo json_encode($my_classes->count(), 15, 512) ?>, 'classes');
     console.log('Matières disponibles:', allSubjects.length, 'matières');
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/assignments/create.blade.php ENDPATH**/ ?>

@@ -123,7 +123,7 @@
                             </td>
                             <td><?php echo e($sr->user->name); ?></td>
                             <td><?php echo e($sr->user->email); ?></td>
-                            <td><strong><?php echo e($sr->my_class->full_name ?: $sr->my_class->name); ?></strong></td>
+                            <td><strong><?php echo e($sr->my_class ? ($sr->my_class->full_name ?: $sr->my_class->name) : 'Non assigné'); ?></strong></td>
                             <td><?php echo e($sr->adm_no); ?></td>
                             <td class="text-center">
                                 <div class="list-icons">
@@ -133,7 +133,7 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right">
                                             <a href="#" class="dropdown-item" 
-                                               onclick="editAssignment('<?php echo e(Qs::hash($sr->id)); ?>', '<?php echo e($sr->my_class_id); ?>', '<?php echo e($sr->section_id); ?>', '<?php echo e($sr->user->name); ?>')">
+                                               onclick="editAssignment('<?php echo e(Qs::hash($sr->id)); ?>', '<?php echo e($sr->my_class_id ?: ''); ?>', '<?php echo e($sr->section_id ?: ''); ?>', '<?php echo e($sr->user->name); ?>')">
                                                 <i class="icon-pencil"></i> Modifier Classe
                                             </a>
                                             <a href="<?php echo e(route('students.show', Qs::hash($sr->user_id))); ?>" class="dropdown-item">

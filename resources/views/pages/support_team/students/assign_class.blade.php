@@ -121,7 +121,7 @@
                             </td>
                             <td>{{ $sr->user->name }}</td>
                             <td>{{ $sr->user->email }}</td>
-                            <td><strong>{{ $sr->my_class->full_name ?: $sr->my_class->name }}</strong></td>
+                            <td><strong>{{ $sr->my_class ? ($sr->my_class->full_name ?: $sr->my_class->name) : 'Non assigné' }}</strong></td>
                             <td>{{ $sr->adm_no }}</td>
                             <td class="text-center">
                                 <div class="list-icons">
@@ -131,7 +131,7 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right">
                                             <a href="#" class="dropdown-item" 
-                                               onclick="editAssignment('{{ Qs::hash($sr->id) }}', '{{ $sr->my_class_id }}', '{{ $sr->section_id }}', '{{ $sr->user->name }}')">
+                                               onclick="editAssignment('{{ Qs::hash($sr->id) }}', '{{ $sr->my_class_id ?: '' }}', '{{ $sr->section_id ?: '' }}', '{{ $sr->user->name }}')">
                                                 <i class="icon-pencil"></i> Modifier Classe
                                             </a>
                                             <a href="{{ route('students.show', Qs::hash($sr->user_id)) }}" class="dropdown-item">

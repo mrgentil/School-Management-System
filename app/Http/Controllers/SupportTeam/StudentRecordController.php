@@ -190,7 +190,10 @@ class StudentRecordController extends Controller
 
     public function assign_class()
     {
-        $data['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $data['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         
         // Récupérer tous les étudiants qui n'ont pas d'enregistrement pour l'année courante
         $currentSession = Qs::getCurrentSession();
@@ -206,9 +209,9 @@ class StudentRecordController extends Controller
             ->orderBy('name')
             ->get();
             
-        // Récupérer tous les étudiants assignés pour l'année courante
+        // Récupérer tous les étudiants assignés pour l'année courante avec relations complètes
         $data['assigned_students'] = $this->student->getRecord(['session' => $currentSession])
-            ->with(['user', 'my_class'])
+            ->with(['user', 'my_class.academicSection', 'my_class.option'])
             ->get();
             
         return view('pages.support_team.students.assign_class', $data);
@@ -233,13 +236,20 @@ class StudentRecordController extends Controller
             return back()->with('flash_danger', 'Cet étudiant est déjà assigné à une classe pour cette session.');
         }
 
-        // Récupérer la première section de cette classe
+        // Récupérer ou créer la première section de cette classe
         $defaultSection = \App\Models\Section::where('my_class_id', $request->my_class_id)->first();
         
         if (!$defaultSection) {
+            // Créer automatiquement une section par défaut pour cette classe
             $class = \App\Models\MyClass::find($request->my_class_id);
-            $className = $class->name ?? 'Inconnue';
-            return back()->with('flash_danger', "Aucune section trouvée pour la classe '{$className}'.");
+            $defaultSection = \App\Models\Section::create([
+                'name' => 'A', // Section par défaut
+                'my_class_id' => $request->my_class_id,
+                'active' => 1,
+                'teacher_id' => null, // Peut être assigné plus tard
+            ]);
+            
+            \Log::info("Section par défaut créée automatiquement pour la classe {$class->name} (ID: {$class->id})");
         }
 
         // Créer l'enregistrement étudiant
@@ -270,12 +280,20 @@ class StudentRecordController extends Controller
             return back()->with('flash_danger', 'Enregistrement étudiant non trouvé.');
         }
 
-        // Récupérer la première section de la nouvelle classe
+        // Récupérer ou créer la première section de la nouvelle classe
         $defaultSection = \App\Models\Section::where('my_class_id', $request->my_class_id)->first();
         
         if (!$defaultSection) {
-            $className = \App\Models\MyClass::find($request->my_class_id)->name ?? 'Inconnue';
-            return back()->with('flash_danger', "Aucune section trouvée pour la classe '{$className}'. Veuillez d'abord créer une section pour cette classe.");
+            // Créer automatiquement une section par défaut pour cette classe
+            $class = \App\Models\MyClass::find($request->my_class_id);
+            $defaultSection = \App\Models\Section::create([
+                'name' => 'A', // Section par défaut
+                'my_class_id' => $request->my_class_id,
+                'active' => 1,
+                'teacher_id' => null, // Peut être assigné plus tard
+            ]);
+            
+            \Log::info("Section par défaut créée automatiquement pour la classe {$class->name} (ID: {$class->id})");
         }
 
         $data = [

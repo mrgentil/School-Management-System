@@ -76,10 +76,36 @@ class AssignmentController extends Controller
      */
     public function create()
     {
-        $data['my_classes'] = MyClass::orderBy('name')->get();
+        // Charger les classes avec leurs relations complètes
+        $data['my_classes'] = MyClass::with(['academicSection', 'option', 'section'])
+            ->orderBy('name')
+            ->get();
+            
+        // Charger les matières groupées par classe (si relation existe)
+        // Pour l'instant, on charge toutes les matières, mais on peut les filtrer côté client
         $data['subjects'] = Subject::orderBy('name')->get();
         
+        // Grouper les matières par classe si une relation existe
+        // TODO: Implémenter la relation class_subjects si nécessaire
+        $data['subjects_by_class'] = collect();
+        
+        // Charger les périodes depuis les settings ou créer dynamiquement
+        $data['periods'] = $this->getPeriods();
+        
         return view('pages.support_team.assignments.create', $data);
+    }
+    
+    /**
+     * Get periods from settings or default RDC system
+     */
+    private function getPeriods()
+    {
+        return [
+            ['id' => 1, 'name' => 'Période 1', 'semester' => 1, 'description' => 'Première période du semestre 1'],
+            ['id' => 2, 'name' => 'Période 2', 'semester' => 1, 'description' => 'Deuxième période du semestre 1'],
+            ['id' => 3, 'name' => 'Période 3', 'semester' => 2, 'description' => 'Première période du semestre 2'],
+            ['id' => 4, 'name' => 'Période 4', 'semester' => 2, 'description' => 'Deuxième période du semestre 2'],
+        ];
     }
 
     /**
@@ -91,7 +117,6 @@ class AssignmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'my_class_id' => 'required|exists:my_classes,id',
-            'section_id' => 'required|exists:sections,id',
             'subject_id' => 'required|exists:subjects,id',
             'period' => 'required|integer|in:1,2,3,4',
             'due_date' => 'required|date|after:now',
@@ -102,6 +127,12 @@ class AssignmentController extends Controller
         $data = $request->except('file');
         $data['teacher_id'] = Auth::id();
         $data['status'] = 'active';
+        
+        // Assigner automatiquement la première section de la classe
+        $class = MyClass::find($request->my_class_id);
+        if ($class && $class->section->count() > 0) {
+            $data['section_id'] = $class->section->first()->id;
+        }
 
         // Handle file upload
         if ($request->hasFile('file')) {

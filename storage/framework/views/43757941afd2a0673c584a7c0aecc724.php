@@ -16,7 +16,7 @@
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Manage Subjects</a>
                     <div class="dropdown-menu dropdown-menu-right">
                         <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <a href="#c<?php echo e($c->id); ?>" class="dropdown-item" data-toggle="tab"><?php echo e($c->name); ?></a>
+                            <a href="#c<?php echo e($c->id); ?>" class="dropdown-item" data-toggle="tab"><?php echo e($c->full_name ?: $c->name); ?></a>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                 </li>
@@ -48,7 +48,7 @@
                                         <select required data-placeholder="Select Class" class="form-control select" name="my_class_id" id="my_class_id">
                                             <option value=""></option>
                                             <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                <option <?php echo e(old('my_class_id') == $c->id ? 'selected' : ''); ?> value="<?php echo e($c->id); ?>"><?php echo e($c->name); ?></option>
+                                                <option <?php echo e(old('my_class_id') == $c->id ? 'selected' : ''); ?> value="<?php echo e($c->id); ?>"><?php echo e($c->full_name ?: $c->name); ?></option>
                                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
@@ -92,7 +92,7 @@
                                     <td><?php echo e($loop->iteration); ?></td>
                                     <td><?php echo e($s->name); ?> </td>
                                     <td><?php echo e($s->slug); ?> </td>
-                                    <td><?php echo e($s->my_class->name); ?></td>
+                                    <td><?php echo e($s->my_class->full_name ?: $s->my_class->name); ?></td>
                                     <td><?php echo e($s->teacher->name); ?></td>
                                     <td class="text-center">
                                         <div class="list-icons">

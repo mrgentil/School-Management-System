@@ -15,7 +15,7 @@
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Manage Subjects</a>
                     <div class="dropdown-menu dropdown-menu-right">
                         @foreach($my_classes as $c)
-                            <a href="#c{{ $c->id }}" class="dropdown-item" data-toggle="tab">{{ $c->name }}</a>
+                            <a href="#c{{ $c->id }}" class="dropdown-item" data-toggle="tab">{{ $c->full_name ?: $c->name }}</a>
                         @endforeach
                     </div>
                 </li>
@@ -47,7 +47,7 @@
                                         <select required data-placeholder="Select Class" class="form-control select" name="my_class_id" id="my_class_id">
                                             <option value=""></option>
                                             @foreach($my_classes as $c)
-                                                <option {{ old('my_class_id') == $c->id ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->name }}</option>
+                                                <option {{ old('my_class_id') == $c->id ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->full_name ?: $c->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -91,7 +91,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $s->name }} </td>
                                     <td>{{ $s->slug }} </td>
-                                    <td>{{ $s->my_class->name }}</td>
+                                    <td>{{ $s->my_class->full_name ?: $s->my_class->name }}</td>
                                     <td>{{ $s->teacher->name }}</td>
                                     <td class="text-center">
                                         <div class="list-icons">

@@ -24,7 +24,10 @@ class SubjectController extends Controller
 
     public function index()
     {
-        $d['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher le nom complet
+        $d['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         $d['teachers'] = $this->user->getUserByType('teacher');
         $d['subjects'] = $this->my_class->getAllSubjects();
 
@@ -42,7 +45,10 @@ class SubjectController extends Controller
     public function edit($id)
     {
         $d['s'] = $sub = $this->my_class->findSubject($id);
-        $d['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher le nom complet
+        $d['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         $d['teachers'] = $this->user->getUserByType('teacher');
 
         return is_null($sub) ? Qs::goWithDanger('subjects.index') : view('pages.support_team.subjects.edit', $d);
