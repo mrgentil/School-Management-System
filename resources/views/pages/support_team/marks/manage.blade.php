@@ -50,7 +50,7 @@
                 <div class="col-md-4">
                     <h6 class="card-title mb-0">
                         <i class="icon-users mr-2 text-success"></i>
-                        <strong>Classe:</strong> {{ $m->my_class->name.' '.$m->section->name }}
+                        <strong>Classe:</strong> {{ ($m->my_class ? ($m->my_class->full_name ?: $m->my_class->name) : 'N/A').' '.($m->section ? $m->section->name : 'N/A') }}
                     </h6>
                 </div>
                 <div class="col-md-4">

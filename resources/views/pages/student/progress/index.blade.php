@@ -14,7 +14,7 @@
 
                 <div class="card-body">
                     <div class="alert alert-info border-0">
-                        <strong>Classe:</strong> {{ $sr->my_class->name }} - {{ $sr->section->name }} | 
+                        <strong>Classe:</strong> {{ $sr->my_class->full_name ?: $sr->my_class->name }} - {{ $sr->section->name }} | 
                         <strong>Année:</strong> {{ $current_year }}
                     </div>
 

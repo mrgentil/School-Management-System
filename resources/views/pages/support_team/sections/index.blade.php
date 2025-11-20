@@ -81,7 +81,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $s->name }} @if($s->active)<i class='icon-check'> </i>@endif</td>
-                                    <td>{{ $s->my_class->name }}</td>
+                                    <td>{{ $s->my_class ? ($s->my_class->full_name ?: $s->my_class->name) : 'N/A' }}</td>
 
                                     @if($s->teacher_id)
                                     <td><a target="_blank" href="{{ route('users.show', Qs::hash($s->teacher_id)) }}">{{ $s->teacher->name }}</a></td>

@@ -24,7 +24,9 @@ class ExamController extends Controller
     public function index()
     {
         $student_id = Auth::id();
-        $sr = $this->student->getRecord(['user_id' => $student_id])->first();
+        $sr = $this->student->getRecord(['user_id' => $student_id])
+            ->with(['my_class.academicSection', 'my_class.option', 'section'])
+            ->first();
 
         if (!$sr) {
             return redirect()->route('dashboard')->with('flash_danger', 'Aucune information trouvée');

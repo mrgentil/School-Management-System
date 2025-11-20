@@ -69,7 +69,7 @@
                             <option value="">Aucune classe spécifique</option>
                             @foreach($classes as $class)
                                 <option value="{{ $class->id }}" {{ old('my_class_id') == $class->id ? 'selected' : '' }}>
-                                    {{ $class->name }}
+                                    {{ $class ? ($class->full_name ?: $class->name) : 'N/A' }}
                                 </option>
                             @endforeach
                         </select>

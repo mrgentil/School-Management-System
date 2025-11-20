@@ -42,7 +42,7 @@
                         <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
                         <td>{{ $s->user->name }}</td>
                         <td>{{ $s->adm_no }}</td>
-                        <td>{{ $s->my_class->name.' '.$s->section->name }}</td>
+                        <td>{{ ($s->my_class ? ($s->my_class->full_name ?: $s->my_class->name) : 'N/A').' '.($s->section ? $s->section->name : 'N/A') }}</td>
                         <td>{{ $s->grad_date }}</td>
                         <td class="text-center">
                             <div class="list-icons">
@@ -99,7 +99,7 @@
                             <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
                             <td>{{ $s->user->name }}</td>
                             <td>{{ $s->adm_no }}</td>
-                            <td>{{ $s->my_class->name.' '.$s->section->name }}</td>
+                            <td>{{ ($s->my_class ? ($s->my_class->full_name ?: $s->my_class->name) : 'N/A').' '.($s->section ? $s->section->name : 'N/A') }}</td>
                             <td>{{ $s->grad_date }}</td>
                             <td class="text-center">
                                 <div class="list-icons">

@@ -26,7 +26,7 @@ class MyGradesController extends Controller
     public function index(Request $request)
     {
         $student = Auth::user();
-        $studentRecord = $student->student_record;
+        $studentRecord = $student->student_record()->with(['my_class.academicSection', 'my_class.option', 'section'])->first();
         
         if (!$studentRecord) {
             return back()->with('flash_danger', 'Profil étudiant non trouvé.');
@@ -135,7 +135,7 @@ class MyGradesController extends Controller
     public function bulletin()
     {
         $student = Auth::user();
-        $studentRecord = $student->student_record;
+        $studentRecord = $student->student_record()->with(['my_class.academicSection', 'my_class.option', 'section'])->first();
         
         if (!$studentRecord) {
             return back()->with('flash_danger', 'Profil étudiant non trouvé.');

@@ -54,7 +54,7 @@
                     </tr>
                     <tr>
                         <th>Classe:</th>
-                        <td>{{ $studentRecord->my_class->name ?? 'N/A' }}</td>
+                        <td>{{ $studentRecord->my_class ? ($studentRecord->my_class->full_name ?: $studentRecord->my_class->name) : 'N/A' }}</td>
                     </tr>
                     <tr>
                         <th>Section:</th>

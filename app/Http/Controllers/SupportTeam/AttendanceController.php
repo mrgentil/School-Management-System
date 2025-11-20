@@ -23,8 +23,13 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $data['my_classes'] = MyClass::orderBy('name')->get();
-        $data['subjects'] = Subject::orderBy('name')->get();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $data['my_classes'] = MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
+        $data['subjects'] = Subject::with(['my_class.academicSection', 'my_class.option'])
+            ->orderBy('name')
+            ->get();
         
         return view('pages.support_team.attendance.index', $data);
     }
@@ -193,8 +198,13 @@ class AttendanceController extends Controller
      */
     public function view(Request $request)
     {
-        $data['my_classes'] = MyClass::orderBy('name')->get();
-        $data['subjects'] = Subject::orderBy('name')->get();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $data['my_classes'] = MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
+        $data['subjects'] = Subject::with(['my_class.academicSection', 'my_class.option'])
+            ->orderBy('name')
+            ->get();
         
         // Filters
         $class_id = $request->my_class_id;
@@ -203,7 +213,15 @@ class AttendanceController extends Controller
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
-        $query = Attendance::with(['student', 'class', 'section', 'subject', 'takenBy']);
+        // Charger les présences avec toutes les relations nécessaires, y compris les relations complètes des classes
+        $query = Attendance::with([
+            'student.student_record', 
+            'class.academicSection', 
+            'class.option', 
+            'section', 
+            'subject', 
+            'takenBy'
+        ]);
 
         if ($class_id) {
             $query->where('class_id', $class_id);
@@ -333,6 +351,21 @@ class AttendanceController extends Controller
     }
 
     /**
+     * Get subjects for a class (AJAX)
+     */
+    public function getSubjects($class_id)
+    {
+        $subjects = Subject::where('my_class_id', $class_id)
+            ->orderBy('name')
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'subjects' => $subjects
+        ]);
+    }
+
+    /**
      * Export attendances to Excel
      */
     public function export(Request $request)
@@ -343,7 +376,14 @@ class AttendanceController extends Controller
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
-        $query = Attendance::with(['student', 'class', 'section', 'subject', 'takenBy']);
+        $query = Attendance::with([
+            'student.student_record', 
+            'class.academicSection', 
+            'class.option', 
+            'section', 
+            'subject', 
+            'takenBy'
+        ]);
 
         if ($class_id) {
             $query->where('class_id', $class_id);
@@ -404,7 +444,7 @@ class AttendanceController extends Controller
             $sheet->setCellValue('A' . $row, $attendance->date ? $attendance->date->format('d/m/Y') : 'N/A');
             $sheet->setCellValue('B' . $row, $attendance->student->name ?? 'N/A');
             $sheet->setCellValue('C' . $row, $attendance->student->student_record->adm_no ?? 'N/A');
-            $sheet->setCellValue('D' . $row, $attendance->class->name ?? 'N/A');
+            $sheet->setCellValue('D' . $row, $attendance->class ? ($attendance->class->full_name ?: $attendance->class->name) : 'N/A');
             $sheet->setCellValue('E' . $row, $attendance->section->name ?? '-');
             $sheet->setCellValue('F' . $row, $attendance->subject->name ?? '-');
             

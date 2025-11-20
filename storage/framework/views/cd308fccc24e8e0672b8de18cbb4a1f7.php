@@ -1,6 +1,5 @@
-@extends('layouts.master')
-@section('page_title', 'Gestion de la Présence')
-@section('content')
+<?php $__env->startSection('page_title', 'Gestion de la Présence'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="card">
     <div class="card-header header-elements-inline bg-primary">
@@ -8,12 +7,13 @@
             <i class="icon-checkmark-circle mr-2"></i>
             Prendre la Présence
         </h6>
-        {!! Qs::getPanelOptions() !!}
+        <?php echo Qs::getPanelOptions(); ?>
+
     </div>
 
     <div class="card-body">
-        <form id="attendance-form" method="POST" action="{{ route('attendance.store') }}">
-            @csrf
+        <form id="attendance-form" method="POST" action="<?php echo e(route('attendance.store')); ?>">
+            <?php echo csrf_field(); ?>
             
             <div class="row">
                 <div class="col-md-3">
@@ -21,9 +21,9 @@
                         <label class="font-weight-semibold">Classe <span class="text-danger">*</span></label>
                         <select name="my_class_id" id="my_class_id" class="form-control select" required>
                             <option value="">Sélectionner une classe</option>
-                            @foreach($my_classes as $class)
-                                <option value="{{ $class->id }}">{{ $class->full_name ?: $class->name }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>"><?php echo e($class->full_name ?: $class->name); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-semibold">Date <span class="text-danger">*</span></label>
-                        <input type="date" name="date" id="date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" name="date" id="date" class="form-control" value="<?php echo e(date('Y-m-d')); ?>" required>
                     </div>
                 </div>
             </div>
@@ -99,9 +99,9 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
 $(document).ready(function() {
     // Load sections and subjects when class is selected
@@ -168,10 +168,10 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '{{ route("attendance.get_students") }}',
+            url: '<?php echo e(route("attendance.get_students")); ?>',
             type: 'POST',
             data: {
-                _token: '{{ csrf_token() }}',
+                _token: '<?php echo e(csrf_token()); ?>',
                 my_class_id: classId,
                 section_id: sectionId,
                 date: date
@@ -252,4 +252,6 @@ $(document).ready(function() {
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/attendance/index.blade.php ENDPATH**/ ?>

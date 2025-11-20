@@ -66,7 +66,7 @@
                             <td>
                                 @php
                                     $studentRecord = auth()->user()->student_record ?? null;
-                                    $className = $studentRecord && $studentRecord->my_class ? $studentRecord->my_class->name : 'N/A';
+                                    $className = $studentRecord && $studentRecord->my_class ? ($studentRecord->my_class->full_name ?: $studentRecord->my_class->name) : 'N/A';
                                 @endphp
                                 <span class="badge badge-info">{{ $className }}</span>
                             </td>

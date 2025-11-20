@@ -115,7 +115,7 @@ ilisateur <!DOCTYPE html>
                 <span class="info-label">Matricule:</span> {{ $student->matricule ?? 'N/A' }}
             </div>
             <div class="info-item">
-                <span class="info-label">Classe:</span> {{ $student->class->name ?? 'N/A' }}
+                <span class="info-label">Classe:</span> {{ $student->class ? ($student->class->full_name ?: $student->class->name) : 'N/A' }}
             </div>
             <div class="info-item">
                 <span class="info-label">Année:</span> {{ $student->academic_year ?? date('Y') }}

@@ -133,7 +133,7 @@
                 </tr>
                 <tr>
                     <th>Classe</th>
-                    <td>{{ $receipt->paymentRecord->student->student_record->my_class->name ?? 'N/A' }}</td>
+                    <td>{{ $receipt->paymentRecord->student->student_record->my_class ? ($receipt->paymentRecord->student->student_record->my_class->full_name ?: $receipt->paymentRecord->student->student_record->my_class->name) : 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>Section</th>

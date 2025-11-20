@@ -187,7 +187,7 @@ class FinanceController extends Controller
         $receipt = \App\Models\Receipt::join('payment_records', 'receipts.pr_id', '=', 'payment_records.id')
             ->where('payment_records.student_id', $userId)
             ->where('receipts.id', $id)
-            ->with(['paymentRecord.payment', 'paymentRecord.student.student_record.my_class', 'paymentRecord.student.student_record.section'])
+            ->with(['paymentRecord.payment', 'paymentRecord.student.student_record.my_class.academicSection', 'paymentRecord.student.student_record.my_class.option', 'paymentRecord.student.student_record.section'])
             ->select('receipts.*')
             ->firstOrFail();
 

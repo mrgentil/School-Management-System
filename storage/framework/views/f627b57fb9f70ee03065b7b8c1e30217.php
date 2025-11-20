@@ -1,6 +1,5 @@
-@extends('layouts.master')
-@section('page_title', 'Consulter les Présences')
-@section('content')
+<?php $__env->startSection('page_title', 'Consulter les Présences'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="card">
     <div class="card-header header-elements-inline bg-info">
@@ -8,22 +7,24 @@
             <i class="icon-eye mr-2"></i>
             Consulter les Présences
         </h6>
-        {!! Qs::getPanelOptions() !!}
+        <?php echo Qs::getPanelOptions(); ?>
+
     </div>
 
     <div class="card-body">
-        <form method="GET" action="{{ route('attendance.view') }}" id="filter-form">
+        <form method="GET" action="<?php echo e(route('attendance.view')); ?>" id="filter-form">
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-semibold">Classe</label>
                         <select name="my_class_id" id="my_class_id" class="form-control select">
                             <option value="">Toutes les classes</option>
-                            @foreach($my_classes as $class)
-                                <option value="{{ $class->id }}" {{ $filters['class_id'] == $class->id ? 'selected' : '' }}>
-                                    {{ $class->full_name ?: $class->name }}
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>" <?php echo e($filters['class_id'] == $class->id ? 'selected' : ''); ?>>
+                                    <?php echo e($class->full_name ?: $class->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -33,13 +34,14 @@
                         <label class="font-weight-semibold">Section</label>
                         <select name="section_id" id="section_id" class="form-control select">
                             <option value="">Toutes</option>
-                            @if(isset($sections))
-                                @foreach($sections as $section)
-                                    <option value="{{ $section->id }}" {{ $filters['section_id'] == $section->id ? 'selected' : '' }}>
-                                        {{ $section->name }}
+                            <?php if(isset($sections)): ?>
+                                <?php $__currentLoopData = $sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($section->id); ?>" <?php echo e($filters['section_id'] == $section->id ? 'selected' : ''); ?>>
+                                        <?php echo e($section->name); ?>
+
                                     </option>
-                                @endforeach
-                            @endif
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </div>
@@ -49,11 +51,12 @@
                         <label class="font-weight-semibold">Matière</label>
                         <select name="subject_id" class="form-control select">
                             <option value="">Toutes</option>
-                            @foreach($subjects as $subject)
-                                <option value="{{ $subject->id }}" {{ $filters['subject_id'] == $subject->id ? 'selected' : '' }}>
-                                    {{ $subject->name }}
+                            <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($subject->id); ?>" <?php echo e($filters['subject_id'] == $subject->id ? 'selected' : ''); ?>>
+                                    <?php echo e($subject->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
@@ -61,14 +64,14 @@
                 <div class="col-md-2">
                     <div class="form-group">
                         <label class="font-weight-semibold">Date début</label>
-                        <input type="date" name="date_from" class="form-control" value="{{ $filters['date_from'] ?? '' }}">
+                        <input type="date" name="date_from" class="form-control" value="<?php echo e($filters['date_from'] ?? ''); ?>">
                     </div>
                 </div>
 
                 <div class="col-md-2">
                     <div class="form-group">
                         <label class="font-weight-semibold">Date fin</label>
-                        <input type="date" name="date_to" class="form-control" value="{{ $filters['date_to'] ?? '' }}">
+                        <input type="date" name="date_to" class="form-control" value="<?php echo e($filters['date_to'] ?? ''); ?>">
                     </div>
                 </div>
 
@@ -83,11 +86,11 @@
             </div>
         </form>
 
-        @if(isset($attendances) && $attendances->count() > 0)
+        <?php if(isset($attendances) && $attendances->count() > 0): ?>
             <div class="mb-3">
-                <a href="{{ route('attendance.export', request()->query()) }}" class="btn btn-success">
+                <a href="<?php echo e(route('attendance.export', request()->query())); ?>" class="btn btn-success">
                     <i class="icon-file-excel mr-2"></i>
-                    Exporter vers Excel ({{ $attendances->total() }} résultats)
+                    Exporter vers Excel (<?php echo e($attendances->total()); ?> résultats)
                 </a>
             </div>
             <div class="table-responsive mt-3">
@@ -106,71 +109,72 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($attendances as $attendance)
+                        <?php $__currentLoopData = $attendances; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attendance): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td>{{ $attendance->date->format('d/m/Y') }}</td>
+                                <td><?php echo e($attendance->date->format('d/m/Y')); ?></td>
                                 <td>
-                                    <strong>{{ $attendance->student->name ?? 'N/A' }}</strong>
+                                    <strong><?php echo e($attendance->student->name ?? 'N/A'); ?></strong>
                                     <br>
-                                    <small class="text-muted">{{ $attendance->student->student_record->adm_no ?? '' }}</small>
+                                    <small class="text-muted"><?php echo e($attendance->student->student_record->adm_no ?? ''); ?></small>
                                 </td>
-                                <td>{{ $attendance->class ? ($attendance->class->full_name ?: $attendance->class->name) : 'N/A' }}</td>
-                                <td>{{ $attendance->section->name ?? '-' }}</td>
-                                <td>{{ $attendance->subject->name ?? '-' }}</td>
+                                <td><?php echo e($attendance->class ? ($attendance->class->full_name ?: $attendance->class->name) : 'N/A'); ?></td>
+                                <td><?php echo e($attendance->section->name ?? '-'); ?></td>
+                                <td><?php echo e($attendance->subject->name ?? '-'); ?></td>
                                 <td>
-                                    @if($attendance->status == 'present')
+                                    <?php if($attendance->status == 'present'): ?>
                                         <span class="badge badge-success">Présent</span>
-                                    @elseif($attendance->status == 'absent')
+                                    <?php elseif($attendance->status == 'absent'): ?>
                                         <span class="badge badge-danger">Absent</span>
-                                    @elseif($attendance->status == 'late')
+                                    <?php elseif($attendance->status == 'late'): ?>
                                         <span class="badge badge-warning">Retard</span>
-                                    @elseif($attendance->status == 'excused')
+                                    <?php elseif($attendance->status == 'excused'): ?>
                                         <span class="badge badge-info">Excusé</span>
-                                    @elseif($attendance->status == 'late_justified')
+                                    <?php elseif($attendance->status == 'late_justified'): ?>
                                         <span class="badge badge-warning">Retard Justifié</span>
-                                    @elseif($attendance->status == 'absent_justified')
+                                    <?php elseif($attendance->status == 'absent_justified'): ?>
                                         <span class="badge badge-info">Absent Justifié</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
-                                <td>{{ $attendance->notes ?? '-' }}</td>
-                                <td>{{ $attendance->takenBy->name ?? 'N/A' }}</td>
+                                <td><?php echo e($attendance->notes ?? '-'); ?></td>
+                                <td><?php echo e($attendance->takenBy->name ?? 'N/A'); ?></td>
                                 <td>
-                                    @if(Qs::userIsTeamSA())
-                                        <form method="POST" action="{{ route('attendance.destroy', $attendance->id) }}" style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
+                                    <?php if(Qs::userIsTeamSA()): ?>
+                                        <form method="POST" action="<?php echo e(route('attendance.destroy', $attendance->id)); ?>" style="display: inline;">
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette présence ?')">
                                                 <i class="icon-trash"></i>
                                             </button>
                                         </form>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                             </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mt-3">
                 <div>
-                    Affichage de {{ $attendances->firstItem() }} à {{ $attendances->lastItem() }} sur {{ $attendances->total() }} résultats
+                    Affichage de <?php echo e($attendances->firstItem()); ?> à <?php echo e($attendances->lastItem()); ?> sur <?php echo e($attendances->total()); ?> résultats
                 </div>
                 <div>
-                    {{ $attendances->appends(request()->query())->links() }}
+                    <?php echo e($attendances->appends(request()->query())->links()); ?>
+
                 </div>
             </div>
-        @else
+        <?php else: ?>
             <div class="alert alert-info mt-3">
                 <i class="icon-info22 mr-2"></i>
                 Aucune présence trouvée. Utilisez les filtres ci-dessus pour rechercher.
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
 $(document).ready(function() {
     // Load sections when class is selected
@@ -201,4 +205,6 @@ $(document).ready(function() {
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/attendance/view.blade.php ENDPATH**/ ?>

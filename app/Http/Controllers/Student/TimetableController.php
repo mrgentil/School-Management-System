@@ -21,8 +21,8 @@ class TimetableController extends Controller
     {
         $user = auth()->user();
         
-        // Récupérer la classe de l'étudiant
-        $studentRecord = $user->student_record;
+        // Récupérer la classe de l'étudiant avec relations complètes
+        $studentRecord = $user->student_record()->with(['my_class.academicSection', 'my_class.option', 'section'])->first();
         
         if (!$studentRecord || !$studentRecord->my_class_id) {
             return view('pages.student.timetable.index', [
@@ -32,7 +32,7 @@ class TimetableController extends Controller
         }
         
         $classId = $studentRecord->my_class_id;
-        $className = $studentRecord->my_class->name ?? 'N/A';
+        $className = $studentRecord->my_class ? ($studentRecord->my_class->full_name ?: $studentRecord->my_class->name) : 'N/A';
         
         // Récupérer la session actuelle
         $currentSession = \App\Helpers\Qs::getCurrentSession();

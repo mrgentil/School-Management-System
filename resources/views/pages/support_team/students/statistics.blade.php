@@ -15,7 +15,7 @@
                         <select name="my_class_id" id="my_class_id" class="form-control select-search">
                             <option value="">Toutes</option>
                             @foreach($classes as $class)
-                                <option value="{{ $class->id }}" {{ ($filters['my_class_id'] ?? '') == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+                                <option value="{{ $class->id }}" {{ ($filters['my_class_id'] ?? '') == $class->id ? 'selected' : '' }}>{{ $class ? ($class->full_name ?: $class->name) : 'N/A' }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -25,7 +25,7 @@
                             <option value="">Toutes</option>
                             @foreach($divisions as $section)
                                 <option value="{{ $section->id }}" {{ ($filters['section_id'] ?? '') == $section->id ? 'selected' : '' }}>
-                                    {{ $section->my_class->name }} - {{ $section->name }}
+                                    {{ $section->my_class ? ($section->my_class->full_name ?: $section->my_class->name) : 'N/A' }} - {{ $section->name }}
                                 </option>
                             @endforeach
                         </select>

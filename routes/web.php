@@ -129,6 +129,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/export', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'export'])->name('attendance.export');
             Route::delete('/{id}', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'destroy'])->name('attendance.destroy')->middleware('teamSA');
             Route::get('/get-sections/{class_id}', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'getSections'])->name('attendance.get_sections');
+            Route::get('/get-subjects/{class_id}', [\App\Http\Controllers\SupportTeam\AttendanceController::class, 'getSubjects'])->name('attendance.get_subjects');
         });
 
         /*************** Assignments (Devoirs) *****************/

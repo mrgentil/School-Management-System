@@ -24,7 +24,10 @@ class SectionController extends Controller
 
     public function index()
     {
-        $d['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $d['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         $d['sections'] = $this->my_class->getAllSections();
         $d['teachers'] = $this->user->getUserByType('teacher');
 

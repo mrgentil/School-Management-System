@@ -23,7 +23,7 @@
                             <li><strong>Nom :</strong> {{ $request->student->user->name ?? 'N/A' }}</li>
                             <li><strong>Email :</strong> {{ $request->student->user->email ?? 'N/A' }}</li>
                             @if($request->student && $request->student->my_class)
-                                <li><strong>Classe :</strong> {{ $request->student->my_class->name ?? 'N/A' }}</li>
+                                <li><strong>Classe :</strong> {{ $request->student->my_class ? ($request->student->my_class->full_name ?: $request->student->my_class->name) : 'N/A' }}</li>
                             @endif
                         </ul>
                     </div>

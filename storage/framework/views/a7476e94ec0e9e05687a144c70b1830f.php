@@ -21,7 +21,7 @@
                             <i class="icon-user icon-2x mr-3"></i>
                             <div>
                                 <h6 class="mb-0 text-white"><?php echo e(Auth::user()->name); ?></h6>
-                                <small class="text-white font-weight-bold"><?php echo e($sr->full_class_name); ?></small>
+                                <small class="text-white font-weight-bold"><?php echo e($sr->my_class ? ($sr->my_class->full_name ?: $sr->my_class->name) : 'N/A'); ?></small>
                             </div>
                         </div>
                     </div>

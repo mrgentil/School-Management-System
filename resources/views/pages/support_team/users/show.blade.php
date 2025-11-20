@@ -88,7 +88,7 @@
                                         <td class="font-weight-bold">Children/Ward</td>
                                         <td>
                                         @foreach(Qs::findMyChildren($user->id) as $sr)
-                                            <span> - <a href="{{ route('students.show', Qs::hash($sr->id)) }}">{{ $sr->user->name.' - '.$sr->my_class->name. ' '.$sr->section->name }}</a></span><br>
+                                            <span> - <a href="{{ route('students.show', Qs::hash($sr->id)) }}">{{ $sr->user->name.' - '.($sr->my_class ? ($sr->my_class->full_name ?: $sr->my_class->name) : 'N/A'). ' '.($sr->section ? $sr->section->name : 'N/A') }}</a></span><br>
 
                                             @endforeach
                                         </td>
@@ -100,7 +100,7 @@
                                         <td class="font-weight-bold">My Subjects</td>
                                         <td>
                                             @foreach(Qs::findTeacherSubjects($user->id) as $sub)
-                                                <span> - {{ $sub->name.' ('.$sub->my_class->name.')' }}</span><br>
+                                                <span> - {{ $sub->name.' ('.($sub->my_class ? ($sub->my_class->full_name ?: $sub->my_class->name) : 'N/A').')' }}</span><br>
                                             @endforeach
                                         </td>
                                     </tr>

@@ -133,7 +133,7 @@
                     </td>
                     <td>
                         @if($student->myClass)
-                            <span class="badge badge-primary">{{ $student->myClass->name }}</span>
+                            <span class="badge badge-primary">{{ $student->myClass ? ($student->myClass->full_name ?: $student->myClass->name) : 'N/A' }}</span>
                         @else
                             <span class="text-muted">-</span>
                         @endif

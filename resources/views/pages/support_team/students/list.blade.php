@@ -10,12 +10,12 @@
 
         <div class="card-body">
             <ul class="nav nav-tabs nav-tabs-highlight">
-                <li class="nav-item"><a href="#all-students" class="nav-link active" data-toggle="tab">Tous les Étudiants {{ $my_class->name }}</a></li>
+                <li class="nav-item"><a href="#all-students" class="nav-link active" data-toggle="tab">Tous les Étudiants {{ $my_class ? ($my_class->full_name ?: $my_class->name) : 'N/A' }}</a></li>
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Sections</a>
                     <div class="dropdown-menu dropdown-menu-right">
                         @foreach($sections as $s)
-                            <a href="#s{{ $s->id }}" class="dropdown-item" data-toggle="tab">{{ $my_class->name }} {{ $s->name }}</a>
+                            <a href="#s{{ $s->id }}" class="dropdown-item" data-toggle="tab">{{ $my_class ? ($my_class->full_name ?: $my_class->name) : 'N/A' }} {{ $s->name }}</a>
                         @endforeach
                     </div>
                 </li>

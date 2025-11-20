@@ -21,7 +21,7 @@
                         <option value="">Toutes les classes</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
-                                {{ $class->name }}
+                                {{ $class ? ($class->full_name ?: $class->name) : 'N/A' }}
                             </option>
                         @endforeach
                     </select>

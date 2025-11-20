@@ -102,7 +102,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $ttr->name }}</td>
-                                    <td>{{ $ttr->my_class->name }}</td>
+                                    <td>{{ $ttr->my_class ? ($ttr->my_class->full_name ?: $ttr->my_class->name) : 'N/A' }}</td>
                                     <td>{{ ($ttr->exam_id) ? '📝 '.$ttr->exam->name : '📚 Emploi du temps de classe' }}
                                     <td>{{ $ttr->year }}</td>
                                     <td class="text-center">

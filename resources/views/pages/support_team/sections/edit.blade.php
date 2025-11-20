@@ -1,10 +1,10 @@
 @extends('layouts.master')
-@section('page_title', 'Edit Section of '.$s->my_class->name)
+@section('page_title', 'Edit Section of '.($s->my_class ? ($s->my_class->full_name ?: $s->my_class->name) : 'N/A'))
 @section('content')
 
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h6 class="card-title">Edit Section of {{ $s->my_class->name }}</h6>
+            <h6 class="card-title">Edit Section of {{ $s->my_class ? ($s->my_class->full_name ?: $s->my_class->name) : 'N/A' }}</h6>
             {!! Qs::getPanelOptions() !!}
         </div>
 
@@ -23,7 +23,7 @@
                         <div class="form-group row">
                             <label for="my_class_id" class="col-lg-3 col-form-label font-weight-semibold">Class </label>
                             <div class="col-lg-9">
-                                <input class="form-control" id="my_class_id" disabled="disabled" type="text" value="{{ $s->my_class->name }}">
+                                <input class="form-control" id="my_class_id" disabled="disabled" type="text" value="{{ $s->my_class ? ($s->my_class->full_name ?: $s->my_class->name) : 'N/A' }}">
                             </div>
                         </div>
 
