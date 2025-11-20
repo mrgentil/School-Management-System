@@ -85,7 +85,7 @@
                                                 <td>{{ $placement->student->name }}</td>
                                                 <td>
                                                     @if($placement->studentRecord)
-                                                        {{ $placement->studentRecord->my_class->name }}
+                                                        {{ $placement->studentRecord->my_class ? ($placement->studentRecord->my_class->full_name ?: $placement->studentRecord->my_class->name) : 'N/A' }}
                                                     @else
                                                         -
                                                     @endif

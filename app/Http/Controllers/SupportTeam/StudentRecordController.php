@@ -43,7 +43,10 @@ class StudentRecordController extends Controller
 
     public function create()
     {
-        $data['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $data['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         $data['parents'] = $this->user->getUserByType('parent');
         $data['dorms'] = $this->student->getAllDorms();
         $data['states'] = $this->loc->getStates();

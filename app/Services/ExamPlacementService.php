@@ -272,7 +272,7 @@ class ExamPlacementService
     public function getPlacementsByRoom($exam_id)
     {
         $placements = ExamStudentPlacement::where('exam_id', $exam_id)
-            ->with(['student', 'room', 'studentRecord.my_class'])
+            ->with(['student', 'room', 'studentRecord.my_class.academicSection', 'studentRecord.my_class.option'])
             ->orderBy('exam_room_id')
             ->orderBy('seat_number')
             ->get();

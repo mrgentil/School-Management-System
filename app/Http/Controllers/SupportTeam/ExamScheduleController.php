@@ -35,7 +35,10 @@ class ExamScheduleController extends Controller
     {
         $d['exam'] = $this->exam->find($exam_id);
         $d['schedules'] = $this->schedule->getScheduleByExam($exam_id);
-        $d['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $d['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         $d['academic_sections'] = \App\Models\AcademicSection::with('options')->where('active', 1)->get();
         $d['sections'] = \App\Models\Section::orderBy('name')->get();
         $d['options'] = \App\Models\Option::with('academic_section')->orderBy('name')->get();

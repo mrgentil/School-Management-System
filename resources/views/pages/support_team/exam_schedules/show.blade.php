@@ -332,7 +332,7 @@
                                     <select name="my_class_id" id="class_id" class="form-control select-search" required>
                                         <option value="">Sélectionner...</option>
                                         @foreach($my_classes as $class)
-                                            <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                            <option value="{{ $class->id }}">{{ $class->full_name ?: $class->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -442,7 +442,7 @@
                                     <select name="my_class_id" id="bulk-class-select" class="form-control select-search" required>
                                         <option value="">-- Sélectionner une classe --</option>
                                         @foreach($my_classes as $class)
-                                            <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                            <option value="{{ $class->id }}">{{ $class->full_name ?: $class->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>

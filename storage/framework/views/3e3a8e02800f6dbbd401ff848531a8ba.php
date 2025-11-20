@@ -334,7 +334,7 @@
                                     <select name="my_class_id" id="class_id" class="form-control select-search" required>
                                         <option value="">Sélectionner...</option>
                                         <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <option value="<?php echo e($class->id); ?>"><?php echo e($class->name); ?></option>
+                                            <option value="<?php echo e($class->id); ?>"><?php echo e($class->full_name ?: $class->name); ?></option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
@@ -445,7 +445,7 @@
                                     <select name="my_class_id" id="bulk-class-select" class="form-control select-search" required>
                                         <option value="">-- Sélectionner une classe --</option>
                                         <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <option value="<?php echo e($class->id); ?>"><?php echo e($class->name); ?></option>
+                                            <option value="<?php echo e($class->id); ?>"><?php echo e($class->full_name ?: $class->name); ?></option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>

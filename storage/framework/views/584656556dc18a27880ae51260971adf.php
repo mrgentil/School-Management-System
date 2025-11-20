@@ -16,7 +16,7 @@
                         <select name="my_class_id" id="my_class_id" class="form-control select-search">
                             <option value="">Toutes</option>
                             <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($class->id); ?>" <?php echo e(($filters['my_class_id'] ?? '') == $class->id ? 'selected' : ''); ?>><?php echo e($class->name); ?></option>
+                                <option value="<?php echo e($class->id); ?>" <?php echo e(($filters['my_class_id'] ?? '') == $class->id ? 'selected' : ''); ?>><?php echo e($class ? ($class->full_name ?: $class->name) : 'N/A'); ?></option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
@@ -26,7 +26,7 @@
                             <option value="">Toutes</option>
                             <?php $__currentLoopData = $divisions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($section->id); ?>" <?php echo e(($filters['section_id'] ?? '') == $section->id ? 'selected' : ''); ?>>
-                                    <?php echo e($section->my_class->name); ?> - <?php echo e($section->name); ?>
+                                    <?php echo e($section->my_class ? ($section->my_class->full_name ?: $section->my_class->name) : 'N/A'); ?> - <?php echo e($section->name); ?>
 
                                 </option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
