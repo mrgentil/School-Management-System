@@ -26,7 +26,7 @@
                             <option value="">Toutes les classes</option>
                             <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($class->id); ?>" <?php echo e($filters['my_class_id'] == $class->id ? 'selected' : ''); ?>>
-                                    <?php echo e($class->name); ?>
+                                    <?php echo e($class->full_name ?: $class->name); ?>
 
                                 </option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -115,7 +115,7 @@
                         <?php $__currentLoopData = $assignments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $assignment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td><strong><?php echo e($assignment->title); ?></strong></td>
-                                <td><?php echo e($assignment->myClass->name ?? 'N/A'); ?></td>
+                                <td><?php echo e($assignment->myClass ? ($assignment->myClass->full_name ?: $assignment->myClass->name) : 'N/A'); ?></td>
                                 <td><?php echo e($assignment->section->name ?? 'N/A'); ?></td>
                                 <td><?php echo e($assignment->subject->name ?? 'N/A'); ?></td>
                                 <td>

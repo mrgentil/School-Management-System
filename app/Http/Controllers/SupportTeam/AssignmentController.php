@@ -26,8 +26,8 @@ class AssignmentController extends Controller
     {
         $user = Auth::user();
         
-        // Build query
-        $query = Assignment::with(['myClass', 'section', 'subject', 'teacher']);
+        // Build query avec relations complètes pour les classes
+        $query = Assignment::with(['myClass.academicSection', 'myClass.option', 'section', 'subject', 'teacher']);
         
         // If teacher, show only their assignments
         if (Qs::userIsTeacher()) {
@@ -58,7 +58,10 @@ class AssignmentController extends Controller
         $assignments = $query->orderBy('created_at', 'desc')->paginate(20);
 
         $data['assignments'] = $assignments;
-        $data['my_classes'] = MyClass::orderBy('name')->get();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $data['my_classes'] = MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         $data['subjects'] = Subject::orderBy('name')->get();
         $data['filters'] = [
             'my_class_id' => $request->my_class_id,
@@ -252,7 +255,7 @@ class AssignmentController extends Controller
 
         $assignment->update($data);
 
-        return redirect()->route('assignments.show', $id)
+        return redirect()->route('assignments.show', $assignment->id)
             ->with('flash_success', 'Devoir mis à jour avec succès!');
     }
 

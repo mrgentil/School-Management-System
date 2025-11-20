@@ -21,7 +21,7 @@
                             <option value="">Sélectionner une classe</option>
                             <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($class->id); ?>" <?php echo e($filters['class_id'] == $class->id ? 'selected' : ''); ?>>
-                                    <?php echo e($class->name); ?>
+                                    <?php echo e($class->full_name ?: $class->name); ?>
 
                                 </option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -88,6 +88,16 @@
         <?php if(isset($stats) && $stats->count() > 0): ?>
             <div class="alert alert-info border-0 mt-3">
                 <i class="icon-info22 mr-2"></i>
+                <strong>Classe :</strong> <?php echo e($selected_class ? ($selected_class->full_name ?: $selected_class->name) : 'N/A'); ?>
+
+                <?php if(isset($sections) && $filters['section_id']): ?>
+                    <?php $selectedSection = $sections->find($filters['section_id']); ?>
+                    <?php if($selectedSection): ?>
+                        - <strong>Section :</strong> <?php echo e($selectedSection->name); ?>
+
+                    <?php endif; ?>
+                <?php endif; ?>
+                <br>
                 <strong>Période :</strong> <?php echo e($months[$filters['month']]); ?> <?php echo e($filters['year']); ?>
 
             </div>

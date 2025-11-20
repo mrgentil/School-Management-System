@@ -27,7 +27,7 @@
                             <option value="">Toutes les classes</option>
                             @foreach($my_classes as $class)
                                 <option value="{{ $class->id }}" {{ $filters['my_class_id'] == $class->id ? 'selected' : '' }}>
-                                    {{ $class->name }}
+                                    {{ $class->full_name ?: $class->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -114,7 +114,7 @@
                         @foreach($assignments as $assignment)
                             <tr>
                                 <td><strong>{{ $assignment->title }}</strong></td>
-                                <td>{{ $assignment->myClass->name ?? 'N/A' }}</td>
+                                <td>{{ $assignment->myClass ? ($assignment->myClass->full_name ?: $assignment->myClass->name) : 'N/A' }}</td>
                                 <td>{{ $assignment->section->name ?? 'N/A' }}</td>
                                 <td>{{ $assignment->subject->name ?? 'N/A' }}</td>
                                 <td>

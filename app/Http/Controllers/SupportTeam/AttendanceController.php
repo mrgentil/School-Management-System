@@ -258,7 +258,10 @@ class AttendanceController extends Controller
      */
     public function statistics(Request $request)
     {
-        $data['my_classes'] = MyClass::orderBy('name')->get();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $data['my_classes'] = MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         
         $class_id = $request->my_class_id;
         $section_id = $request->section_id;
@@ -267,6 +270,7 @@ class AttendanceController extends Controller
 
         if ($class_id) {
             $data['sections'] = Section::where('my_class_id', $class_id)->get();
+            $data['selected_class'] = MyClass::with(['academicSection', 'option'])->find($class_id);
             
             // Get students - try current session first, then all if none found
             $currentSession = Qs::getCurrentSession();

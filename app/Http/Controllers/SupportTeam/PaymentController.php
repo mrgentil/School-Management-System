@@ -62,7 +62,10 @@ class PaymentController extends Controller
 
     public function create()
     {
-        $d['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $d['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         return view('pages.support_team.payments.create', $d);
     }
 
@@ -155,7 +158,10 @@ class PaymentController extends Controller
 
     public function manage($class_id = NULL)
     {
-        $d['my_classes'] = $this->my_class->all();
+        // Charger les classes avec leurs relations complètes pour afficher les noms complets
+        $d['my_classes'] = \App\Models\MyClass::with(['academicSection', 'option'])
+            ->orderBy('name')
+            ->get();
         $d['selected'] = false;
 
         if($class_id){

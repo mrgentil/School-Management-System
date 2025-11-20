@@ -21,7 +21,7 @@
                             <option value="">Sélectionner une classe</option>
                             @foreach($my_classes as $class)
                                 <option value="{{ $class->id }}" {{ $filters['class_id'] == $class->id ? 'selected' : '' }}>
-                                    {{ $class->name }}
+                                    {{ $class->full_name ?: $class->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -84,6 +84,14 @@
         @if(isset($stats) && $stats->count() > 0)
             <div class="alert alert-info border-0 mt-3">
                 <i class="icon-info22 mr-2"></i>
+                <strong>Classe :</strong> {{ $selected_class ? ($selected_class->full_name ?: $selected_class->name) : 'N/A' }}
+                @if(isset($sections) && $filters['section_id'])
+                    @php $selectedSection = $sections->find($filters['section_id']); @endphp
+                    @if($selectedSection)
+                        - <strong>Section :</strong> {{ $selectedSection->name }}
+                    @endif
+                @endif
+                <br>
                 <strong>Période :</strong> {{ $months[$filters['month']] }} {{ $filters['year'] }}
             </div>
 
