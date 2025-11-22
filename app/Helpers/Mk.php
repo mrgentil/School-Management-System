@@ -17,7 +17,62 @@ class Mk extends Qs
 
     public static function getRemarks()
     {
-        return ['Average', 'Credit', 'Distinction', 'Excellent', 'Fail', 'Fair', 'Good', 'Pass', 'Poor', 'Very Good', 'Very Poor'];
+        // Mentions par défaut (système de base)
+        $defaultRemarks = [
+            'Excellent', 
+            'Très Bien', 
+            'Bien', 
+            'Assez Bien', 
+            'Passable', 
+            'Médiocre', 
+            'Insuffisant', 
+            'Très Insuffisant',
+            'Distinction',
+            'Grande Distinction',
+            'Satisfaction'
+        ];
+
+        // Récupérer les mentions personnalisées actives
+        $customRemarks = \App\Models\CustomRemark::active()
+            ->ordered()
+            ->pluck('name')
+            ->toArray();
+
+        // Fusionner les mentions par défaut et personnalisées
+        $allRemarks = array_merge($defaultRemarks, $customRemarks);
+
+        // Supprimer les doublons et retourner
+        return array_unique($allRemarks);
+    }
+
+    /**
+     * Récupérer seulement les mentions par défaut
+     */
+    public static function getDefaultRemarks()
+    {
+        return [
+            'Excellent', 
+            'Très Bien', 
+            'Bien', 
+            'Assez Bien', 
+            'Passable', 
+            'Médiocre', 
+            'Insuffisant', 
+            'Très Insuffisant',
+            'Distinction',
+            'Grande Distinction',
+            'Satisfaction'
+        ];
+    }
+
+    /**
+     * Récupérer seulement les mentions personnalisées
+     */
+    public static function getCustomRemarks()
+    {
+        return \App\Models\CustomRemark::active()
+            ->ordered()
+            ->get();
     }
 
     /** ADD ORDINAL SUFFIX TO POSITION **/
