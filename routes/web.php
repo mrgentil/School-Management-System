@@ -243,6 +243,13 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('subject-grades-config/duplicate', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'duplicate'])->name('subject-grades-config.duplicate');
         Route::get('subject-grades-config/{classId}/initialize-defaults', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'initializeDefaults'])->name('subject-grades-config.initialize-defaults');
 
+        // Proclamations Routes (RDC System)
+        Route::get('/proclamations', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'index'])->name('proclamations.index');
+        Route::post('/proclamations/period', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'periodRankings'])->name('proclamations.period');
+        Route::post('/proclamations/semester', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'semesterRankings'])->name('proclamations.semester');
+        Route::get('/proclamations/student', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'studentDetail'])->name('proclamations.student');
+        Route::post('/proclamations/recalculate', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'recalculateClass'])->name('proclamations.recalculate');
+
         // Exams
         Route::get('exams/dashboard', [\App\Http\Controllers\SupportTeam\ExamController::class, 'dashboard'])->name('exams.dashboard');
         Route::resource('exams', '\App\Http\Controllers\SupportTeam\ExamController');

@@ -63,7 +63,7 @@
 
                 
                 <?php if(Qs::userIsAcademic() && !Qs::userIsStudent()): ?>
-                    <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics', 'study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit', 'subject-grades-config.index', 'subject-grades-config.show']) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
+                    <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics', 'study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit', 'subject-grades-config.index', 'subject-grades-config.show', 'proclamations.index', 'proclamations.period', 'proclamations.semester', 'proclamations.student']) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Académique</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Gestion Académique">
@@ -100,6 +100,16 @@
                                 <a href="<?php echo e(route('subject-grades-config.index')); ?>"
                                    class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['subject-grades-config.index', 'subject-grades-config.show']) ? 'active' : ''); ?>">
                                    🧮 Cotes par Matière (RDC)
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        
+                        <?php if(Qs::userIsSuperAdmin()): ?>
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('proclamations.index')); ?>"
+                                   class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['proclamations.index', 'proclamations.period', 'proclamations.semester', 'proclamations.student']) ? 'active' : ''); ?>">
+                                   🏆 Proclamations RDC
                                 </a>
                             </li>
                         <?php endif; ?>
