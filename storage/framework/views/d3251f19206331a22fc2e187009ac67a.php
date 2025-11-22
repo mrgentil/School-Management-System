@@ -11,7 +11,6 @@
     <title> <?php echo $__env->yieldContent('page_title'); ?> | <?php echo e(config('app.name')); ?> </title>
 
     <?php echo $__env->make('partials.inc_top', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-    <script src="<?php echo e(asset('js/app.js')); ?>" defer></script>
 </head>
 
 <body class="<?php echo e(in_array(Route::currentRouteName(), ['payments.invoice', 'marks.tabulation', 'marks.show', 'ttr.manage', 'ttr.show']) ? 'sidebar-xs' : ''); ?>">

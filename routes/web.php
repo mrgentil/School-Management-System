@@ -230,10 +230,19 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('grades', '\App\Http\Controllers\SupportTeam\GradeController');
         
         // Custom Remarks (Mentions personnalisées)
-        Route::post('custom-remarks', '\App\Http\Controllers\SupportTeam\CustomRemarkController@store')->name('custom-remarks.store');
-        Route::put('custom-remarks/{customRemark}', '\App\Http\Controllers\SupportTeam\CustomRemarkController@update')->name('custom-remarks.update');
-        Route::delete('custom-remarks/{customRemark}', '\App\Http\Controllers\SupportTeam\CustomRemarkController@destroy')->name('custom-remarks.destroy');
-        
+        Route::post('custom-remarks', [CustomRemarkController::class, 'store'])->name('custom-remarks.store');
+        Route::put('custom-remarks/{id}', [CustomRemarkController::class, 'update'])->name('custom-remarks.update');
+        Route::delete('custom-remarks/{id}', [CustomRemarkController::class, 'destroy'])->name('custom-remarks.destroy');
+
+        // Routes pour la configuration des cotes par matière (Système RDC)
+        Route::get('subject-grades-config', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'index'])->name('subject-grades-config.index');
+        Route::get('subject-grades-config/{classId}', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'show'])->name('subject-grades-config.show');
+        Route::post('subject-grades-config', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'store'])->name('subject-grades-config.store');
+        Route::put('subject-grades-config/{id}', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'update'])->name('subject-grades-config.update');
+        Route::delete('subject-grades-config/{id}', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'destroy'])->name('subject-grades-config.destroy');
+        Route::post('subject-grades-config/duplicate', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'duplicate'])->name('subject-grades-config.duplicate');
+        Route::get('subject-grades-config/{classId}/initialize-defaults', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'initializeDefaults'])->name('subject-grades-config.initialize-defaults');
+
         // Exams
         Route::get('exams/dashboard', [\App\Http\Controllers\SupportTeam\ExamController::class, 'dashboard'])->name('exams.dashboard');
         Route::resource('exams', '\App\Http\Controllers\SupportTeam\ExamController');

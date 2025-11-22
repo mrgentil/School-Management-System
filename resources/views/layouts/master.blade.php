@@ -11,7 +11,6 @@
     <title> @yield('page_title') | {{ config('app.name') }} </title>
 
     @include('partials.inc_top')
-    <script src="{{ asset('js/app.js') }}" defer></script>
 </head>
 
 <body class="{{ in_array(Route::currentRouteName(), ['payments.invoice', 'marks.tabulation', 'marks.show', 'ttr.manage', 'ttr.show']) ? 'sidebar-xs' : '' }}">
