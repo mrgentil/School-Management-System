@@ -30,6 +30,39 @@ class MarkController extends Controller
        // $this->middleware('teamSAT', ['except' => ['show', 'year_selected', 'year_selector', 'print_view'] ]);
     }
 
+    /**
+     * Trouve une section avec des étudiants pour une classe donnée
+     */
+    private function findSectionWithStudents($classId)
+    {
+        // D'abord, essayer de trouver la première section de la classe
+        $class = $this->my_class->find($classId);
+        if (!$class) {
+            return null;
+        }
+
+        $sections = $class->section;
+        if (!$sections || $sections->count() == 0) {
+            return null;
+        }
+
+        // Vérifier chaque section pour trouver celle qui a des étudiants
+        foreach ($sections as $section) {
+            $studentCount = $this->student->getRecord([
+                'my_class_id' => $classId,
+                'section_id' => $section->id,
+                'session' => $this->year
+            ])->count();
+
+            if ($studentCount > 0) {
+                return $section->id;
+            }
+        }
+
+        // Si aucune section n'a d'étudiants, retourner la première section
+        return $sections->first()->id;
+    }
+
     public function index()
     {
         $d['exams'] = $this->exam->getExam(['year' => $this->year]);
@@ -141,9 +174,19 @@ class MarkController extends Controller
     {
         $data = $req->only(['exam_id', 'my_class_id', 'section_id', 'subject_id']);
         $d2 = $req->only(['exam_id', 'my_class_id', 'section_id']);
+        
+        // Si section_id est vide, on trouve automatiquement une section avec des étudiants
+        if (empty($req->section_id)) {
+            $sectionWithStudents = $this->findSectionWithStudents($req->my_class_id);
+            if ($sectionWithStudents) {
+                $data['section_id'] = $d2['section_id'] = $sectionWithStudents;
+                // IMPORTANT: Mettre à jour la request pour que only() récupère la bonne valeur
+                $req->merge(['section_id' => $sectionWithStudents]);
+            }
+        }
+        
         $d = $req->only(['my_class_id', 'section_id']);
         $d['session'] = $data['year'] = $d2['year'] = $this->year;
-
 
         $students = $this->student->getRecord($d)->get();
         if($students->count() < 1){
@@ -156,7 +199,7 @@ class MarkController extends Controller
             $this->exam->createRecord($d2);
         }
 
-        return redirect()->route('marks.manage', [$req->exam_id, $req->my_class_id, $req->section_id, $req->subject_id]);
+        return redirect()->route('marks.manage', [$req->exam_id, $req->my_class_id, $data['section_id'], $req->subject_id]);
     }
 
     public function manage($exam_id, $class_id, $section_id, $subject_id)

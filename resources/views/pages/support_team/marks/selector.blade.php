@@ -5,7 +5,7 @@
                 <fieldset>
 
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="exam_id" class="col-form-label font-weight-bold">Examen <span class="text-danger">*</span></label>
                                 <select required id="exam_id" name="exam_id" data-placeholder="Sélectionner un examen" class="form-control select">
@@ -16,7 +16,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="my_class_id" class="col-form-label font-weight-bold">Classe <span class="text-danger">*</span></label>
                                 <select required onchange="getClassSubjects(this.value)" id="my_class_id" name="my_class_id" class="form-control select">
@@ -28,20 +28,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="section_id" class="col-form-label font-weight-bold">Section <span class="text-danger">*</span></label>
-                                <select required id="section_id" name="section_id" data-placeholder="Sélectionner d'abord la classe" class="form-control select">
-                                   @if($selected)
-                                        @foreach($sections->where('my_class_id', $my_class_id) as $s)
-                                            <option {{ $section_id == $s->id ? 'selected' : '' }} value="{{ $s->id }}">{{ $s->name }}</option>
-                                        @endforeach
-                                       @endif
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="subject_id" class="col-form-label font-weight-bold">Matière <span class="text-danger">*</span></label>
                                 <select required id="subject_id" name="subject_id" data-placeholder="Sélectionner d'abord la classe" class="form-control select-search">
@@ -53,6 +40,9 @@
                                 </select>
                             </div>
                         </div>
+                        
+                        {{-- Section cachée - sera automatiquement déterminée par la classe --}}
+                        <input type="hidden" id="section_id" name="section_id" value="{{ $selected ? $section_id : '' }}">
                     </div>
 
                 </fieldset>
@@ -77,11 +67,10 @@
     
     function getClassSubjects(classId) {
         const subjectSelect = document.getElementById('subject_id');
-        const sectionSelect = document.getElementById('section_id');
+        const sectionHidden = document.getElementById('section_id');
         
         // Vider les options actuelles
         subjectSelect.innerHTML = '<option value="">-- Sélectionner une matière --</option>';
-        sectionSelect.innerHTML = '<option value="">-- Sélectionner une section --</option>';
         
         if (classId && subjectsByClass[classId]) {
             // Ajouter les matières de cette classe
@@ -93,20 +82,18 @@
             });
         }
         
-        if (classId && sectionsByClass[classId]) {
-            // Ajouter les sections de cette classe
-            sectionsByClass[classId].forEach(function(section) {
-                const option = document.createElement('option');
-                option.value = section.id;
-                option.textContent = section.name;
-                sectionSelect.appendChild(option);
-            });
+        // Automatiquement sélectionner la première section de la classe
+        if (classId && sectionsByClass[classId] && sectionsByClass[classId].length > 0) {
+            sectionHidden.value = sectionsByClass[classId][0].id;
+            console.log('Section auto-sélectionnée:', sectionsByClass[classId][0].name, 'ID:', sectionsByClass[classId][0].id);
+        } else {
+            sectionHidden.value = '';
+            console.log('Aucune section trouvée pour la classe:', classId);
         }
         
-        // Réinitialiser les selects
+        // Réinitialiser le select des matières
         if (typeof $ !== 'undefined') {
             $('#subject_id').trigger('change');
-            $('#section_id').trigger('change');
         }
     }
     
