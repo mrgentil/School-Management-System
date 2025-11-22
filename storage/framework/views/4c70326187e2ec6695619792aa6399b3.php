@@ -13,6 +13,7 @@
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#all-grades" class="nav-link active" data-toggle="tab">Barèmes Existants</a></li>
                 <li class="nav-item"><a href="#new-grade" class="nav-link" data-toggle="tab"><i class="icon-plus2"></i> Ajouter un Barème</a></li>
+                <li class="nav-item"><a href="#custom-remarks" class="nav-link" data-toggle="tab"><i class="icon-cog3"></i> Mentions Personnalisées</a></li>
             </ul>
 
             <div class="tab-content">
@@ -199,11 +200,196 @@
                         </div>
                     </div>
                 </div>
+
+                
+                <div class="tab-pane fade" id="custom-remarks">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title"><i class="icon-list mr-2"></i>Mentions Personnalisées</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>N°</th>
+                                                <th>Mention</th>
+                                                <th>Description</th>
+                                                <th>Ordre</th>
+                                                <th>Statut</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php $__empty_1 = true; $__currentLoopData = \App\Helpers\Mk::getCustomRemarks(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $remark): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                <tr>
+                                                    <td><?php echo e($loop->iteration); ?></td>
+                                                    <td><strong><?php echo e($remark->name); ?></strong></td>
+                                                    <td><?php echo e($remark->description ?: '-'); ?></td>
+                                                    <td><?php echo e($remark->sort_order); ?></td>
+                                                    <td>
+                                                        <span class="badge badge-<?php echo e($remark->active ? 'success' : 'secondary'); ?>">
+                                                            <?php echo e($remark->active ? 'Actif' : 'Inactif'); ?>
+
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-primary" onclick="editRemark(<?php echo e($remark->id); ?>, '<?php echo e($remark->name); ?>', '<?php echo e($remark->description); ?>', <?php echo e($remark->sort_order); ?>, <?php echo e($remark->active ? 'true' : 'false'); ?>)">
+                                                            <i class="icon-pencil"></i>
+                                                        </button>
+                                                        <?php if(Qs::userIsSuperAdmin()): ?>
+                                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteRemark(<?php echo e($remark->id); ?>)">
+                                                            <i class="icon-trash"></i>
+                                                        </button>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-muted">
+                                                        <i class="icon-info22 mr-2"></i>Aucune mention personnalisée créée
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title"><i class="icon-plus2 mr-2"></i>Ajouter une Mention</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="custom-remark-form" method="post" action="<?php echo e(route('custom-remarks.store')); ?>">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" id="remark-id" name="id">
+                                        <input type="hidden" id="form-method" name="_method">
+
+                                        <div class="form-group">
+                                            <label>Mention <span class="text-danger">*</span></label>
+                                            <input type="text" id="remark-name" name="name" class="form-control" placeholder="Ex. Très Satisfaisant" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea id="remark-description" name="description" class="form-control" rows="2" placeholder="Description optionnelle..."></textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Ordre d'affichage</label>
+                                            <input type="number" id="remark-order" name="sort_order" class="form-control" value="0" min="0">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <input type="checkbox" id="remark-active" name="active" class="form-check-input" checked>
+                                                <label class="form-check-label" for="remark-active">Mention active</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-right">
+                                            <button type="button" id="cancel-edit" class="btn btn-light" onclick="resetForm()" style="display: none;">Annuler</button>
+                                            <button type="submit" id="submit-btn" class="btn btn-primary">Ajouter <i class="icon-plus2 ml-2"></i></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="card-title"><i class="icon-info22 mr-2"></i>Mentions par Défaut</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted mb-2">Ces mentions sont toujours disponibles :</p>
+                                    <div class="row">
+                                        <?php $__currentLoopData = \App\Helpers\Mk::getDefaultRemarks(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $remark): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <div class="col-6 mb-1">
+                                                <span class="badge badge-light"><?php echo e($remark); ?></span>
+                                            </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     
+
+<script>
+function editRemark(id, name, description, sortOrder, active) {
+    // Remplir le formulaire avec les données de la mention
+    document.getElementById('remark-id').value = id;
+    document.getElementById('remark-name').value = name;
+    document.getElementById('remark-description').value = description || '';
+    document.getElementById('remark-order').value = sortOrder;
+    document.getElementById('remark-active').checked = active;
+    
+    // Changer l'action du formulaire pour la mise à jour
+    document.getElementById('custom-remark-form').action = '/custom-remarks/' + id;
+    document.getElementById('form-method').value = 'PUT';
+    
+    // Changer le texte du bouton
+    document.getElementById('submit-btn').innerHTML = 'Mettre à Jour <i class="icon-pencil ml-2"></i>';
+    document.getElementById('cancel-edit').style.display = 'inline-block';
+    
+    // Changer le titre de la carte
+    document.querySelector('#custom-remarks .card-header h6').innerHTML = '<i class="icon-pencil mr-2"></i>Modifier la Mention';
+}
+
+function resetForm() {
+    // Réinitialiser le formulaire
+    document.getElementById('custom-remark-form').reset();
+    document.getElementById('remark-id').value = '';
+    document.getElementById('form-method').value = '';
+    
+    // Remettre l'action du formulaire pour la création
+    document.getElementById('custom-remark-form').action = '/custom-remarks';
+    
+    // Remettre le texte du bouton
+    document.getElementById('submit-btn').innerHTML = 'Ajouter <i class="icon-plus2 ml-2"></i>';
+    document.getElementById('cancel-edit').style.display = 'none';
+    
+    // Remettre le titre de la carte
+    document.querySelector('#custom-remarks .card-header h6').innerHTML = '<i class="icon-plus2 mr-2"></i>Ajouter une Mention';
+}
+
+function deleteRemark(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette mention personnalisée ?')) {
+        // Créer un formulaire de suppression
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/custom-remarks/' + id;
+        
+        // Ajouter le token CSRF
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        // Ajouter la méthode DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+        
+        // Soumettre le formulaire
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
 
 <?php $__env->stopSection(); ?>
 

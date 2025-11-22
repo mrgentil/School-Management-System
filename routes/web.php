@@ -229,6 +229,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('subjects', '\App\Http\Controllers\SupportTeam\SubjectController');
         Route::resource('grades', '\App\Http\Controllers\SupportTeam\GradeController');
         
+        // Custom Remarks (Mentions personnalisées)
+        Route::post('custom-remarks', '\App\Http\Controllers\SupportTeam\CustomRemarkController@store')->name('custom-remarks.store');
+        Route::put('custom-remarks/{customRemark}', '\App\Http\Controllers\SupportTeam\CustomRemarkController@update')->name('custom-remarks.update');
+        Route::delete('custom-remarks/{customRemark}', '\App\Http\Controllers\SupportTeam\CustomRemarkController@destroy')->name('custom-remarks.destroy');
+        
         // Exams
         Route::get('exams/dashboard', [\App\Http\Controllers\SupportTeam\ExamController::class, 'dashboard'])->name('exams.dashboard');
         Route::resource('exams', '\App\Http\Controllers\SupportTeam\ExamController');
