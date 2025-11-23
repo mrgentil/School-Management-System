@@ -206,21 +206,33 @@ class MarkController extends Controller
     {
         $d = ['exam_id' => $exam_id, 'my_class_id' => $class_id, 'section_id' => $section_id, 'subject_id' => $subject_id, 'year' => $this->year];
 
-        $d['marks'] = $this->exam->getMark($d);
+        $d['m'] = $this->exam->getMark($d);
+        $d['marks'] = \App\Models\Mark::where([
+            'exam_id' => $exam_id, 
+            'my_class_id' => $class_id, 
+            'section_id' => $section_id, 
+            'subject_id' => $subject_id,
+            'year' => $this->year
+        ])->with(['user', 'user.student_record'])->get();
+
         if($d['marks']->count() < 1){
-            return $this->noStudentRecord();
+            return redirect()->route('marks.index')->with('flash_danger', __('msg.srnf'));
         }
 
-        $d['m'] =  $d['marks']->first();
-        $d['exams'] = $this->exam->all();
+        $d['exams'] = $this->exam->getExam(['year' => $this->year]);
         $d['my_classes'] = $this->my_class->all();
-        $d['sections'] = $this->my_class->getAllSections();
-        $d['subjects'] = $this->my_class->getAllSubjects();
-        if(Qs::userIsTeacher()){
-            $d['subjects'] = $this->my_class->findSubjectByTeacher(Auth::user()->id)->where('my_class_id', $class_id);
-        }
+        $d['subjects'] = $this->my_class->findSubjectByClass($class_id);
+        $d['sections'] = $this->my_class->getClassSections($class_id);
         $d['selected'] = true;
         $d['class_type'] = $this->my_class->findTypeByClass($class_id);
+
+        // Ajouter la configuration des cotes RDC
+        $d['grade_config'] = \App\Models\SubjectGradeConfig::getConfig($class_id, $subject_id, $this->year);
+        
+        // Déterminer si c'est un examen de période ou de semestre
+        $exam = $this->exam->find($exam_id);
+        $d['is_semester_exam'] = $exam && $exam->semester ? true : false;
+        $d['current_semester'] = $exam ? $exam->semester : null;
 
         return view('pages.support_team.marks.manage', $d);
     }

@@ -191,14 +191,12 @@ class ProclamationCalculationService
             return ($examScore / $actualMaxPoints) * 100;
             
         } else {
-            // Pour les périodes, utiliser les colonnes t1, t2, t3, t4 et autres évaluations
+            // Pour les périodes, récupérer les notes sans filtrer par période dans exam
+            // car la table exams n'a pas de colonne period
             $mark = Mark::where('student_id', $studentId)
                        ->where('subject_id', $subjectId)
                        ->where('my_class_id', $classId)
                        ->where('year', $year)
-                       ->whereHas('exam', function($query) use ($periodOrSemester) {
-                           $query->where('period', $periodOrSemester);
-                       })
                        ->first();
             
             if (!$mark) {
@@ -299,7 +297,7 @@ class ProclamationCalculationService
         
         // Récupérer tous les étudiants de la classe
         $students = StudentRecord::where('my_class_id', $classId)
-                                ->where('year', $year)
+                                ->where('session', $year)
                                 ->with('user')
                                 ->get();
         
@@ -355,7 +353,7 @@ class ProclamationCalculationService
         
         // Récupérer tous les étudiants de la classe
         $students = StudentRecord::where('my_class_id', $classId)
-                                ->where('year', $year)
+                                ->where('session', $year)
                                 ->with('user')
                                 ->get();
         

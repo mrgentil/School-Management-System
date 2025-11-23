@@ -250,6 +250,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/proclamations/student', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'studentDetail'])->name('proclamations.student');
         Route::post('/proclamations/recalculate', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'recalculateClass'])->name('proclamations.recalculate');
 
+
         // Exams
         Route::get('exams/dashboard', [\App\Http\Controllers\SupportTeam\ExamController::class, 'dashboard'])->name('exams.dashboard');
         Route::resource('exams', '\App\Http\Controllers\SupportTeam\ExamController');

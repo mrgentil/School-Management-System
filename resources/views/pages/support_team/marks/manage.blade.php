@@ -44,19 +44,19 @@
                 <div class="col-md-4">
                     <h6 class="card-title mb-0">
                         <i class="icon-book mr-2 text-primary"></i>
-                        <strong>Matière:</strong> {{ $m->subject->name }}
+                        <strong>Matière:</strong> {{ $m->first() ? $m->first()->subject->name : 'N/A' }}
                     </h6>
                 </div>
                 <div class="col-md-4">
                     <h6 class="card-title mb-0">
                         <i class="icon-users mr-2 text-success"></i>
-                        <strong>Classe:</strong> {{ ($m->my_class ? ($m->my_class->full_name ?: $m->my_class->name) : 'N/A').' '.($m->section ? $m->section->name : 'N/A') }}
+                        <strong>Classe:</strong> {{ $m->first() && $m->first()->my_class ? ($m->first()->my_class->full_name ?: $m->first()->my_class->name) : 'N/A' }}{{ $m->first() && $m->first()->section ? ' '.$m->first()->section->name : '' }}
                     </h6>
                 </div>
                 <div class="col-md-4">
                     <h6 class="card-title mb-0">
                         <i class="icon-file-text2 mr-2 text-warning"></i>
-                        <strong>Examen:</strong> {{ $m->exam->name.' - '.$m->year }}
+                        <strong>Examen:</strong> {{ $m->first() && $m->first()->exam ? $m->first()->exam->name.' - '.$m->first()->year : 'N/A' }}
                     </h6>
                 </div>
             </div>

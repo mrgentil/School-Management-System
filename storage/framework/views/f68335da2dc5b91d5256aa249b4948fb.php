@@ -114,6 +114,7 @@
                             </li>
                         <?php endif; ?>
 
+
                         
                         <?php if(Qs::userIsTeamSA()): ?>
                             <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit']) ? 'nav-item-expanded' : ''); ?>">
