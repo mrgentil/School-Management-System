@@ -62,7 +62,7 @@
 
                 {{--Academics (Non-Students)--}}
                 @if(Qs::userIsAcademic() && !Qs::userIsStudent())
-                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics', 'study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit', 'subject-grades-config.index', 'subject-grades-config.show', 'proclamations.index', 'proclamations.period', 'proclamations.semester', 'proclamations.student']) ? 'nav-item-expanded nav-item-open' : '' }} ">
+                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics', 'study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit', 'subject-grades-config.index', 'subject-grades-config.show', 'proclamations.index', 'proclamations.period', 'proclamations.semester', 'proclamations.student', 'marks.index', 'marks.manage']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Académique</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Gestion Académique">
@@ -90,6 +90,16 @@
                                     <li class="nav-item"><a href="{{ route('assignments.index') }}" class="nav-link {{ Route::is('assignments.index') ? 'active' : '' }}">Liste des devoirs</a></li>
                                     <li class="nav-item"><a href="{{ route('assignments.create') }}" class="nav-link {{ Route::is('assignments.create') ? 'active' : '' }}">Créer un devoir</a></li>
                                 </ul>
+                            </li>
+                        @endif
+
+                        {{--Marks Manage--}}
+                        @if(Qs::userIsTeamSAT())
+                            <li class="nav-item">
+                                <a href="{{ route('marks.index') }}"
+                                   class="nav-link {{ in_array(Route::currentRouteName(), ['marks.index', 'marks.manage']) ? 'active' : '' }}">
+                                   📝 Saisie des notes
+                                </a>
                             </li>
                         @endif
 
@@ -278,12 +288,6 @@
                         @endif
 
                         @if(Qs::userIsTeamSAT())
-                            {{--Marks Manage--}}
-                            <li class="nav-item">
-                                <a href="{{ route('marks.index') }}"
-                                   class="nav-link {{ in_array(Route::currentRouteName(), ['marks.index']) ? 'active' : '' }}">Saisie des notes</a>
-                            </li>
-
                             {{--Marksheet--}}
                             <li class="nav-item">
                                 <a href="{{ route('marks.bulk') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['marks.bulk', 'marks.show']) ? 'active' : '' }}">Bulletin de notes</a>
