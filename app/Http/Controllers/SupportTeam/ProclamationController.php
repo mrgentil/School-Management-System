@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SupportTeam;
 
 use App\Http\Controllers\Controller;
 use App\Services\ProclamationCalculationService;
+use App\Services\ImprovedProclamationCalculationService;
 use App\Models\MyClass;
 use App\Models\Exam;
 use App\Helpers\Qs;
@@ -13,7 +14,7 @@ class ProclamationController extends Controller
 {
     protected $proclamationService;
 
-    public function __construct(ProclamationCalculationService $proclamationService)
+    public function __construct(ImprovedProclamationCalculationService $proclamationService)
     {
         $this->middleware('teamSA');
         $this->proclamationService = $proclamationService;

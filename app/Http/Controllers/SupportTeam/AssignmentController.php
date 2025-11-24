@@ -417,4 +417,45 @@ class AssignmentController extends Controller
             'sections' => $sections
         ]);
     }
+
+    /**
+     * Get assignments by criteria (AJAX)
+     */
+    public function getByCriteria(Request $request)
+    {
+        $query = Assignment::with(['teacher']);
+        
+        // Filtrer par classe
+        if ($request->class_id) {
+            $query->where('my_class_id', $request->class_id);
+        }
+        
+        // Filtrer par matière
+        if ($request->subject_id) {
+            $query->where('subject_id', $request->subject_id);
+        }
+        
+        // Filtrer par période
+        if ($request->period) {
+            $query->where('period', $request->period);
+        }
+        
+        // Seulement les devoirs actifs
+        $query->where('status', 'active');
+        
+        $assignments = $query->orderBy('due_date', 'desc')->get();
+        
+        return response()->json([
+            'success' => true,
+            'assignments' => $assignments->map(function($assignment) {
+                return [
+                    'id' => $assignment->id,
+                    'title' => $assignment->title,
+                    'max_score' => $assignment->max_score,
+                    'due_date' => $assignment->due_date ? date('d/m/Y', strtotime($assignment->due_date)) : 'N/A',
+                    'teacher_name' => $assignment->teacher ? $assignment->teacher->name : 'N/A'
+                ];
+            })
+        ]);
+    }
 }

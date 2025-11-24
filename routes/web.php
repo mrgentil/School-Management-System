@@ -137,6 +137,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'index'])->name('assignments.index');
             Route::get('/create', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'create'])->name('assignments.create');
             Route::get('/get-sections/{class_id}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'getSections']);
+            Route::get('/get-by-criteria', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'getByCriteria'])->name('assignments.get-by-criteria');
             Route::get('/{assignment}/edit', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'edit'])->name('assignments.edit');
             Route::get('/{assignment}/export', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'export'])->name('assignments.export');
             Route::get('/{assignment}', [\App\Http\Controllers\SupportTeam\AssignmentController::class, 'show'])->name('assignments.show');
@@ -242,6 +243,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('subject-grades-config/{id}', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'destroy'])->name('subject-grades-config.destroy');
         Route::post('subject-grades-config/duplicate', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'duplicate'])->name('subject-grades-config.duplicate');
         Route::get('subject-grades-config/{classId}/initialize-defaults', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'initializeDefaults'])->name('subject-grades-config.initialize-defaults');
+        Route::get('subject-grades-config/get-config', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'getConfig'])->name('subject-grades-config.get-config');
 
         // Proclamations Routes (RDC System)
         Route::get('/proclamations', [\App\Http\Controllers\SupportTeam\ProclamationController::class, 'index'])->name('proclamations.index');

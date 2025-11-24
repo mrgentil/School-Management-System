@@ -6,6 +6,8 @@
         <strong>🔍 DEBUG:</strong>
         grade_config: <?php echo e($grade_config ? 'OUI' : 'NON'); ?> |
         is_semester_exam: <?php echo e(isset($is_semester_exam) ? ($is_semester_exam ? 'OUI' : 'NON') : 'NON DÉFINI'); ?> |
+        evaluation_type: <?php echo e($evaluation_type ?? 'NON DÉFINI'); ?> |
+        evaluation_period: <?php echo e($evaluation_period ?? 'NON DÉFINI'); ?> |
         current_semester: <?php echo e($current_semester ?? 'NON DÉFINI'); ?>
 
     </div>
@@ -16,10 +18,17 @@
             <strong>Configuration RDC:</strong> 
             Cote Période: <span class="badge badge-primary"><?php echo e($grade_config->period_max_score); ?></span>
             | Cote Examen: <span class="badge badge-success"><?php echo e($grade_config->exam_max_score); ?></span>
-            <?php if(isset($is_semester_exam) && $is_semester_exam): ?>
-                | <strong>Examen Semestre <?php echo e($current_semester); ?></strong>
+            <?php if(isset($evaluation_type) && $evaluation_type === 'interrogation'): ?>
+                | <strong>📋 Interrogation Période <?php echo e($evaluation_period); ?></strong>
+                | <span class="badge badge-warning">Notée sur <?php echo e($interrogation_max_score ?? 20); ?></span>
+                <br><small class="text-muted ml-4">
+                    <i class="icon-info3 mr-1"></i>
+                    Les notes saisies sur <?php echo e($interrogation_max_score ?? 20); ?> seront converties automatiquement vers la cote RDC (<?php echo e($grade_config->period_max_score); ?>)
+                </small>
+            <?php elseif(isset($is_semester_exam) && $is_semester_exam): ?>
+                | <strong>📚 Examen Semestre <?php echo e($current_semester); ?></strong>
             <?php else: ?>
-                | <strong>Évaluations de Période</strong>
+                | <strong>📝 Évaluations de Période</strong>
             <?php endif; ?>
         </div>
     <?php else: ?>
@@ -30,18 +39,75 @@
     <?php endif; ?>
     
     <div class="table-responsive">
-        <?php if(isset($is_semester_exam) && $is_semester_exam && $grade_config): ?>
+        <?php if(isset($evaluation_type) && $evaluation_type === 'interrogation' && isset($evaluation_period)): ?>
+            
+            <table class="table table-bordered table-striped">
+                <thead class="bg-info text-white">
+                <tr>
+                    <th width="5%">N°</th>
+                    <th width="30%">Nom de l'Étudiant</th>
+                    <th width="15%">Matricule</th>
+                    <th width="20%">Interrogation P<?php echo e($evaluation_period); ?> (/<?php echo e($interrogation_max_score ?? 20); ?>)</th>
+                    <th width="15%">Pourcentage</th>
+                    <th width="15%">Points/20</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php $__currentLoopData = $marks->sortBy('user.name'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mk): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
+                        // Utiliser la colonne appropriée selon la période
+                        $periodColumn = 't' . $evaluation_period;
+                        $periodScore = $mk->$periodColumn ?? 0;
+                        $interrogationMax = $interrogation_max_score ?? 20;
+                        $rdcMaxScore = $grade_config ? $grade_config->period_max_score : 20;
+                        // Convertir la note de l'interrogation vers la cote RDC
+                        $percentage = $interrogationMax > 0 ? ($periodScore / $interrogationMax) * 100 : 0;
+                        $pointsOn20 = ($percentage / 100) * 20;
+                        $pointsOnRDC = ($percentage / 100) * $rdcMaxScore;
+                    ?>
+                    <tr>
+                        <td class="text-center"><?php echo e($loop->iteration); ?></td>
+                        <td><strong><?php echo e($mk->user->name); ?></strong></td>
+                        <td class="text-center"><?php echo e($mk->user->student_record->adm_no ?? 'N/A'); ?></td>
+                        <td>
+                            <input 
+                                title="Interrogation Période <?php echo e($evaluation_period); ?>" 
+                                min="0" 
+                                max="<?php echo e($interrogationMax); ?>" 
+                                class="form-control text-center period-input" 
+                                name="<?php echo e($periodColumn); ?>_<?php echo e($mk->id); ?>" 
+                                value="<?php echo e($periodScore); ?>" 
+                                type="number" 
+                                step="0.25"
+                                data-student-id="<?php echo e($mk->id); ?>"
+                                data-max-score="<?php echo e($interrogationMax); ?>"
+                                data-rdc-max="<?php echo e($rdcMaxScore); ?>">
+                        </td>
+                        <td class="text-center">
+                            <span class="percentage-display badge badge-info" data-student-id="<?php echo e($mk->id); ?>">
+                                <?php echo e(number_format($percentage, 2)); ?>%
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="points-display badge badge-primary" data-student-id="<?php echo e($mk->id); ?>">
+                                <?php echo e(number_format($pointsOn20, 2)); ?>/20
+                            </span>
+                        </td>
+                    </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </tbody>
+            </table>
+        <?php elseif(isset($is_semester_exam) && $is_semester_exam && $grade_config): ?>
             
             <table class="table table-bordered table-striped">
                 <thead class="bg-success text-white">
                 <tr>
                     <th width="5%">N°</th>
-                    <th width="25%">Nom de l'Étudiant</th>
-                    <th width="10%">Matricule</th>
-                    <th width="20%">Examen S<?php echo e($current_semester); ?> (<?php echo e($grade_config->exam_max_score); ?>)</th>
+                    <th width="30%">Nom de l'Étudiant</th>
+                    <th width="15%">Matricule</th>
+                    <th width="20%">Examen S<?php echo e($current_semester); ?> (/<?php echo e($grade_config->exam_max_score); ?>)</th>
                     <th width="15%">Pourcentage</th>
                     <th width="15%">Points/20</th>
-                    <th width="10%">Mention</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -49,51 +115,35 @@
                     <?php
                         $examColumn = $current_semester == 1 ? 's1_exam' : 's2_exam';
                         $examScore = $mk->$examColumn ?? 0;
-                        $percentage = $grade_config->exam_max_score > 0 ? ($examScore / $grade_config->exam_max_score) * 100 : 0;
-                        $points = ($percentage / 100) * 20;
-                        
-                        if ($percentage >= 80) $mention = 'Très Bien';
-                        elseif ($percentage >= 70) $mention = 'Bien';
-                        elseif ($percentage >= 60) $mention = 'Assez Bien';
-                        elseif ($percentage >= 50) $mention = 'Passable';
-                        else $mention = 'Insuffisant';
+                        $maxScore = $grade_config->exam_max_score ?? 80;
+                        $percentage = $maxScore > 0 ? ($examScore / $maxScore) * 100 : 0;
+                        $pointsOn20 = ($percentage / 100) * 20;
                     ?>
                     <tr>
                         <td class="text-center"><?php echo e($loop->iteration); ?></td>
                         <td><strong><?php echo e($mk->user->name); ?></strong></td>
                         <td class="text-center"><?php echo e($mk->user->student_record->adm_no ?? 'N/A'); ?></td>
                         <td>
-                            <input title="Examen Semestre <?php echo e($current_semester); ?>" 
-                                   min="0" 
-                                   max="<?php echo e($grade_config->exam_max_score); ?>" 
-                                   class="form-control text-center exam-input" 
-                                   name="<?php echo e($examColumn); ?>_<?php echo e($mk->id); ?>" 
-                                   value="<?php echo e($examScore); ?>" 
-                                   type="number" 
-                                   step="0.25"
-                                   data-max="<?php echo e($grade_config->exam_max_score); ?>"
-                                   data-student-id="<?php echo e($mk->id); ?>">
+                            <input 
+                                title="Examen Semestre <?php echo e($current_semester); ?>" 
+                                min="0" 
+                                max="<?php echo e($maxScore); ?>" 
+                                class="form-control text-center exam-input" 
+                                name="<?php echo e($examColumn); ?>_<?php echo e($mk->id); ?>" 
+                                value="<?php echo e($examScore); ?>" 
+                                type="number" 
+                                step="0.25"
+                                data-student-id="<?php echo e($mk->id); ?>"
+                                data-max-score="<?php echo e($maxScore); ?>">
                         </td>
                         <td class="text-center">
-                            <span class="badge badge-primary percentage-display" data-student-id="<?php echo e($mk->id); ?>">
-                                <?php echo e(number_format($percentage, 1)); ?>%
+                            <span class="percentage-display badge badge-info" data-student-id="<?php echo e($mk->id); ?>">
+                                <?php echo e(number_format($percentage, 2)); ?>%
                             </span>
                         </td>
                         <td class="text-center">
-                            <span class="points-display" data-student-id="<?php echo e($mk->id); ?>">
-                                <?php echo e(number_format($points, 2)); ?>/20
-                            </span>
-                        </td>
-                        <td class="text-center">
-                            <span class="mention-display badge 
-                                <?php if($percentage >= 80): ?> badge-success
-                                <?php elseif($percentage >= 70): ?> badge-info
-                                <?php elseif($percentage >= 60): ?> badge-warning
-                                <?php elseif($percentage >= 50): ?> badge-secondary
-                                <?php else: ?> badge-danger <?php endif; ?>" 
-                                data-student-id="<?php echo e($mk->id); ?>">
-                                <?php echo e($mention); ?>
-
+                            <span class="points-display badge badge-primary" data-student-id="<?php echo e($mk->id); ?>">
+                                <?php echo e(number_format($pointsOn20, 2)); ?>/20
                             </span>
                         </td>
                     </tr>
@@ -163,10 +213,39 @@
 $(document).ready(function() {
     const maxPoints = <?php echo e($grade_config->period_max_score ?? 20); ?>;
     const examMaxPoints = <?php echo e($grade_config->exam_max_score ?? 40); ?>;
-    const isExam = <?php echo e($is_semester_exam ? 'true' : 'false'); ?>;
+    const isExam = <?php echo e(isset($is_semester_exam) && $is_semester_exam ? 'true' : 'false'); ?>;
+    const isInterrogation = <?php echo e(isset($evaluation_type) && $evaluation_type === 'interrogation' ? 'true' : 'false'); ?>;
     
-    // Calcul automatique pour les examens
-    if (isExam) {
+    // Calcul automatique pour les INTERROGATIONS (une seule colonne avec cote flexible)
+    if (isInterrogation) {
+        $('.period-input').on('input', function() {
+            const studentId = $(this).data('student-id');
+            const score = parseFloat($(this).val()) || 0;
+            const interrogationMax = parseFloat($(this).data('max-score')); // Cote de l'interrogation (ex: 10)
+            const rdcMax = parseFloat($(this).data('rdc-max')); // Cote RDC configurée (ex: 20)
+            
+            if (score > interrogationMax) {
+                $(this).val(interrogationMax);
+                return;
+            }
+            
+            // Calculer le pourcentage par rapport à la cote de l'interrogation
+            const percentage = interrogationMax > 0 ? (score / interrogationMax) * 100 : 0;
+            const pointsOn20 = (percentage / 100) * 20;
+            const pointsOnRDC = (percentage / 100) * rdcMax;
+            
+            $(`[data-student-id="${studentId}"].percentage-display`).text(percentage.toFixed(2) + '%');
+            $(`[data-student-id="${studentId}"].points-display`).text(pointsOn20.toFixed(2) + '/20');
+            
+            // Optionnel: afficher aussi la note convertie en cote RDC
+            console.log(`Étudiant ${studentId}: ${score}/${interrogationMax} = ${percentage.toFixed(2)}% = ${pointsOnRDC.toFixed(2)}/${rdcMax}`);
+        });
+        
+        // Calcul initial
+        $('.period-input').trigger('input');
+    }
+    // Calcul automatique pour les EXAMENS semestriels
+    else if (isExam) {
         $('.exam-input').on('input', function() {
             const studentId = $(this).data('student-id');
             const score = parseFloat($(this).val()) || 0;
@@ -179,22 +258,15 @@ $(document).ready(function() {
             const percentage = examMaxPoints > 0 ? (score / examMaxPoints) * 100 : 0;
             const points = (percentage / 100) * 20;
             
-            let mention = 'Insuffisant';
-            let badgeClass = 'badge-danger';
-            
-            if (percentage >= 80) { mention = 'Très Bien'; badgeClass = 'badge-success'; }
-            else if (percentage >= 70) { mention = 'Bien'; badgeClass = 'badge-info'; }
-            else if (percentage >= 60) { mention = 'Assez Bien'; badgeClass = 'badge-warning'; }
-            else if (percentage >= 50) { mention = 'Passable'; badgeClass = 'badge-secondary'; }
-            
-            $(`[data-student-id="${studentId}"].percentage-display`).text(percentage.toFixed(1) + '%');
+            $(`[data-student-id="${studentId}"].percentage-display`).text(percentage.toFixed(2) + '%');
             $(`[data-student-id="${studentId}"].points-display`).text(points.toFixed(2) + '/20');
-            $(`[data-student-id="${studentId}"].mention-display`)
-                .removeClass('badge-success badge-info badge-warning badge-secondary badge-danger')
-                .addClass(badgeClass)
-                .text(mention);
         });
-    } else {
+        
+        // Calcul initial
+        $('.exam-input').trigger('input');
+    } 
+    // Calcul automatique pour les évaluations de période (ancien système)
+    else {
         // Calcul automatique pour les périodes (système RDC)
         $('.period-input').on('input', function() {
             const row = $(this).closest('tr');

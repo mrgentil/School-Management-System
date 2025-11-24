@@ -172,8 +172,37 @@ class MarkController extends Controller
 
     public function selector(MarkSelector $req)
     {
-        $data = $req->only(['exam_id', 'my_class_id', 'section_id', 'subject_id']);
-        $d2 = $req->only(['exam_id', 'my_class_id', 'section_id']);
+        // Nouvelle logique : gérer les différents types d'évaluation
+        $evaluationType = $req->evaluation_type;
+        $examId = null;
+        $assignmentId = null;
+        
+        if ($evaluationType === 'examen') {
+            // Pour les examens : exam_id obligatoire
+            $examId = $req->exam_id;
+            if (!$examId) {
+                return back()->with('pop_error', 'Veuillez sélectionner un examen.');
+            }
+        } elseif ($evaluationType === 'devoir') {
+            // Pour les devoirs : assignment_id obligatoire
+            $assignmentId = $req->assignment_id;
+            if (!$assignmentId) {
+                return back()->with('pop_error', 'Veuillez sélectionner un devoir.');
+            }
+            
+            // Rediriger vers l'interface de notation des devoirs
+            return $this->handleAssignmentMarks($req);
+        } elseif ($evaluationType === 'interrogation') {
+            // Pour les interrogations : créer un examen temporaire ou utiliser l'interface classique
+            // avec des paramètres spéciaux pour les interrogations
+            return $this->handleInterrogationMarks($req);
+        }
+        
+        $data = $req->only(['my_class_id', 'section_id', 'subject_id']);
+        $data['exam_id'] = $examId;
+        
+        $d2 = $req->only(['my_class_id', 'section_id']);
+        $d2['exam_id'] = $examId;
         
         // Si section_id est vide, on trouve automatiquement une section avec des étudiants
         if (empty($req->section_id)) {
@@ -229,10 +258,22 @@ class MarkController extends Controller
         // Ajouter la configuration des cotes RDC
         $d['grade_config'] = \App\Models\SubjectGradeConfig::getConfig($class_id, $subject_id, $this->year);
         
+        // Récupérer le type d'évaluation depuis la session (si provient d'une interrogation)
+        $d['evaluation_type'] = session('evaluation_type', null);
+        $d['evaluation_period'] = session('evaluation_period', null);
+        $d['interrogation_max_score'] = session('interrogation_max_score', null);
+        
         // Déterminer si c'est un examen de période ou de semestre
         $exam = $this->exam->find($exam_id);
-        $d['is_semester_exam'] = $exam && $exam->semester ? true : false;
-        $d['current_semester'] = $exam ? $exam->semester : null;
+        
+        // Si c'est une interrogation, afficher l'interface de période
+        if ($d['evaluation_type'] === 'interrogation') {
+            $d['is_semester_exam'] = false;
+            $d['current_period'] = $d['evaluation_period'];
+        } else {
+            $d['is_semester_exam'] = $exam && $exam->semester ? true : false;
+            $d['current_semester'] = $exam ? $exam->semester : null;
+        }
 
         return view('pages.support_team.marks.manage', $d);
     }
@@ -248,39 +289,66 @@ class MarkController extends Controller
         $class_type = $this->my_class->findTypeByClass($class_id);
 
         $mks = $req->all();
+        
+        // Détecter le type d'évaluation (nouveau système RDC)
+        $evaluationType = $req->session()->get('evaluation_type', null);
+        $evaluationPeriod = $req->session()->get('evaluation_period', null);
 
-        /** Test, Exam, Grade **/
+        /** Traitement selon le type d'évaluation **/
         foreach($marks->sortBy('user.name') as $mk)
         {
             $all_st_ids[] = $mk->student_id;
+            $d = [];
 
-                $d['t1'] = $t1 = $mks['t1_'.$mk->id];
-                $d['t2'] = $t2 = $mks['t2_'.$mk->id];
-                $d['tca'] = $tca = $t1 + $t2;
-                $d['exm'] = $exm = $mks['exm_'.$mk->id];
+            // NOUVEAU SYSTÈME RDC - INTERROGATIONS
+            if ($evaluationType === 'interrogation' && $evaluationPeriod) {
+                // Mise à jour uniquement de la colonne de période concernée
+                $periodColumn = 't' . $evaluationPeriod;
+                $fieldName = $periodColumn . '_' . $mk->id;
+                
+                if (isset($mks[$fieldName])) {
+                    $d[$periodColumn] = $mks[$fieldName];
+                }
+            }
+            // NOUVEAU SYSTÈME RDC - EXAMENS SEMESTRIELS
+            elseif ($exam && $exam->semester) {
+                // Mise à jour de la colonne d'examen semestriel
+                $examColumn = 's' . $exam->semester . '_exam';
+                $fieldName = $examColumn . '_' . $mk->id;
+                
+                if (isset($mks[$fieldName])) {
+                    $d[$examColumn] = $mks[$fieldName];
+                }
+            }
+            // ANCIEN SYSTÈME (fallback pour compatibilité)
+            else {
+                if(isset($mks['t1_'.$mk->id])) $d['t1'] = $t1 = $mks['t1_'.$mk->id];
+                if(isset($mks['t2_'.$mk->id])) $d['t2'] = $t2 = $mks['t2_'.$mk->id];
+                if(isset($mks['tca_'.$mk->id])) {
+                    $d['tca'] = $mks['tca_'.$mk->id];
+                } elseif(isset($t1) && isset($t2)) {
+                    $d['tca'] = $tca = $t1 + $t2;
+                }
+                if(isset($mks['exm_'.$mk->id])) $d['exm'] = $exm = $mks['exm_'.$mk->id];
 
+                // Calcul ancien système
+                if(isset($tca) && isset($exm) && $exam) {
+                    $total = $tca + $exm;
+                    $d['tex'.$exam->semester] = $total;
 
-            /** SubTotal Grade, Remark, Cum, CumAvg**/
+                    if($total > 100){
+                        $d['tex'.$exam->semester] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
+                    }
 
-            $d['tex'.$exam->semester] = $total = $tca + $exm;
-
-            if($total > 100){
-                $d['tex'.$exam->semester] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
+                    $grade = $this->mark->getGrade($total, $class_type->id);
+                    $d['grade_id'] = $grade ? $grade->id : NULL;
+                }
             }
 
-         /*   if($exam->term < 3){
-                $grade = $this->mark->getGrade($total, $class_type->id);
+            // Mise à jour uniquement si des données existent
+            if (!empty($d)) {
+                $this->exam->updateMark($mk->id, $d);
             }
-
-            if($exam->term == 3){
-                $d['cum'] = $this->mark->getSubCumTotal($total, $st_id, $subject_id, $class_id, $this->year);
-                $d['cum_ave'] = $cav = $this->mark->getSubCumAvg($total, $st_id, $subject_id, $class_id, $this->year);
-                $grade = $this->mark->getGrade(round($cav), $class_type->id);
-            }*/
-            $grade = $this->mark->getGrade($total, $class_type->id);
-            $d['grade_id'] = $grade ? $grade->id : NULL;
-
-            $this->exam->updateMark($mk->id, $d);
         }
 
         /** Sub Position Begin  **/
@@ -530,6 +598,109 @@ class MarkController extends Controller
     protected function checkPinVerified($st_id)
     {
         return Session::has('pin_verified') && Session::get('pin_verified') == $st_id;
+    }
+
+    /**
+     * Handle assignment marks (devoirs)
+     */
+    protected function handleAssignmentMarks($req)
+    {
+        // Pour l'instant, rediriger vers l'interface des devoirs
+        // Plus tard, on pourra créer une interface spécifique
+        $assignmentId = $req->assignment_id;
+        $classId = $req->my_class_id;
+        $subjectId = $req->subject_id;
+        
+        // Rediriger vers l'interface de notation des devoirs
+        return redirect()->route('assignments.show', $assignmentId)
+                        ->with('flash_info', 'Redirection vers l\'interface de notation des devoirs.');
+    }
+
+    /**
+     * Handle interrogation marks (interrogations)
+     */
+    protected function handleInterrogationMarks($req)
+    {
+        // Pour les interrogations, on utilise l'interface classique des notes
+        // mais avec des paramètres spéciaux pour identifier que c'est une interrogation
+        
+        $classId = $req->my_class_id;
+        $subjectId = $req->subject_id;
+        $period = $req->period;
+        $sectionId = $req->section_id;
+        $interrogationMaxScore = $req->interrogation_max_score;
+        
+        // Si section_id est vide, trouver automatiquement une section avec des étudiants
+        if (empty($sectionId)) {
+            $sectionId = $this->findSectionWithStudents($classId);
+            if (!$sectionId) {
+                return back()->with('pop_error', 'Aucune section avec des étudiants trouvée pour cette classe.');
+            }
+        }
+        
+        // Trouver ou créer un examen générique pour les interrogations de cette période
+        $interrogationExam = $this->findOrCreateInterrogationExam($period, $interrogationMaxScore);
+        
+        if ($interrogationExam) {
+            // Rediriger vers l'interface classique avec l'examen d'interrogation
+            // Ajouter un paramètre pour indiquer que c'est une interrogation
+            return redirect()->route('marks.manage', [
+                'exam' => $interrogationExam->id,
+                'class' => $classId,
+                'section' => $sectionId,
+                'subject' => $subjectId
+            ])
+            ->with('evaluation_type', 'interrogation')
+            ->with('evaluation_period', $period)
+            ->with('interrogation_max_score', $interrogationMaxScore)
+            ->with('flash_info', 'Interface de saisie des notes d\'interrogation (Période ' . $period . ' - /' . $interrogationMaxScore . ')');
+        }
+        
+        return back()->with('pop_error', 'Impossible de créer l\'interface d\'interrogation.');
+    }
+
+    /**
+     * Find or create a generic exam for interrogations
+     */
+    protected function findOrCreateInterrogationExam($period, $maxScore = null)
+    {
+        $semester = $period <= 2 ? 1 : 2; // P1-P2 = S1, P3-P4 = S2
+        
+        // D'abord chercher par la contrainte unique réelle (semester + year)
+        $exam = \App\Models\Exam::where([
+            'semester' => $semester,
+            'year' => $this->year
+        ])->first();
+        
+        if ($exam) {
+            // Un examen existe déjà pour ce semestre/année, le réutiliser
+            return $exam;
+        }
+        
+        // Sinon créer un nouvel examen pour les interrogations
+        try {
+            $examName = "Interrogations Période {$period}";
+            $description = "Examen automatique pour les interrogations de la période {$period}";
+            if ($maxScore) {
+                $description .= " (Notée sur {$maxScore})";
+            }
+            
+            $exam = \App\Models\Exam::create([
+                'name' => $examName,
+                'year' => $this->year,
+                'semester' => $semester,
+                'category_id' => 1, // Catégorie par défaut
+                'description' => $description
+            ]);
+            
+            return $exam;
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            // Si création échoue à cause de la contrainte, récupérer l'existant
+            return \App\Models\Exam::where([
+                'semester' => $semester,
+                'year' => $this->year
+            ])->first();
+        }
     }
 
 }

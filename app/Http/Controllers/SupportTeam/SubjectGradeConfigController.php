@@ -185,4 +185,39 @@ class SubjectGradeConfigController extends Controller
         return redirect()->route('subject-grades-config.show', $classId)
                         ->with('flash_success', "Configuration par défaut initialisée pour {$initializedCount} matière(s).");
     }
+
+    /**
+     * Get configuration for a specific class and subject (AJAX)
+     */
+    public function getConfig(Request $request)
+    {
+        $classId = $request->get('class_id');
+        $subjectId = $request->get('subject_id');
+        
+        if (!$classId || !$subjectId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Paramètres manquants'
+            ]);
+        }
+        
+        $config = SubjectGradeConfig::getConfig($classId, $subjectId, Qs::getCurrentSession());
+        
+        if ($config) {
+            return response()->json([
+                'success' => true,
+                'config' => [
+                    'period_max_score' => $config->period_max_score,
+                    'exam_max_score' => $config->exam_max_score,
+                    'class_name' => $config->myClass ? $config->myClass->name : 'N/A',
+                    'subject_name' => $config->subject ? $config->subject->name : 'N/A'
+                ]
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Configuration non trouvée'
+        ]);
+    }
 }

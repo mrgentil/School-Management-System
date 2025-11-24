@@ -20,7 +20,9 @@ class Assignment extends Model
         'due_date',
         'max_score',
         'file_path',
-        'status'
+        'status',
+        'period',
+        'year'
     ];
 
     protected $casts = [
