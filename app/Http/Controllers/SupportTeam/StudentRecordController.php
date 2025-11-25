@@ -77,7 +77,7 @@ class StudentRecordController extends Controller
             $photo = $req->file('photo');
             $f = Qs::getFileMetaData($photo);
             $f['name'] = 'photo.' . $f['ext'];
-            $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$data['code'], $f['name']);
+            $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$data['code'], $f['name'], 'public');
             $data['photo'] = asset('storage/' . $f['path']);
         }
 
@@ -162,7 +162,7 @@ class StudentRecordController extends Controller
             $photo = $req->file('photo');
             $f = Qs::getFileMetaData($photo);
             $f['name'] = 'photo.' . $f['ext'];
-            $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$sr->user->code, $f['name']);
+            $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$sr->user->code, $f['name'], 'public');
             $d['photo'] = asset('storage/' . $f['path']);
         }
 

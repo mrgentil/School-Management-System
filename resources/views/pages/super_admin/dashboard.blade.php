@@ -504,7 +504,7 @@
                 @forelse($recent_users as $user)
                 <div class="media mb-3">
                     <div class="mr-3">
-                        <img src="{{ $user->photo }}" width="40" height="40" class="rounded-circle" alt="">
+                        <img src="{{ $user->photo ?: asset('global_assets/images/user.png') }}" width="40" height="40" class="rounded-circle" alt="{{ $user->name }}" onerror="this.src='{{ asset('global_assets/images/user.png') }}'">
                     </div>
                     <div class="media-body">
                         <h6 class="mb-0">{{ $user->name }}</h6>

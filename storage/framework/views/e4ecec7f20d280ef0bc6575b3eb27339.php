@@ -503,7 +503,7 @@
                 <?php $__empty_1 = true; $__currentLoopData = $recent_users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <div class="media mb-3">
                     <div class="mr-3">
-                        <img src="<?php echo e($user->photo); ?>" width="40" height="40" class="rounded-circle" alt="">
+                        <img src="<?php echo e($user->photo ?: asset('global_assets/images/user.png')); ?>" width="40" height="40" class="rounded-circle" alt="<?php echo e($user->name); ?>" onerror="this.src='<?php echo e(asset('global_assets/images/user.png')); ?>'">
                     </div>
                     <div class="media-body">
                         <h6 class="mb-0"><?php echo e($user->name); ?></h6>
