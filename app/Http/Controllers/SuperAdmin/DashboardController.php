@@ -40,13 +40,13 @@ class DashboardController extends Controller
         try {
             if (DB::getSchemaBuilder()->hasTable('payment_records')) {
                 $payments_this_month = DB::table('payment_records')
-                    ->whereMonth('paid_at', $currentMonth)
-                    ->whereYear('paid_at', $currentYear)
+                    ->whereMonth('created_at', $currentMonth)
+                    ->whereYear('created_at', $currentYear)
                     ->sum('amt_paid');
                     
                 $payments_count = DB::table('payment_records')
-                    ->whereMonth('paid_at', $currentMonth)
-                    ->whereYear('paid_at', $currentYear)
+                    ->whereMonth('created_at', $currentMonth)
+                    ->whereYear('created_at', $currentYear)
                     ->count();
             } else {
                 $payments_this_month = Payment::whereMonth('created_at', $currentMonth)
@@ -114,8 +114,8 @@ class DashboardController extends Controller
             try {
                 if (DB::getSchemaBuilder()->hasTable('payment_records')) {
                     $amount = DB::table('payment_records')
-                        ->whereMonth('paid_at', $month->month)
-                        ->whereYear('paid_at', $month->year)
+                        ->whereMonth('created_at', $month->month)
+                        ->whereYear('created_at', $month->year)
                         ->sum('amt_paid');
                 } else {
                     $amount = Payment::whereMonth('created_at', $month->month)

@@ -487,41 +487,95 @@ class MarkController extends Controller
         return redirect()->route('marks.bulk', [$req->my_class_id, $req->section_id]);
     }
 
-    public function tabulation($exam_id = NULL, $class_id = NULL, $section_id = NULL)
+    public function tabulation(Request $request)
     {
         $d['my_classes'] = $this->my_class->all();
-        $d['exams'] = $this->exam->getExam(['year' => $this->year]);
-        $d['selected'] = FALSE;
+        $d['selected'] = false;
+        $d['year'] = $this->year;
+        $d['rankings'] = []; // Initialiser rankings par défaut
 
-        if($class_id && $exam_id && $section_id){
+        // Récupérer les paramètres depuis l'URL
+        $evaluationType = $request->query('evaluation_type');
+        $period = $request->query('period');
+        $semester = $request->query('semester');
+        $classId = $request->query('class_id');
+        $sectionId = $request->query('section_id');
 
-            $wh = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id, 'year' => $this->year];
+        if($evaluationType && $classId && $sectionId){
 
-            $sub_ids = $this->mark->getSubjectIDs($wh);
-            $st_ids = $this->mark->getStudentIDs($wh);
+            $d['selected'] = true;
+            $d['evaluation_type'] = $evaluationType;
+            $d['my_class_id'] = $classId;
+            $d['section_id'] = $sectionId;
+            $d['my_class'] = $this->my_class->find($classId);
+            $d['section'] = $this->my_class->findSection($sectionId);
 
-            if(count($sub_ids) < 1 OR count($st_ids) < 1) {
-                return Qs::goWithDanger('marks.tabulation', __('msg.srnf'));
-            }
+            // Récupérer les étudiants
+            $d['students'] = \App\Models\StudentRecord::where('my_class_id', $classId)
+                ->where('section_id', $sectionId)
+                ->where('session', $this->year)
+                ->with('user')
+                ->get();
 
-            $d['subjects'] = $this->my_class->getSubjectsByIDs($sub_ids);
-            $d['students'] = $this->student->getRecordByUserIDs($st_ids)->get()->sortBy('user.name');
+            // Récupérer les matières
+            $d['subjects'] = $this->my_class->findSubjectByClass($classId);
             $d['sections'] = $this->my_class->getAllSections();
 
-            $d['selected'] = TRUE;
-            $d['my_class_id'] = $class_id;
-            $d['section_id'] = $section_id;
-            $d['exam_id'] = $exam_id;
-            $d['year'] = $this->year;
-            $d['marks'] = $mks = $this->exam->getMark($wh);
-            $d['exr'] = $exr = $this->exam->getRecord($wh);
-
-            $d['my_class'] = $mc = $this->my_class->find($class_id);
-            $d['section']  = $this->my_class->findSection($section_id);
-            $d['ex'] = $exam = $this->exam->find($exam_id);
-            $d['tex'] = 'tex'.$exam->semester;
-            //$d['class_type'] = $this->my_class->findTypeByClass($mc->id);
-            //$d['ct'] = $ct = $d['class_type']->code;
+            // Utiliser le service de proclamation pour les calculs
+            $proclamationService = app(\App\Services\ImprovedProclamationCalculationService::class);
+            
+            if($evaluationType === 'period'){
+                $d['period'] = $period;
+                $d['title'] = "Période $period";
+                
+                $rankings = [];
+                foreach($d['students'] as $student) {
+                    $average = $proclamationService->calculateStudentPeriodAverage(
+                        $student->user_id,
+                        $classId,
+                        $period,
+                        $this->year
+                    );
+                    
+                    if($average) {
+                        $rankings[$student->user_id] = [
+                            'overall_percentage' => $average['overall_percentage'],
+                            'overall_points' => $average['overall_points'],
+                            'subject_averages' => $average['subject_averages']
+                        ];
+                    }
+                }
+                
+                $d['rankings'] = $rankings;
+                
+            } elseif($evaluationType === 'semester'){
+                $d['semester'] = $semester;
+                $d['title'] = "Semestre $semester";
+                
+                $rankings = [];
+                foreach($d['students'] as $student) {
+                    $average = $proclamationService->calculateStudentSemesterAverage(
+                        $student->user_id,
+                        $classId,
+                        $semester,
+                        $this->year
+                    );
+                    
+                    if($average) {
+                        $rankings[$student->user_id] = [
+                            'overall_percentage' => $average['overall_percentage'],
+                            'overall_points' => $average['overall_points'],
+                            'subject_averages' => $average['subject_averages']
+                        ];
+                    }
+                }
+                
+                $d['rankings'] = $rankings;
+            } else {
+                // Type d'évaluation invalide
+                $d['rankings'] = [];
+                $d['title'] = "Type invalide";
+            }
         }
 
         return view('pages.support_team.marks.tabulation.index', $d);
@@ -563,7 +617,34 @@ class MarkController extends Controller
 
     public function tabulation_select(Request $req)
     {
-        return redirect()->route('marks.tabulation', [$req->exam_id, $req->my_class_id, $req->section_id]);
+        // Validation
+        $req->validate([
+            'evaluation_type' => 'required|in:period,semester',
+            'my_class_id' => 'required|integer',
+            'section_id' => 'required|integer',
+        ]);
+
+        // Validation conditionnelle
+        if ($req->evaluation_type === 'period') {
+            $req->validate(['period' => 'required|integer|min:1|max:4']);
+        } elseif ($req->evaluation_type === 'semester') {
+            $req->validate(['semester' => 'required|integer|min:1|max:2']);
+        }
+
+        // Redirection avec query parameters
+        $params = [
+            'evaluation_type' => $req->evaluation_type,
+            'class_id' => $req->my_class_id,
+            'section_id' => $req->section_id
+        ];
+        
+        if ($req->evaluation_type === 'period') {
+            $params['period'] = $req->period;
+        } else {
+            $params['semester'] = $req->semester;
+        }
+
+        return redirect()->route('marks.tabulation', $params);
     }
 
     protected function verifyStudentExamYear($student_id, $year = null)

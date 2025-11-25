@@ -37,28 +37,28 @@ class HomeController extends Controller
 
     public function dashboard()
     {
-        // Rediriger les super admins vers leur dashboard spécifique
-        if (auth()->check() && auth()->user()->user_type === 'super_admin') {
-            return redirect()->route('super_admin.dashboard');
+        // Vérifier si l'utilisateur est connecté
+        if (!auth()->check()) {
+            return redirect()->route('login');
         }
         
-        // Rediriger les étudiants vers leur dashboard spécifique
-        if (auth()->check() && auth()->user()->user_type === 'student') {
-            return redirect()->route('student.dashboard');
+        $userType = auth()->user()->user_type;
+        
+        // Rediriger selon le type d'utilisateur
+        switch ($userType) {
+            case 'super_admin':
+                return redirect()->route('super_admin.dashboard');
+            case 'student':
+                return redirect()->route('student.dashboard');
+            case 'librarian':
+                return redirect()->route('librarian.dashboard');
+            case 'accountant':
+                return redirect()->route('accountant.dashboard');
         }
         
-        // Rediriger les bibliothécaires vers leur dashboard spécifique
-        if (auth()->check() && auth()->user()->user_type === 'librarian') {
-            return redirect()->route('librarian.dashboard');
-        }
-        
-        // Rediriger les comptables vers leur dashboard spécifique
-        if (auth()->check() && auth()->user()->user_type === 'accountant') {
-            return redirect()->route('accountant.dashboard');
-        }
-        
-        $d=[];
-        if(Qs::userIsTeamSAT()){
+        // Pour admin et teacher, afficher le dashboard support_team
+        $d = [];
+        if (Qs::userIsTeamSAT()) {
             $d['users'] = $this->user->getAll();
         }
 

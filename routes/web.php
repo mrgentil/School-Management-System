@@ -177,7 +177,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::group(['middleware' => 'teamSA'], function(){
                 Route::get('batch_fix', [\App\Http\Controllers\SupportTeam\MarkController::class, 'batch_fix'])->name('marks.batch_fix');
                 Route::put('batch_update', [\App\Http\Controllers\SupportTeam\MarkController::class, 'batch_update'])->name('marks.batch_update');
-                Route::get('tabulation/{exam?}/{class?}/{sec_id?}', [\App\Http\Controllers\SupportTeam\MarkController::class, 'tabulation'])->name('marks.tabulation');
+                Route::get('tabulation', [\App\Http\Controllers\SupportTeam\MarkController::class, 'tabulation'])->name('marks.tabulation');
                 Route::post('tabulation', [\App\Http\Controllers\SupportTeam\MarkController::class, 'tabulation_select'])->name('marks.tabulation_select');
                 Route::get('tabulation/print/{exam}/{class}/{sec_id}', [\App\Http\Controllers\SupportTeam\MarkController::class, 'print_tabulation'])->name('marks.print_tabulation');
             });

@@ -34,27 +34,52 @@
 
         <div class="card-body">
             <div class="alert alert-info">
-                <h6><i class="icon-info22 mr-2"></i>Comment utiliser la Feuille de Tabulation :</h6>
+                <h6><i class="icon-info22 mr-2"></i>Comment utiliser la Feuille de Tabulation RDC :</h6>
                 <ul class="mb-0">
-                    <li><strong>Sélectionnez un examen</strong> - Choisissez l'examen pour lequel vous voulez voir les résultats</li>
+                    <li><strong>Sélectionnez le type</strong> - Période (P1-P4) ou Semestre (S1-S2)</li>
+                    <li><strong>Choisissez la période/semestre</strong> - Selon votre sélection</li>
                     <li><strong>Choisissez une classe</strong> - Sélectionnez la classe concernée</li>
                     <li><strong>Sélectionnez une section</strong> - Choisissez la section/division de la classe</li>
                     <li><strong>Cliquez sur "Afficher la Feuille"</strong> - Le tableau avec toutes les notes apparaîtra</li>
                 </ul>
-                <small class="text-muted"><strong>Note :</strong> Des notes doivent avoir été saisies au préalable pour que la feuille s'affiche.</small>
+                <small class="text-muted"><strong>Système RDC :</strong> Affiche les moyennes calculées avec pondération (devoirs + interrogations + interro générale)</small>
             </div>
             
         <form method="post" action="{{ route('marks.tabulation_select') }}">
                     @csrf
                     <div class="row">
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            <label for="exam_id" class="col-form-label font-weight-bold">Examen :</label>
-                                            <select required id="exam_id" name="exam_id" class="form-control select" data-placeholder="Sélectionner un examen">
-                                                @foreach($exams as $exm)
-                                                    <option {{ ($selected && $exam_id == $exm->id) ? 'selected' : '' }} value="{{ $exm->id }}">{{ $exm->name }}</option>
-                                                @endforeach
+                                            <label for="evaluation_type" class="col-form-label font-weight-bold">Type d'évaluation :</label>
+                                            <select required id="evaluation_type" name="evaluation_type" class="form-control select" onchange="handleTypeChange()">
+                                                <option value="">-- Sélectionner --</option>
+                                                <option value="period" {{ ($selected && isset($evaluation_type) && $evaluation_type == 'period') ? 'selected' : '' }}>📊 Période</option>
+                                                <option value="semester" {{ ($selected && isset($evaluation_type) && $evaluation_type == 'semester') ? 'selected' : '' }}>📚 Semestre</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3" id="period-selector" style="display: none;">
+                                        <div class="form-group">
+                                            <label for="period" class="col-form-label font-weight-bold">Période :</label>
+                                            <select id="period" name="period" class="form-control select">
+                                                <option value="">-- Sélectionner --</option>
+                                                <option value="1" {{ ($selected && isset($period) && $period == 1) ? 'selected' : '' }}>Période 1</option>
+                                                <option value="2" {{ ($selected && isset($period) && $period == 2) ? 'selected' : '' }}>Période 2</option>
+                                                <option value="3" {{ ($selected && isset($period) && $period == 3) ? 'selected' : '' }}>Période 3</option>
+                                                <option value="4" {{ ($selected && isset($period) && $period == 4) ? 'selected' : '' }}>Période 4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3" id="semester-selector" style="display: none;">
+                                        <div class="form-group">
+                                            <label for="semester" class="col-form-label font-weight-bold">Semestre :</label>
+                                            <select id="semester" name="semester" class="form-control select">
+                                                <option value="">-- Sélectionner --</option>
+                                                <option value="1" {{ ($selected && isset($semester) && $semester == 1) ? 'selected' : '' }}>Semestre 1</option>
+                                                <option value="2" {{ ($selected && isset($semester) && $semester == 2) ? 'selected' : '' }}>Semestre 2</option>
                                             </select>
                                         </div>
                                     </div>
@@ -102,59 +127,115 @@
     @if($selected)
         <div class="card">
             <div class="card-header">
-                <h6 class="card-title font-weight-bold">Feuille de Tabulation pour {{ ($my_class->full_name ?: $my_class->name).' '.$section->name.' - '.$ex->name.' ('.$year.')' }}</h6>
+                <h6 class="card-title font-weight-bold">
+                    Feuille de Tabulation {{ $title ?? '' }} - {{ ($my_class->full_name ?: $my_class->name).' '.$section->name.' ('.$year.')' }}
+                </h6>
             </div>
             <div class="card-body">
-                <table class="table table-responsive table-striped">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>NOMS DES ÉTUDIANTS</th>
-                       @foreach($subjects as $sub)
-                       <th title="{{ $sub->name }}" rowspan="2">{{ strtoupper($sub->slug ?: $sub->name) }}</th>
-                       @endforeach
-                        {{--@if($ex->term == 3)
-                        <th>TOTAL 1ER SEMESTRE</th>
-                        <th>TOTAL 2ÈME SEMESTRE</th>
-                        <th>TOTAL 3ÈME SEMESTRE</th>
-                        <th style="color: darkred">TOTAL CUMULÉ</th>
-                        <th style="color: darkblue">MOYENNE CUMULÉE</th>
-                        @endif--}}
-                        <th style="color: darkred">TOTAL</th>
-                        <th style="color: darkblue">MOYENNE</th>
-                        <th style="color: darkgreen">POSITION</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($students as $s)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td style="text-align: center">{{ $s->user->name }}</td>
-                            @foreach($subjects as $sub)
-                            <td>{{ $marks->where('student_id', $s->user_id)->where('subject_id', $sub->id)->first()->$tex ?? '-' ?: '-' }}</td>
-                            @endforeach
-
-                            {{--@if($ex->term == 3)
-                                --}}{{--1st term Total--}}{{--
-                            <td>{{ Mk::getTermTotal($s->user_id, 1, $year) ?? '-' }}</td>
-                            --}}{{--2nd Term Total--}}{{--
-                            <td>{{ Mk::getTermTotal($s->user_id, 2, $year) ?? '-' }}</td>
-                            --}}{{--3rd Term total--}}{{--
-                            <td>{{ Mk::getTermTotal($s->user_id, 3, $year) ?? '-' }}</td>
-                            @endif--}}
-
-                            <td style="color: darkred">{{ $exr->where('student_id', $s->user_id)->first()->total ?: '-' }}</td>
-                            <td style="color: darkblue">{{ $exr->where('student_id', $s->user_id)->first()->ave ?: '-' }}</td>
-                            <td style="color: darkgreen">{!! Mk::getSuffix($exr->where('student_id', $s->user_id)->first()->pos) ?: '-' !!}</td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-                {{--Bouton d'impression--}}
+                @if(empty($rankings) || count($rankings) === 0)
+                    <div class="alert alert-warning">
+                        <i class="icon-alert mr-2"></i>
+                        <strong>Aucune donnée disponible !</strong><br>
+                        Aucun étudiant n'a de notes pour cette période/ce semestre. Assurez-vous d'avoir saisi :
+                        <ul class="mb-0 mt-2">
+                            <li>Les notes de devoirs pour cette période</li>
+                            <li>Les notes d'interrogations (colonnes t1-t4)</li>
+                            <li>Les notes d'interrogation générale (TCA)</li>
+                        </ul>
+                    </div>
+                @else
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th width="50" class="text-center">#</th>
+                                <th>ÉTUDIANT</th>
+                                @foreach($subjects as $sub)
+                                    <th class="text-center" title="{{ $sub->name }}">{{ strtoupper($sub->slug ?: Str::limit($sub->name, 10)) }}</th>
+                                @endforeach
+                                <th class="text-center bg-warning">MOYENNE</th>
+                                <th class="text-center bg-success">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($students as $s)
+                            <tr>
+                                <td class="text-center">{{ $loop->iteration }}</td>
+                                <td><strong>{{ $s->user->name }}</strong></td>
+                                
+                                @foreach($subjects as $sub)
+                                    @php
+                                        $subjectData = null;
+                                        if (isset($rankings[$s->user_id]) && 
+                                            isset($rankings[$s->user_id]['subject_averages']) && 
+                                            isset($rankings[$s->user_id]['subject_averages'][$sub->id]) &&
+                                            isset($rankings[$s->user_id]['subject_averages'][$sub->id]['points'])) {
+                                            $subjectData = $rankings[$s->user_id]['subject_averages'][$sub->id]['points'];
+                                        }
+                                    @endphp
+                                    <td class="text-center">
+                                        {{ $subjectData !== null ? number_format($subjectData, 2) : '-' }}
+                                    </td>
+                                @endforeach
+                                
+                                <td class="text-center font-weight-bold text-primary">
+                                    {{ isset($rankings[$s->user_id]) && isset($rankings[$s->user_id]['overall_points']) ? number_format($rankings[$s->user_id]['overall_points'], 2) : '-' }}
+                                </td>
+                                <td class="text-center font-weight-bold text-success">
+                                    {{ isset($rankings[$s->user_id]) && isset($rankings[$s->user_id]['overall_percentage']) ? number_format($rankings[$s->user_id]['overall_percentage'], 2).'%' : '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @endif
+                
+                {{--Boutons d'action--}}
                 <div class="text-center mt-4">
-                    <a target="_blank" href="{{  route('marks.print_tabulation', [$exam_id, $my_class_id, $section_id]) }}" class="btn btn-danger btn-lg"><i class="icon-printer mr-2"></i> Imprimer la Feuille de Tabulation</a>
+                    <a href="{{ route('proclamations.index') }}" class="btn btn-primary btn-lg">
+                        <i class="icon-trophy mr-2"></i> Voir Proclamations Détaillées
+                    </a>
+                    
+                    <button onclick="window.print()" class="btn btn-danger btn-lg ml-2">
+                        <i class="icon-printer mr-2"></i> Imprimer la Feuille
+                    </button>
                 </div>
             </div>
         </div>
     @endif
+
+<script>
+function handleTypeChange() {
+    const evaluationType = document.getElementById('evaluation_type').value;
+    const periodSelector = document.getElementById('period-selector');
+    const semesterSelector = document.getElementById('semester-selector');
+    const periodSelect = document.getElementById('period');
+    const semesterSelect = document.getElementById('semester');
+    
+    // Réinitialiser
+    periodSelector.style.display = 'none';
+    semesterSelector.style.display = 'none';
+    periodSelect.required = false;
+    semesterSelect.required = false;
+    periodSelect.value = '';
+    semesterSelect.value = '';
+    
+    // Afficher le bon sélecteur
+    if (evaluationType === 'period') {
+        periodSelector.style.display = 'block';
+        periodSelect.required = true;
+    } else if (evaluationType === 'semester') {
+        semesterSelector.style.display = 'block';
+        semesterSelect.required = true;
+    }
+}
+
+// Charger l'état initial si une sélection existe
+document.addEventListener('DOMContentLoaded', function() {
+    @if($selected && isset($evaluation_type))
+        handleTypeChange();
+    @endif
+});
+</script>
 @endsection
