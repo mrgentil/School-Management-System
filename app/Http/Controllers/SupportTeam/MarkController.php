@@ -394,9 +394,90 @@ class MarkController extends Controller
 
     public function batch_update(Request $req): \Illuminate\Http\JsonResponse
     {
-        $exam_id = $req->exam_id;
+        $correction_type = $req->correction_type ?? 'exam';
         $class_id = $req->my_class_id;
         $section_id = $req->section_id;
+
+        // Selon le type de correction
+        switch ($correction_type) {
+            case 'period':
+                return $this->batchFixPeriod($class_id, $section_id, $req->period);
+            case 'semester':
+                return $this->batchFixSemester($class_id, $section_id, $req->semester);
+            case 'exam':
+            default:
+                return $this->batchFixExam($class_id, $section_id, $req->exam_id);
+        }
+    }
+
+    /**
+     * Correction en lot pour une période (P1, P2, P3, P4)
+     */
+    protected function batchFixPeriod($class_id, $section_id, $period = null): \Illuminate\Http\JsonResponse
+    {
+        $periods = $period ? [$period] : [1, 2, 3, 4];
+        $count = 0;
+
+        // Récupérer les étudiants de la classe
+        $students = \App\Models\StudentRecord::where('my_class_id', $class_id)
+            ->when($section_id, fn($q) => $q->where('section_id', $section_id))
+            ->where('session', $this->year)
+            ->get();
+
+        foreach ($students as $student) {
+            // Recalculer la moyenne de période pour chaque matière
+            \App\Helpers\PeriodCalculator::updateAllPeriodAveragesForStudent(
+                $student->user_id,
+                $class_id,
+                $student->section_id,
+                $this->year
+            );
+            $count++;
+        }
+
+        return response()->json([
+            'ok' => true,
+            'msg' => "Moyennes de période recalculées pour {$students->count()} étudiants."
+        ]);
+    }
+
+    /**
+     * Correction en lot pour un semestre (S1, S2)
+     */
+    protected function batchFixSemester($class_id, $section_id, $semester = null): \Illuminate\Http\JsonResponse
+    {
+        $semesters = $semester ? [$semester] : [1, 2];
+        
+        // Récupérer les étudiants de la classe
+        $students = \App\Models\StudentRecord::where('my_class_id', $class_id)
+            ->when($section_id, fn($q) => $q->where('section_id', $section_id))
+            ->where('session', $this->year)
+            ->get();
+
+        foreach ($students as $student) {
+            // Recalculer toutes les moyennes de période d'abord
+            \App\Helpers\PeriodCalculator::updateAllPeriodAveragesForStudent(
+                $student->user_id,
+                $class_id,
+                $student->section_id,
+                $this->year
+            );
+        }
+
+        return response()->json([
+            'ok' => true,
+            'msg' => "Moyennes semestrielles recalculées pour {$students->count()} étudiants."
+        ]);
+    }
+
+    /**
+     * Correction en lot pour un examen (logique originale)
+     */
+    protected function batchFixExam($class_id, $section_id, $exam_id): \Illuminate\Http\JsonResponse
+    {
+        if (!$exam_id) {
+            return response()->json(['ok' => false, 'msg' => 'Veuillez sélectionner un examen.']);
+        }
 
         $w = ['exam_id' => $exam_id, 'my_class_id' => $class_id, 'section_id' => $section_id, 'year' => $this->year];
 
@@ -405,29 +486,18 @@ class MarkController extends Controller
         $marks = $this->exam->getMark($w);
 
         /** Marks Fix Begin **/
-
         $class_type = $this->my_class->findTypeByClass($class_id);
         $tex = 'tex'.$exam->semester;
 
         foreach($marks as $mk){
-
             $total = $mk->$tex;
             $d['grade_id'] = $this->mark->getGrade($total, $class_type->id);
-
-            /*      if($exam->term == 3){
-                      $d['cum'] = $this->mark->getSubCumTotal($total, $mk->student_id, $mk->subject_id, $class_id, $this->year);
-                      $d['cum_ave'] = $cav = $this->mark->getSubCumAvg($total, $mk->student_id, $mk->subject_id, $class_id, $this->year);
-                      $grade = $this->mark->getGrade(round($mk->cum_ave), $class_type->id);
-                  }*/
-
             $this->exam->updateMark($mk->id, $d);
         }
-
         /* Marks Fix End*/
 
         /** Exam Record Update  **/
         foreach($exrs as $exr){
-
             $st_id = $exr->student_id;
 
             $d3['total'] = $this->mark->getExamTotalTerm($exam, $st_id, $class_id, $this->year);
@@ -437,7 +507,6 @@ class MarkController extends Controller
 
             $this->exam->updateRecord(['id' => $exr->id], $d3);
         }
-
         /** END Exam Record Update END **/
 
         return Qs::jsonUpdateOk();

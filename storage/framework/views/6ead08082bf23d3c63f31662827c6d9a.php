@@ -1,8 +1,8 @@
-@extends('layouts.master')
-@section('page_title', 'Correction en Lot')
-@section('content')
 
-    {{-- Alerte d'information --}}
+<?php $__env->startSection('page_title', 'Correction en Lot'); ?>
+<?php $__env->startSection('content'); ?>
+
+    
     <div class="alert alert-info border-0">
         <div class="d-flex align-items-center">
             <i class="icon-info22 mr-3 icon-2x"></i>
@@ -13,20 +13,20 @@
         </div>
     </div>
 
-    {{-- Menu Rapide --}}
+    
     <div class="row mb-3">
         <div class="col-md-4">
-            <a href="{{ route('marks.index') }}" class="btn btn-primary btn-block">
+            <a href="<?php echo e(route('marks.index')); ?>" class="btn btn-primary btn-block">
                 <i class="icon-pencil5 mr-2"></i>Retour à la Saisie
             </a>
         </div>
         <div class="col-md-4">
-            <a href="{{ route('marks.tabulation') }}" class="btn btn-info btn-block">
+            <a href="<?php echo e(route('marks.tabulation')); ?>" class="btn btn-info btn-block">
                 <i class="icon-table2 mr-2"></i>Tabulation
             </a>
         </div>
         <div class="col-md-4">
-            <a href="{{ route('exam_analytics.index') }}" class="btn btn-success btn-block">
+            <a href="<?php echo e(route('exam_analytics.index')); ?>" class="btn btn-success btn-block">
                 <i class="icon-stats-dots mr-2"></i>Analytics
             </a>
         </div>
@@ -35,15 +35,16 @@
     <div class="card">
         <div class="card-header header-elements-inline bg-light">
             <h5 class="card-title"><i class="icon-wrench mr-2"></i> Correction en Lot </h5>
-            {!! Qs::getPanelOptions() !!}
+            <?php echo Qs::getPanelOptions(); ?>
+
         </div>
 
         <div class="card-body">
-            <form class="ajax-update" method="post" action="{{ route('marks.batch_update') }}">
-                @csrf @method('PUT')
+            <form class="ajax-update" method="post" action="<?php echo e(route('marks.batch_update')); ?>">
+                <?php echo csrf_field(); ?> <?php echo method_field('PUT'); ?>
                 
                 <div class="row">
-                    {{-- Type de correction --}}
+                    
                     <div class="col-md-12 mb-3">
                         <label class="font-weight-bold">Type de correction :</label>
                         <div class="d-flex flex-wrap">
@@ -72,27 +73,28 @@
                 <hr>
 
                 <div class="row">
-                    {{-- Classe (format RDC : ex. "4ème Électronique A") --}}
+                    
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="my_class_id" class="col-form-label font-weight-bold">Classe :</label>
                             <select required id="my_class_id" name="my_class_id" class="form-control select" onchange="updateSectionFromClass(this)">
                                 <option value="">-- Sélectionner une classe --</option>
-                                @foreach($my_classes as $c)
-                                    @php
+                                <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php
                                         // Trouver la première section de cette classe
                                         $classSection = $sections->where('my_class_id', $c->id)->first();
-                                    @endphp
-                                    <option value="{{ $c->id }}" data-section="{{ $classSection ? $classSection->id : '' }}">
-                                        {{ $c->full_name ?: $c->name }}
+                                    ?>
+                                    <option value="<?php echo e($c->id); ?>" data-section="<?php echo e($classSection ? $classSection->id : ''); ?>">
+                                        <?php echo e($c->full_name ?: $c->name); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <input type="hidden" id="section_id" name="section_id" value="">
                         </div>
                     </div>
 
-                    {{-- Période (visible par défaut) --}}
+                    
                     <div class="col-md-3" id="period_select">
                         <div class="form-group">
                             <label for="period" class="col-form-label font-weight-bold">Période :</label>
@@ -106,7 +108,7 @@
                         </div>
                     </div>
 
-                    {{-- Semestre (caché par défaut) --}}
+                    
                     <div class="col-md-3" id="semester_select" style="display: none;">
                         <div class="form-group">
                             <label for="semester" class="col-form-label font-weight-bold">Semestre :</label>
@@ -118,20 +120,20 @@
                         </div>
                     </div>
 
-                    {{-- Examen (caché par défaut) --}}
+                    
                     <div class="col-md-3" id="exam_select" style="display: none;">
                         <div class="form-group">
                             <label for="exam_id" class="col-form-label font-weight-bold">Examen :</label>
                             <select id="exam_id" name="exam_id" class="form-control select">
                                 <option value="">-- Sélectionner --</option>
-                                @foreach($exams as $ex)
-                                    <option {{ $selected && $exam_id == $ex->id ? 'selected' : '' }} value="{{ $ex->id }}">{{ $ex->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $exams; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ex): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option <?php echo e($selected && $exam_id == $ex->id ? 'selected' : ''); ?> value="<?php echo e($ex->id); ?>"><?php echo e($ex->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                     </div>
 
-                    {{-- Bouton --}}
+                    
                     <div class="col-md-3">
                         <div class="form-group">
                             <label class="col-form-label">&nbsp;</label>
@@ -146,7 +148,7 @@
         </div>
     </div>
 
-    {{-- Légende des corrections --}}
+    
     <div class="card">
         <div class="card-header bg-light">
             <h6 class="card-title mb-0"><i class="icon-info3 mr-2"></i> Ce qui sera recalculé</h6>
@@ -196,9 +198,9 @@
         </div>
     </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
 function toggleCorrectionType() {
     var type = document.querySelector('input[name="correction_type"]:checked').value;
@@ -222,4 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eschool\resources\views/pages/support_team/marks/batch_fix.blade.php ENDPATH**/ ?>
