@@ -5,18 +5,18 @@
     {{-- Menu Rapide --}}
     <div class="row mb-3">
         <div class="col-md-3">
-            <a href="{{ route('exam_schedules.index') }}" class="btn btn-primary btn-block">
-                <i class="icon-calendar mr-2"></i>Calendrier d'Examens
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{{ route('exam_analytics.index') }}" class="btn btn-success btn-block">
-                <i class="icon-stats-dots mr-2"></i>Analytics & Rapports
+            <a href="{{ route('marks.quick_edit') }}" class="btn btn-danger btn-block">
+                <i class="icon-pencil5 mr-2"></i>Modifier Notes
             </a>
         </div>
         <div class="col-md-3">
             <a href="{{ route('marks.tabulation') }}" class="btn btn-warning btn-block">
                 <i class="icon-table2 mr-2"></i>Feuille de Tabulation
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('exam_analytics.index') }}" class="btn btn-success btn-block">
+                <i class="icon-stats-dots mr-2"></i>Analytics & Rapports
             </a>
         </div>
         <div class="col-md-3">

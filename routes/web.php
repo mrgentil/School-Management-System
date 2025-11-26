@@ -180,6 +180,14 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::get('tabulation', [\App\Http\Controllers\SupportTeam\MarkController::class, 'tabulation'])->name('marks.tabulation');
                 Route::post('tabulation', [\App\Http\Controllers\SupportTeam\MarkController::class, 'tabulation_select'])->name('marks.tabulation_select');
                 Route::get('tabulation/print/{exam}/{class}/{sec_id}', [\App\Http\Controllers\SupportTeam\MarkController::class, 'print_tabulation'])->name('marks.print_tabulation');
+                
+                // Modification rapide des notes
+                Route::get('quick-edit', [\App\Http\Controllers\SupportTeam\MarkController::class, 'quickEdit'])->name('marks.quick_edit');
+                Route::post('quick-update', [\App\Http\Controllers\SupportTeam\MarkController::class, 'quickUpdate'])->name('marks.quick_update');
+                
+                // Modification des notes par période
+                Route::get('modify', [\App\Http\Controllers\SupportTeam\MarkController::class, 'modify'])->name('marks.modify');
+                Route::post('modify-update', [\App\Http\Controllers\SupportTeam\MarkController::class, 'modifyUpdate'])->name('marks.modify_update');
             });
 
             // FOR teamSAT

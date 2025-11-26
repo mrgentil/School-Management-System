@@ -85,14 +85,11 @@ class ImprovedProclamationCalculationService
      */
     private function calculateSubjectPeriodAverage($studentId, $subjectId, $classId, $period, $year)
     {
-        // Récupérer la configuration des cotes
+        // Récupérer la configuration des cotes (optionnel - utiliser valeurs par défaut si absent)
         $config = SubjectGradeConfig::getConfig($classId, $subjectId, $year);
         
-        if (!$config) {
-            return null;
-        }
-
-        $maxPoints = $config->period_max_score ?? 20;
+        // Utiliser les valeurs par défaut si pas de config
+        $maxPoints = $config ? ($config->period_max_points ?? 20) : 20;
         
         // 1. RÉCUPÉRER LES NOTES DES DEVOIRS
         $devoirsAverage = $this->calculateDevoirsAverage($studentId, $subjectId, $classId, $period, $year, $maxPoints);
@@ -103,37 +100,31 @@ class ImprovedProclamationCalculationService
         // 3. RÉCUPÉRER LA NOTE DE L'INTERROGATION GÉNÉRALE
         $interroGeneraleAverage = $this->calculateInterrogationGeneraleAverage($studentId, $subjectId, $classId, $period, $year, $maxPoints);
         
-        // 4. CALCULER LA MOYENNE PONDÉRÉE
+        // 4. CALCULER LA MOYENNE
         $details = [];
-        $totalWeightedPercentage = 0;
-        $totalWeight = 0;
+        $percentages = [];
         
         if ($devoirsAverage !== null) {
-            $weight = self::DEFAULT_WEIGHTS['devoirs'];
-            $totalWeightedPercentage += $devoirsAverage['percentage'] * $weight;
-            $totalWeight += $weight;
+            $percentages[] = $devoirsAverage['percentage'];
             $details['devoirs'] = $devoirsAverage;
         }
         
         if ($interrogationsAverage !== null) {
-            $weight = self::DEFAULT_WEIGHTS['interrogations'];
-            $totalWeightedPercentage += $interrogationsAverage['percentage'] * $weight;
-            $totalWeight += $weight;
+            $percentages[] = $interrogationsAverage['percentage'];
             $details['interrogations'] = $interrogationsAverage;
         }
         
         if ($interroGeneraleAverage !== null) {
-            $weight = self::DEFAULT_WEIGHTS['interrogation_generale'];
-            $totalWeightedPercentage += $interroGeneraleAverage['percentage'] * $weight;
-            $totalWeight += $weight;
+            $percentages[] = $interroGeneraleAverage['percentage'];
             $details['interrogation_generale'] = $interroGeneraleAverage;
         }
         
-        if ($totalWeight == 0) {
+        if (empty($percentages)) {
             return null; // Aucune note disponible
         }
         
-        $finalPercentage = $totalWeightedPercentage / $totalWeight;
+        // Moyenne simple de toutes les sources disponibles
+        $finalPercentage = array_sum($percentages) / count($percentages);
         
         return [
             'percentage' => $finalPercentage,
@@ -202,11 +193,17 @@ class ImprovedProclamationCalculationService
     private function calculateInterrogationsAverage($studentId, $subjectId, $classId, $period, $year, $maxPoints)
     {
         // Récupérer la note d'interrogation de la colonne t1-t4
+        // Chercher TOUS les marks pour cet étudiant/matière (peu importe exam_id)
         $mark = Mark::where('student_id', $studentId)
             ->where('subject_id', $subjectId)
             ->where('my_class_id', $classId)
             ->where('year', $year)
             ->first();
+        
+        // DEBUG
+        $periodColumn = 't' . $period;
+        \Log::debug("calculateInterrogationsAverage - Student: $studentId, Subject: $subjectId, Class: $classId, Year: $year, Period: $period");
+        \Log::debug("Mark found: " . ($mark ? "YES (id: {$mark->id}, t1: {$mark->t1}, t2: {$mark->t2})" : "NO"));
         
         if (!$mark) {
             return null;
@@ -215,11 +212,17 @@ class ImprovedProclamationCalculationService
         $periodColumn = 't' . $period; // t1, t2, t3, t4
         $score = $mark->$periodColumn;
         
-        if ($score === null || $score === '') {
+        // Accepter les valeurs numériques, y compris 0
+        if ($score === null || $score === '' || !is_numeric($score)) {
             return null;
         }
         
-        // La note est déjà normalisée sur la cote RDC
+        $score = floatval($score);
+        
+        // Si maxPoints est 0, utiliser 20 par défaut
+        $maxPoints = $maxPoints > 0 ? $maxPoints : 20;
+        
+        // Calculer le pourcentage
         $percentage = ($score / $maxPoints) * 100;
         
         return [

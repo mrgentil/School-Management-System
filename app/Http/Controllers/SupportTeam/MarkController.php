@@ -236,6 +236,33 @@ class MarkController extends Controller
         $d = ['exam_id' => $exam_id, 'my_class_id' => $class_id, 'section_id' => $section_id, 'subject_id' => $subject_id, 'year' => $this->year];
 
         $d['m'] = $this->exam->getMark($d);
+        
+        // Récupérer TOUS les étudiants de la classe/section
+        $allStudents = \App\Models\StudentRecord::where('my_class_id', $class_id)
+            ->where('section_id', $section_id)
+            ->where('session', $this->year)
+            ->with('user')
+            ->get();
+        
+        if($allStudents->count() < 1){
+            return redirect()->route('marks.index')->with('flash_danger', __('msg.srnf'));
+        }
+        
+        // Créer les enregistrements de marks pour les étudiants qui n'en ont pas
+        foreach ($allStudents as $student) {
+            \App\Models\Mark::firstOrCreate(
+                [
+                    'student_id' => $student->user_id,
+                    'subject_id' => $subject_id,
+                    'my_class_id' => $class_id,
+                    'section_id' => $section_id,
+                    'exam_id' => $exam_id,
+                    'year' => $this->year
+                ]
+            );
+        }
+        
+        // Maintenant récupérer tous les marks (y compris les nouveaux)
         $d['marks'] = \App\Models\Mark::where([
             'exam_id' => $exam_id, 
             'my_class_id' => $class_id, 
@@ -243,10 +270,6 @@ class MarkController extends Controller
             'subject_id' => $subject_id,
             'year' => $this->year
         ])->with(['user', 'user.student_record'])->get();
-
-        if($d['marks']->count() < 1){
-            return redirect()->route('marks.index')->with('flash_danger', __('msg.srnf'));
-        }
 
         $d['exams'] = $this->exam->getExam(['year' => $this->year]);
         $d['my_classes'] = $this->my_class->all();
@@ -308,6 +331,7 @@ class MarkController extends Controller
                 
                 if (isset($mks[$fieldName])) {
                     $d[$periodColumn] = $mks[$fieldName];
+                    \Log::info("Mark UPDATE - Student: {$mk->student_id}, Subject: {$mk->subject_id}, $periodColumn = {$mks[$fieldName]}");
                 }
             }
             // NOUVEAU SYSTÈME RDC - EXAMENS SEMESTRIELS
@@ -320,28 +344,20 @@ class MarkController extends Controller
                     $d[$examColumn] = $mks[$fieldName];
                 }
             }
-            // ANCIEN SYSTÈME (fallback pour compatibilité)
+            // ANCIEN SYSTÈME (fallback pour compatibilité) - Gère TOUTES les périodes t1-t4
             else {
-                if(isset($mks['t1_'.$mk->id])) $d['t1'] = $t1 = $mks['t1_'.$mk->id];
-                if(isset($mks['t2_'.$mk->id])) $d['t2'] = $t2 = $mks['t2_'.$mk->id];
-                if(isset($mks['tca_'.$mk->id])) {
-                    $d['tca'] = $mks['tca_'.$mk->id];
-                } elseif(isset($t1) && isset($t2)) {
-                    $d['tca'] = $tca = $t1 + $t2;
-                }
-                if(isset($mks['exm_'.$mk->id])) $d['exm'] = $exm = $mks['exm_'.$mk->id];
-
-                // Calcul ancien système
-                if(isset($tca) && isset($exm) && $exam) {
-                    $total = $tca + $exm;
-                    $d['tex'.$exam->semester] = $total;
-
-                    if($total > 100){
-                        $d['tex'.$exam->semester] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
-                    }
-
-                    $grade = $this->mark->getGrade($total, $class_type->id);
-                    $d['grade_id'] = $grade ? $grade->id : NULL;
+                if(isset($mks['t1_'.$mk->id])) $d['t1'] = $mks['t1_'.$mk->id];
+                if(isset($mks['t2_'.$mk->id])) $d['t2'] = $mks['t2_'.$mk->id];
+                if(isset($mks['t3_'.$mk->id])) $d['t3'] = $mks['t3_'.$mk->id];
+                if(isset($mks['t4_'.$mk->id])) $d['t4'] = $mks['t4_'.$mk->id];
+                if(isset($mks['tca_'.$mk->id])) $d['tca'] = $mks['tca_'.$mk->id];
+                if(isset($mks['exm_'.$mk->id])) $d['exm'] = $mks['exm_'.$mk->id];
+                if(isset($mks['s1_exam_'.$mk->id])) $d['s1_exam'] = $mks['s1_exam_'.$mk->id];
+                if(isset($mks['s2_exam_'.$mk->id])) $d['s2_exam'] = $mks['s2_exam_'.$mk->id];
+                
+                // Log pour déboguer
+                if (!empty($d)) {
+                    \Log::info("Mark UPDATE (fallback) - Mark ID: {$mk->id}, Student: {$mk->student_id}, Data: " . json_encode($d));
                 }
             }
 
@@ -851,6 +867,202 @@ class MarkController extends Controller
                 'year' => $this->year
             ])->first();
         }
+    }
+
+    /**
+     * Affiche la page de modification des notes par classe/matière/période
+     */
+    public function modify(Request $request)
+    {
+        $classId = $request->input('class_id');
+        $subjectId = $request->input('subject_id');
+        $period = $request->input('period', 'all');
+        
+        if (!$classId || !$subjectId) {
+            return redirect()->route('marks.index')->with('flash_danger', 'Veuillez sélectionner une classe et une matière.');
+        }
+        
+        $class = $this->my_class->find($classId);
+        $subject = \App\Models\Subject::find($subjectId);
+        
+        if (!$class || !$subject) {
+            return redirect()->route('marks.index')->with('flash_danger', 'Classe ou matière introuvable.');
+        }
+        
+        // Récupérer TOUS les étudiants de la classe
+        $students = \App\Models\StudentRecord::where('my_class_id', $classId)
+            ->where('session', $this->year)
+            ->with('user')
+            ->get();
+        
+        // Trouver ou créer un examen par défaut
+        $exam = \App\Models\Exam::firstOrCreate(
+            ['semester' => 1, 'year' => $this->year],
+            ['name' => 'Examen Semestre 1', 'status' => 'active']
+        );
+        
+        // Créer les enregistrements de notes pour les étudiants qui n'en ont pas
+        foreach ($students as $student) {
+            \App\Models\Mark::firstOrCreate([
+                'student_id' => $student->user_id,
+                'subject_id' => $subjectId,
+                'my_class_id' => $classId,
+                'section_id' => $student->section_id,
+                'exam_id' => $exam->id,
+                'year' => $this->year
+            ]);
+        }
+        
+        // Récupérer toutes les notes (y compris celles nouvellement créées)
+        $marks = \App\Models\Mark::where('subject_id', $subjectId)
+            ->where('my_class_id', $classId)
+            ->where('year', $this->year)
+            ->with(['user', 'user.student_record'])
+            ->get()
+            ->sortBy('user.name');
+        
+        return view('pages.support_team.marks.modify', compact('class', 'subject', 'marks', 'period'));
+    }
+
+    /**
+     * Enregistre les modifications des notes
+     */
+    public function modifyUpdate(Request $request)
+    {
+        $marks = $request->input('marks', []);
+        $period = $request->input('period', 'all');
+        $updated = 0;
+        
+        foreach ($marks as $markId => $data) {
+            $mark = \App\Models\Mark::find($markId);
+            if ($mark) {
+                $updateData = [];
+                
+                // Mise à jour selon la période sélectionnée
+                if ($period == 'all' || $period == '1') {
+                    if (array_key_exists('t1', $data)) $updateData['t1'] = $data['t1'] !== '' ? $data['t1'] : null;
+                }
+                if ($period == 'all' || $period == '2') {
+                    if (array_key_exists('t2', $data)) $updateData['t2'] = $data['t2'] !== '' ? $data['t2'] : null;
+                }
+                if ($period == 'all' || $period == '3') {
+                    if (array_key_exists('t3', $data)) $updateData['t3'] = $data['t3'] !== '' ? $data['t3'] : null;
+                }
+                if ($period == 'all' || $period == '4') {
+                    if (array_key_exists('t4', $data)) $updateData['t4'] = $data['t4'] !== '' ? $data['t4'] : null;
+                }
+                if ($period == 'all') {
+                    if (array_key_exists('tca', $data)) $updateData['tca'] = $data['tca'] !== '' ? $data['tca'] : null;
+                    if (array_key_exists('s1_exam', $data)) $updateData['s1_exam'] = $data['s1_exam'] !== '' ? $data['s1_exam'] : null;
+                    if (array_key_exists('s2_exam', $data)) $updateData['s2_exam'] = $data['s2_exam'] !== '' ? $data['s2_exam'] : null;
+                }
+                
+                if (!empty($updateData)) {
+                    $mark->update($updateData);
+                    $updated++;
+                }
+            }
+        }
+        
+        return redirect()->route('marks.modify', [
+            'class_id' => $request->class_id,
+            'subject_id' => $request->subject_id,
+            'period' => $request->period
+        ])->with('flash_success', "$updated note(s) modifiée(s) avec succès !");
+    }
+
+    /**
+     * Affiche la page de modification rapide des notes
+     */
+    public function quickEdit(Request $request)
+    {
+        $d['classes'] = $this->my_class->all();
+        
+        if ($request->has('class_id') && $request->class_id) {
+            $d['subjects'] = \App\Models\Subject::where('my_class_id', $request->class_id)->get();
+            $d['selectedClass'] = $this->my_class->find($request->class_id);
+            
+            if ($request->has('subject_id') && $request->subject_id) {
+                $d['selectedSubject'] = \App\Models\Subject::find($request->subject_id);
+                
+                // Récupérer les notes existantes
+                $d['marks'] = \App\Models\Mark::where('subject_id', $request->subject_id)
+                    ->where('my_class_id', $request->class_id)
+                    ->where('year', $this->year)
+                    ->with('user')
+                    ->get();
+                
+                // Si aucune note, créer des enregistrements pour tous les étudiants
+                if ($d['marks']->isEmpty()) {
+                    $students = \App\Models\StudentRecord::where('my_class_id', $request->class_id)
+                        ->where('session', $this->year)
+                        ->get();
+                    
+                    // Trouver ou créer un examen par défaut
+                    $exam = \App\Models\Exam::firstOrCreate(
+                        ['semester' => 1, 'year' => $this->year],
+                        ['name' => 'Examen Semestre 1', 'status' => 'active']
+                    );
+                    
+                    foreach ($students as $student) {
+                        \App\Models\Mark::firstOrCreate([
+                            'student_id' => $student->user_id,
+                            'subject_id' => $request->subject_id,
+                            'my_class_id' => $request->class_id,
+                            'section_id' => $student->section_id,
+                            'exam_id' => $exam->id,
+                            'year' => $this->year
+                        ]);
+                    }
+                    
+                    // Recharger les notes
+                    $d['marks'] = \App\Models\Mark::where('subject_id', $request->subject_id)
+                        ->where('my_class_id', $request->class_id)
+                        ->where('year', $this->year)
+                        ->with('user')
+                        ->get();
+                }
+            }
+        }
+        
+        return view('pages.support_team.marks.quick_edit', $d);
+    }
+
+    /**
+     * Enregistre les modifications rapides des notes
+     */
+    public function quickUpdate(Request $request)
+    {
+        $marks = $request->input('marks', []);
+        $updated = 0;
+        
+        foreach ($marks as $markId => $data) {
+            $mark = \App\Models\Mark::find($markId);
+            if ($mark) {
+                $updateData = [];
+                
+                if (isset($data['t1']) && $data['t1'] !== '') $updateData['t1'] = $data['t1'];
+                if (isset($data['t2']) && $data['t2'] !== '') $updateData['t2'] = $data['t2'];
+                if (isset($data['t3']) && $data['t3'] !== '') $updateData['t3'] = $data['t3'];
+                if (isset($data['t4']) && $data['t4'] !== '') $updateData['t4'] = $data['t4'];
+                if (isset($data['tca']) && $data['tca'] !== '') $updateData['tca'] = $data['tca'];
+                if (isset($data['s1_exam']) && $data['s1_exam'] !== '') $updateData['s1_exam'] = $data['s1_exam'];
+                if (isset($data['s2_exam']) && $data['s2_exam'] !== '') $updateData['s2_exam'] = $data['s2_exam'];
+                
+                // Mettre aussi exm pour compatibilité
+                if (isset($data['s1_exam']) && $data['s1_exam'] !== '') $updateData['exm'] = $data['s1_exam'];
+                
+                if (!empty($updateData)) {
+                    $mark->update($updateData);
+                    $updated++;
+                }
+            }
+        }
+        
+        return redirect()->route('marks.quick_edit', [
+            'class_id' => $request->class_id,
+            'subject_id' => $request->subject_id
+        ])->with('flash_success', "$updated note(s) modifiée(s) avec succès !");
     }
 
 }
