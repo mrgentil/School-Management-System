@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Vérifier si la table existe déjà
+        if (Schema::hasTable('exam_student_placements')) {
+            return;
+        }
+
         Schema::create('exam_student_placements', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('exam_id'); // Utiliser unsignedInteger pour correspondre à la table exams

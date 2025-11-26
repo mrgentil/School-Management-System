@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('page_title', 'Student Marksheet')
+@section('page_title', 'Relevé de Notes')
 @section('content')
 
     {{-- En-tête amélioré --}}
@@ -7,19 +7,22 @@
         <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h4 class="mb-1">📄 Bulletin de {{ $sr->user->name }}</h4>
-                    <p class="mb-0">{{ $my_class->name }} - {{ $my_class->section->first()->name }} | Année: {{ $year }}</p>
+                    <h4 class="mb-1">📄 Relevé de Notes - {{ $sr->user->name }}</h4>
+                    <p class="mb-0">{{ $my_class->full_name ?: $my_class->name }} | Année Scolaire : {{ $year }}</p>
                 </div>
                 <div class="col-md-4 text-right">
-                    <a href="{{ route('exam_analytics.student_progress', $student_id) }}" class="btn btn-light">
-                        <i class="icon-graph mr-2"></i>Voir la Progression
+                    <a href="{{ route('marks.bulk') }}" class="btn btn-light btn-sm mr-2">
+                        <i class="icon-arrow-left5 mr-1"></i> Retour
+                    </a>
+                    <a href="{{ route('exam_analytics.student_progress', $student_id) }}" class="btn btn-light btn-sm">
+                        <i class="icon-graph mr-1"></i> Progression
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Menu Rapide Étudiant --}}
+    {{-- Statistiques Étudiant --}}
     <div class="row mb-3">
         <div class="col-md-4">
             <div class="card border-left-3 border-left-success">
@@ -39,7 +42,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="font-weight-semibold mb-0">Meilleure Position</h6>
+                            <h6 class="font-weight-semibold mb-0">Meilleur Rang</h6>
                             <h3 class="mb-0 text-primary">{{ $exam_records->min('pos') ?? 'N/A' }}{{ $exam_records->min('pos') == 1 ? 'er' : 'ème' }}</h3>
                         </div>
                         <i class="icon-medal icon-3x text-primary-400"></i>
@@ -52,7 +55,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="font-weight-semibold mb-0">Examens Passés</h6>
+                            <h6 class="font-weight-semibold mb-0">Évaluations</h6>
                             <h3 class="mb-0 text-warning">{{ $exam_records->count() }}</h3>
                         </div>
                         <i class="icon-file-text2 icon-3x text-warning-400"></i>
@@ -78,7 +81,9 @@
 
                         {{--Print Button--}}
                         <div class="text-center mt-3">
-                            <a target="_blank" href="{{ route('marks.print', [Qs::hash($student_id), $ex->id, $year]) }}" class="btn btn-secondary btn-lg">Print Marksheet <i class="icon-printer ml-2"></i></a>
+                            <a target="_blank" href="{{ route('marks.print', [Qs::hash($student_id), $ex->id, $year]) }}" class="btn btn-secondary btn-lg">
+                                <i class="icon-printer mr-2"></i> Imprimer le Relevé
+                            </a>
                         </div>
 
                     </div>

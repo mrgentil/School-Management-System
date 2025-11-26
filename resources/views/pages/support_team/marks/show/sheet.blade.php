@@ -1,11 +1,11 @@
 <table class="table table-bordered table-responsive text-center">
-    <thead>
+    <thead class="bg-dark text-white">
     <tr>
-        <th rowspan="2">S/N</th>
-        <th rowspan="2">SUBJECTS</th>
-        <th rowspan="2">CA1<br>(20)</th>
-        <th rowspan="2">CA2<br>(20)</th>
-        <th rowspan="2">EXAMS<br>(60)</th>
+        <th rowspan="2">N°</th>
+        <th rowspan="2">MATIÈRES</th>
+        <th rowspan="2">P1<br>(20)</th>
+        <th rowspan="2">P2<br>(20)</th>
+        <th rowspan="2">EXAMEN<br>(60)</th>
         <th rowspan="2">TOTAL<br>(100)</th>
 
         {{--@if($ex->term == 3) --}}{{-- 3rd Term --}}{{--
@@ -16,9 +16,9 @@
         <th rowspan="2">CUM AVE</th>
         @endif--}}
 
-        <th rowspan="2">GRADE</th>
-        <th rowspan="2">SUBJECT <br> POSITION</th>
-        <th rowspan="2">REMARKS</th>
+        <th rowspan="2">MENTION</th>
+        <th rowspan="2">RANG<br>MATIÈRE</th>
+        <th rowspan="2">APPRÉCIATION</th>
     </tr>
     </thead>
 
@@ -55,10 +55,10 @@
             @endforeach
         </tr>
     @endforeach
-    <tr>
-        <td colspan="4"><strong>TOTAL SCORES OBTAINED: </strong> {{ $exr->total }}</td>
-        <td colspan="3"><strong>FINAL AVERAGE: </strong> {{ $exr->ave }}</td>
-        <td colspan="2"><strong>CLASS AVERAGE: </strong> {{ $exr->class_ave }}</td>
+    <tr class="bg-light font-weight-bold">
+        <td colspan="4"><strong>TOTAL DES POINTS : </strong> {{ $exr->total }}</td>
+        <td colspan="3"><strong>MOYENNE FINALE : </strong> {{ $exr->ave }}%</td>
+        <td colspan="2"><strong>MOYENNE DE CLASSE : </strong> {{ $exr->class_ave }}%</td>
     </tr>
     </tbody>
 </table>

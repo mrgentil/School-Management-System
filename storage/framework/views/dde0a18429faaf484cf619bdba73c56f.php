@@ -1,31 +1,32 @@
-@if(Qs::userIsTeamSAT())
+<?php if(Qs::userIsTeamSAT()): ?>
     <div class="card">
         <div class="card-header header-elements-inline bg-dark">
             <h6 class="card-title font-weight-bold text-white">Commentaires d'Examen</h6>
-            {!! Qs::getPanelOptions() !!}
+            <?php echo Qs::getPanelOptions(); ?>
+
         </div>
 
         <div class="card-body collapse">
-            <form class="ajax-update" method="post" action="{{ route('marks.comment_update', $exr->id) }}">
-                @csrf @method('PUT')
+            <form class="ajax-update" method="post" action="<?php echo e(route('marks.comment_update', $exr->id)); ?>">
+                <?php echo csrf_field(); ?> <?php echo method_field('PUT'); ?>
 
-                @if(Qs::userIsTeamSAT())
+                <?php if(Qs::userIsTeamSAT()): ?>
                     <div class="form-group row">
                         <label class="col-lg-2 col-form-label font-weight-semibold">Commentaire du Professeur</label>
                         <div class="col-lg-10">
-                            <input name="t_comment" value="{{ $exr->t_comment }}"  type="text" class="form-control" placeholder="Commentaire du professeur">
+                            <input name="t_comment" value="<?php echo e($exr->t_comment); ?>"  type="text" class="form-control" placeholder="Commentaire du professeur">
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
 
-                @if(Qs::userIsTeamSA())
+                <?php if(Qs::userIsTeamSA()): ?>
                     <div class="form-group row">
                         <label class="col-lg-2 col-form-label font-weight-semibold">Commentaire du Directeur</label>
                         <div class="col-lg-10">
-                            <input name="p_comment" value="{{ $exr->p_comment }}"  type="text" class="form-control" placeholder="Commentaire du directeur">
+                            <input name="p_comment" value="<?php echo e($exr->p_comment); ?>"  type="text" class="form-control" placeholder="Commentaire du directeur">
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
 
                 <div class="text-right">
                     <button type="submit" class="btn btn-primary">Enregistrer <i class="icon-paperplane ml-2"></i></button>
@@ -33,4 +34,5 @@
             </form>
         </div>
     </div>
-@endif
+<?php endif; ?>
+<?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/marks/show/comments.blade.php ENDPATH**/ ?>

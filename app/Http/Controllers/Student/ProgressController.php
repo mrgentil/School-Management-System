@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Helpers\Qs;
 use App\Helpers\Mk;
 use App\Http\Controllers\Controller;
+use App\Models\Mark;
 use App\Repositories\ExamRepo;
 use App\Repositories\StudentRepo;
 use App\Repositories\MyClassRepo;
@@ -37,106 +38,173 @@ class ProgressController extends Controller
         $current_year = Qs::getSetting('current_session');
         $d['current_year'] = $current_year;
         
-        // Examens de l'année en cours
-        $d['exams'] = $this->exam->getExam(['year' => $current_year]);
+        // Récupérer les notes directement depuis la table marks
+        $marks = Mark::where('student_id', $student_id)
+                    ->where('my_class_id', $sr->my_class_id)
+                    ->where('year', $current_year)
+                    ->with('subject')
+                    ->get();
         
-        // Historique de toutes les années
-        $years = $this->exam->getExamYears($student_id);
-        $d['all_years'] = $years->pluck('year')->unique()->sort()->values();
-        
-        // Moyennes par période pour l'année en cours
+        // Moyennes par période pour l'année en cours (utiliser t1, t2, t3, t4)
         $d['period_averages'] = [];
         for ($period = 1; $period <= 4; $period++) {
-            $avg = $this->calculatePeriodClassAverage($student_id, $period, $current_year);
+            $avg = $this->calculatePeriodAverage($marks, $period);
             $d['period_averages'][$period] = $avg;
         }
         
         // Moyennes par semestre
         $d['semester_averages'] = [];
-        for ($semester = 1; $semester <= 2; $semester++) {
-            $avg = Mk::getSemesterAverage($student_id, $semester, $current_year);
-            $d['semester_averages'][$semester] = $avg;
-        }
+        $d['semester_averages'][1] = ($d['period_averages'][1] !== null && $d['period_averages'][2] !== null) 
+            ? round(($d['period_averages'][1] + $d['period_averages'][2]) / 2, 2) 
+            : null;
+        $d['semester_averages'][2] = ($d['period_averages'][3] !== null && $d['period_averages'][4] !== null) 
+            ? round(($d['period_averages'][3] + $d['period_averages'][4]) / 2, 2) 
+            : null;
         
-        // Progression globale (toutes années)
+        // Progression par période
         $d['progression_data'] = [];
-        foreach ($d['exams'] as $exam) {
-            $record = $this->exam->getRecord([
-                'exam_id' => $exam->id,
-                'student_id' => $student_id,
-                'year' => $current_year
-            ])->first();
-            
-            if ($record) {
+        for ($period = 1; $period <= 4; $period++) {
+            if ($d['period_averages'][$period] !== null) {
                 $d['progression_data'][] = [
-                    'exam' => $exam->name,
-                    'semester' => $exam->semester,
-                    'average' => $record->ave,
-                    'position' => $record->pos,
-                    'class_avg' => $record->class_ave,
+                    'exam' => 'Période ' . $period,
+                    'semester' => $period <= 2 ? 1 : 2,
+                    'average' => $d['period_averages'][$period],
+                    'position' => $this->calculateRankForPeriod($student_id, $sr->my_class_id, $period, $current_year),
+                    'class_avg' => $this->calculateClassAverageForPeriod($sr->my_class_id, $period, $current_year),
                 ];
             }
         }
         
-        // Meilleures et pires matières
-        $marks = $this->exam->getMark([
-            'student_id' => $student_id,
-            'year' => $current_year
-        ]);
-        
-        if ($marks->count() > 0) {
-            $subject_averages = [];
-            foreach ($marks as $mark) {
-                $total = $this->getTotalFromMark($mark);
-                if (!isset($subject_averages[$mark->subject_id])) {
-                    $subject_averages[$mark->subject_id] = [
-                        'subject' => $mark->subject,
-                        'total' => 0,
-                        'count' => 0,
-                    ];
-                }
-                $subject_averages[$mark->subject_id]['total'] += $total;
-                $subject_averages[$mark->subject_id]['count']++;
+        // Meilleures et pires matières (basé sur t1 ou p1_avg)
+        $subject_averages = [];
+        foreach ($marks as $mark) {
+            if (!$mark->subject) continue;
+            
+            $avg = $mark->t1 ?? $mark->p1_avg ?? $mark->t2 ?? $mark->p2_avg ?? 0;
+            if ($avg > 0) {
+                $subject_averages[] = [
+                    'subject' => $mark->subject,
+                    'average' => $avg,
+                ];
             }
-            
-            foreach ($subject_averages as $key => $data) {
-                $subject_averages[$key]['average'] = $data['count'] > 0 
-                    ? round($data['total'] / $data['count'], 2) 
-                    : 0;
-            }
-            
-            usort($subject_averages, fn($a, $b) => $b['average'] <=> $a['average']);
-            
-            $d['best_subjects'] = array_slice($subject_averages, 0, 3);
-            $d['worst_subjects'] = array_slice(array_reverse($subject_averages), 0, 3);
-        } else {
-            $d['best_subjects'] = [];
-            $d['worst_subjects'] = [];
         }
+        
+        usort($subject_averages, fn($a, $b) => $b['average'] <=> $a['average']);
+        
+        $d['best_subjects'] = array_slice($subject_averages, 0, 3);
+        $d['worst_subjects'] = array_slice(array_reverse($subject_averages), 0, 3);
         
         // Recommandations
         $d['recommendations'] = $this->generateRecommendations($d);
+        
+        // Historique
+        $d['all_years'] = Mark::where('student_id', $student_id)
+                            ->distinct()
+                            ->pluck('year')
+                            ->sort()
+                            ->values();
 
         return view('pages.student.progress.index', $d);
     }
 
-    private function calculatePeriodClassAverage($student_id, $period, $year)
+    /**
+     * Calculer la moyenne d'une période à partir des notes
+     */
+    private function calculatePeriodAverage($marks, $period)
     {
-        $marks = $this->exam->getMark([
-            'student_id' => $student_id,
-            'year' => $year
-        ]);
-
-        $p_col = 'p'.$period.'_avg';
-        $averages = $marks->pluck($p_col)->filter(fn($v) => $v > 0);
+        $total = 0;
+        $count = 0;
         
-        return $averages->count() > 0 ? round($averages->avg(), 2) : null;
+        foreach ($marks as $mark) {
+            $value = null;
+            switch ($period) {
+                case 1: $value = $mark->t1 ?? $mark->p1_avg; break;
+                case 2: $value = $mark->t2 ?? $mark->p2_avg; break;
+                case 3: $value = $mark->t3 ?? $mark->p3_avg; break;
+                case 4: $value = $mark->t4 ?? $mark->p4_avg; break;
+            }
+            
+            if ($value !== null) {
+                $total += $value;
+                $count++;
+            }
+        }
+        
+        return $count > 0 ? round($total / $count, 2) : null;
+    }
+
+    /**
+     * Calculer le rang de l'étudiant pour une période
+     */
+    private function calculateRankForPeriod($studentId, $classId, $period, $year)
+    {
+        $allMarks = Mark::where('my_class_id', $classId)
+                        ->where('year', $year)
+                        ->get()
+                        ->groupBy('student_id');
+
+        $averages = [];
+        $col = 't' . $period;
+        $colAlt = 'p' . $period . '_avg';
+        
+        foreach ($allMarks as $sid => $marks) {
+            $total = 0;
+            $count = 0;
+            foreach ($marks as $mark) {
+                $value = $mark->$col ?? $mark->$colAlt;
+                if ($value !== null) {
+                    $total += $value;
+                    $count++;
+                }
+            }
+            if ($count > 0) {
+                $averages[$sid] = $total / $count;
+            }
+        }
+
+        arsort($averages);
+        
+        $rank = 1;
+        foreach ($averages as $sid => $avg) {
+            if ($sid == $studentId) {
+                return $rank;
+            }
+            $rank++;
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculer la moyenne de classe pour une période
+     */
+    private function calculateClassAverageForPeriod($classId, $period, $year)
+    {
+        $allMarks = Mark::where('my_class_id', $classId)
+                        ->where('year', $year)
+                        ->get();
+
+        $col = 't' . $period;
+        $colAlt = 'p' . $period . '_avg';
+        
+        $total = 0;
+        $count = 0;
+        
+        foreach ($allMarks as $mark) {
+            $value = $mark->$col ?? $mark->$colAlt;
+            if ($value !== null) {
+                $total += $value;
+                $count++;
+            }
+        }
+
+        return $count > 0 ? round($total / $count, 2) : null;
     }
 
     private function getTotalFromMark($mark)
     {
-        // Essayer les différents semestres
-        return $mark->tex1 ?? $mark->tex2 ?? ($mark->tca + $mark->exm) ?? 0;
+        // Utiliser t1 ou p1_avg comme référence
+        return $mark->t1 ?? $mark->p1_avg ?? $mark->t2 ?? $mark->p2_avg ?? 0;
     }
 
     private function generateRecommendations($data)

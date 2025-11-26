@@ -38,7 +38,7 @@
 </li>
 
 
-<li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['student.assignments.index', 'student.assignments.show', 'student.materials.index', 'student.materials.show', 'student.grades.index', 'student.grades.bulletin']) ? 'nav-item-open' : ''); ?>">
+<li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['student.assignments.index', 'student.assignments.show', 'student.materials.index', 'student.materials.show', 'student.grades.index', 'student.grades.bulletin', 'student.progress.index']) ? 'nav-item-open' : ''); ?>">
     <a href="#" class="nav-link">
         <i class="icon-graduation2"></i>
         <span>Académique</span>
@@ -50,8 +50,18 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="<?php echo e(route('student.grades.index')); ?>" class="nav-link <?php echo e((Route::is('student.grades.*')) ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('student.grades.index')); ?>" class="nav-link <?php echo e(Route::is('student.grades.index') ? 'active' : ''); ?>">
                 <i class="icon-certificate mr-2"></i>Mes Notes par Période
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="<?php echo e(route('student.grades.bulletin')); ?>" class="nav-link <?php echo e(Route::is('student.grades.bulletin') ? 'active' : ''); ?>">
+                <i class="icon-file-text2 mr-2"></i>Mon Bulletin
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="<?php echo e(route('student.progress.index')); ?>" class="nav-link <?php echo e(Route::is('student.progress.index') ? 'active' : ''); ?>">
+                <i class="icon-graph mr-2"></i>Ma Progression
             </a>
         </li>
         <li class="nav-item">

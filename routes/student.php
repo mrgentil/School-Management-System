@@ -136,4 +136,14 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
         Route::post('/', [StudentBookRequestController::class, 'store'])->name('store');
         Route::get('/{id}', [StudentBookRequestController::class, 'show'])->name('show');
     });
+
+    // Notifications
+    Route::group(['prefix' => 'notifications', 'as' => 'notifications.'], function() {
+        Route::get('/', [\App\Http\Controllers\Student\NotificationController::class, 'index'])->name('index');
+        Route::get('/unread', [\App\Http\Controllers\Student\NotificationController::class, 'getUnread'])->name('unread');
+        Route::post('/{id}/read', [\App\Http\Controllers\Student\NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/mark-all-read', [\App\Http\Controllers\Student\NotificationController::class, 'markAllAsRead'])->name('mark_all_read');
+        Route::delete('/{id}', [\App\Http\Controllers\Student\NotificationController::class, 'destroy'])->name('destroy');
+        Route::post('/clear-read', [\App\Http\Controllers\Student\NotificationController::class, 'clearRead'])->name('clear_read');
+    });
 });

@@ -239,6 +239,15 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/batch', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'generateBatch'])->name('bulletins.batch');
         });
 
+        /*************** Publication des Bulletins *****************/
+        Route::group(['prefix' => 'bulletin-publications', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\BulletinPublicationController::class, 'index'])->name('bulletin_publications.index');
+            Route::post('/publish', [\App\Http\Controllers\SupportTeam\BulletinPublicationController::class, 'publish'])->name('bulletin_publications.publish');
+            Route::post('/unpublish', [\App\Http\Controllers\SupportTeam\BulletinPublicationController::class, 'unpublish'])->name('bulletin_publications.unpublish');
+            Route::post('/publish-all', [\App\Http\Controllers\SupportTeam\BulletinPublicationController::class, 'publishAll'])->name('bulletin_publications.publish_all');
+            Route::get('/history', [\App\Http\Controllers\SupportTeam\BulletinPublicationController::class, 'history'])->name('bulletin_publications.history');
+        });
+
         /*************** Générateur de Données Test *****************/
         Route::group(['prefix' => 'seeder', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\DataSeederController::class, 'index'])->name('seeder.index');

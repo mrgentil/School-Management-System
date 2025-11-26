@@ -1,15 +1,16 @@
-@extends('layouts.master')
-@section('page_title', 'Relevés de Notes')
-@section('content')
+
+<?php $__env->startSection('page_title', 'Relevés de Notes'); ?>
+<?php $__env->startSection('content'); ?>
     <div class="card">
         <div class="card-header header-elements-inline bg-primary">
             <h5 class="card-title text-white"><i class="icon-books mr-2"></i> Consulter les Relevés de Notes</h5>
-            {!! Qs::getPanelOptions() !!}
+            <?php echo Qs::getPanelOptions(); ?>
+
         </div>
 
         <div class="card-body">
-                <form method="post" action="{{ route('marks.bulk_select') }}">
-                    @csrf
+                <form method="post" action="<?php echo e(route('marks.bulk_select')); ?>">
+                    <?php echo csrf_field(); ?>
                     <div class="row">
                         <div class="col-md-10">
                             <fieldset>
@@ -21,9 +22,9 @@
                                             <label for="my_class_id" class="col-form-label font-weight-bold">Classe :</label>
                                             <select required onchange="getClassSections(this.value)" id="my_class_id" name="my_class_id" class="form-control select">
                                                 <option value="">-- Sélectionner une classe --</option>
-                                                @foreach($my_classes as $c)
-                                                    <option {{ ($selected && $my_class_id == $c->id) ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->full_name ?: $c->name }}</option>
-                                                @endforeach
+                                                <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option <?php echo e(($selected && $my_class_id == $c->id) ? 'selected' : ''); ?> value="<?php echo e($c->id); ?>"><?php echo e($c->full_name ?: $c->name); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </select>
                                         </div>
                                     </div>
@@ -32,11 +33,11 @@
                                         <div class="form-group">
                                             <label for="section_id" class="col-form-label font-weight-bold">Section :</label>
                                             <select required id="section_id" name="section_id" data-placeholder="Sélectionner d'abord la classe" class="form-control select">
-                                        @if($selected)
-                                            @foreach($sections as $s)
-                                                    <option {{ ($section_id == $s->id ? 'selected' : '') }} value="{{ $s->id }}">{{ $s->name }}</option>
-                                            @endforeach
-                                            @endif
+                                        <?php if($selected): ?>
+                                            <?php $__currentLoopData = $sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option <?php echo e(($section_id == $s->id ? 'selected' : '')); ?> value="<?php echo e($s->id); ?>"><?php echo e($s->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            <?php endif; ?>
                                             </select>
                                         </div>
                                     </div>
@@ -57,12 +58,12 @@
                 </form>
         </div>
     </div>
-    @if($selected)
+    <?php if($selected): ?>
     <div class="card">
         <div class="card-header bg-success">
             <h6 class="card-title text-white mb-0">
                 <i class="icon-users mr-2"></i>
-                Liste des Étudiants ({{ $students->count() }})
+                Liste des Étudiants (<?php echo e($students->count()); ?>)
             </h6>
         </div>
         <div class="card-body">
@@ -77,22 +78,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($students as $s)
+                <?php $__currentLoopData = $students; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
-                        <td>{{ $s->user->name }}</td>
-                        <td>{{ $s->adm_no }}</td>
+                        <td><?php echo e($loop->iteration); ?></td>
+                        <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="<?php echo e($s->user->photo); ?>" alt="photo"></td>
+                        <td><?php echo e($s->user->name); ?></td>
+                        <td><?php echo e($s->adm_no); ?></td>
                         <td>
-                            <a class="btn btn-info btn-sm" href="{{ route('marks.year_select', Qs::hash($s->user_id)) }}">
+                            <a class="btn btn-info btn-sm" href="<?php echo e(route('marks.year_select', Qs::hash($s->user_id))); ?>">
                                 <i class="icon-file-text2 mr-1"></i> Voir Relevé
                             </a>
                         </td>
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
     </div>
-    @endif
-@endsection
+    <?php endif; ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/marks/bulk.blade.php ENDPATH**/ ?>
