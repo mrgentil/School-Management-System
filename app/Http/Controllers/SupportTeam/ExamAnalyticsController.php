@@ -131,9 +131,8 @@ class ExamAnalyticsController extends Controller
 
     public function studentProgress($student_id)
     {
-        $student = $this->student->find($student_id);
-        $d['student'] = $student;
         $d['sr'] = $this->student->getRecord(['user_id' => $student_id])->first();
+        $d['student'] = $d['sr'] ? $d['sr']->user : \App\Models\User::find($student_id);
         
         // Récupérer tous les examens de l'étudiant
         $years = $this->exam->getExamYears($student_id);

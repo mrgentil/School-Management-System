@@ -323,4 +323,4 @@
             </div>
         </div>
 </div>
-<?php /**PATH C:\laragon\www\eschool\resources\views/partials/menu.blade.php ENDPATH**/ ?>
+<?php /**PATH D:\laragon\www\eschool\resources\views/partials/menu.blade.php ENDPATH**/ ?>

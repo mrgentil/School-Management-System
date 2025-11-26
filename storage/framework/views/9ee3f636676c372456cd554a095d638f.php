@@ -1,0 +1,148 @@
+
+<?php $__env->startSection('page_title', 'Gestion des Bulletins'); ?>
+
+<?php $__env->startSection('content'); ?>
+
+<div class="card">
+    <div class="card-header header-elements-inline bg-primary">
+        <h5 class="card-title text-white">
+            <i class="icon-file-pdf mr-2"></i> Génération des Bulletins Scolaires
+        </h5>
+    </div>
+
+    <div class="card-body">
+        <div class="alert alert-info">
+            <i class="icon-info22 mr-2"></i>
+            <strong>Instructions :</strong> Sélectionnez une classe et une période/semestre pour générer les bulletins des étudiants.
+        </div>
+
+        <form action="<?php echo e(route('bulletins.students')); ?>" method="GET" id="bulletinForm">
+            <div class="row">
+                
+                <div class="col-md-12 mb-3">
+                    <label class="font-weight-bold">Type de Bulletin :</label>
+                    <div class="d-flex mt-2">
+                        <div class="custom-control custom-radio mr-4">
+                            <input type="radio" class="custom-control-input" name="type" id="type_period" value="period" checked onchange="toggleType()">
+                            <label class="custom-control-label" for="type_period">
+                                <i class="icon-calendar3 mr-1"></i> Par Période
+                            </label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                            <input type="radio" class="custom-control-input" name="type" id="type_semester" value="semester" onchange="toggleType()">
+                            <label class="custom-control-label" for="type_semester">
+                                <i class="icon-bookmark mr-1"></i> Par Semestre
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="my_class_id" class="font-weight-bold">Classe <span class="text-danger">*</span></label>
+                        <select required id="my_class_id" name="my_class_id" class="form-control select" onchange="updateSection(this)">
+                            <option value="">-- Sélectionner une classe --</option>
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php
+                                    $classSection = $sections->where('my_class_id', $c->id)->first();
+                                ?>
+                                <option value="<?php echo e($c->id); ?>" data-section="<?php echo e($classSection ? $classSection->id : ''); ?>">
+                                    <?php echo e($c->full_name ?: $c->name); ?>
+
+                                </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <input type="hidden" name="section_id" id="section_id" value="">
+                    </div>
+                </div>
+
+                
+                <div class="col-md-4" id="period_group">
+                    <div class="form-group">
+                        <label for="period" class="font-weight-bold">Période <span class="text-danger">*</span></label>
+                        <select id="period" name="period" class="form-control select">
+                            <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($key); ?>"><?php echo e($value); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                    </div>
+                </div>
+
+                
+                <div class="col-md-4" id="semester_group" style="display: none;">
+                    <div class="form-group">
+                        <label for="semester" class="font-weight-bold">Semestre <span class="text-danger">*</span></label>
+                        <select id="semester" name="semester" class="form-control select">
+                            <?php $__currentLoopData = $semesters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($key); ?>"><?php echo e($value); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                    </div>
+                </div>
+
+                
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="icon-search4 mr-2"></i> Rechercher les Étudiants
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="row mt-3">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="icon-users icon-2x mb-2"></i>
+                <h3 class="mb-0"><?php echo e(\App\Models\StudentRecord::where('session', $year)->count()); ?></h3>
+                <small>Étudiants inscrits</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <i class="icon-library icon-2x mb-2"></i>
+                <h3 class="mb-0"><?php echo e($my_classes->count()); ?></h3>
+                <small>Classes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <i class="icon-calendar3 icon-2x mb-2"></i>
+                <h3 class="mb-0"><?php echo e($year); ?></h3>
+                <small>Année Scolaire</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('scripts'); ?>
+<script>
+function toggleType() {
+    var type = document.querySelector('input[name="type"]:checked').value;
+    document.getElementById('period_group').style.display = (type === 'period') ? 'block' : 'none';
+    document.getElementById('semester_group').style.display = (type === 'semester') ? 'block' : 'none';
+}
+
+function updateSection(select) {
+    var selectedOption = select.options[select.selectedIndex];
+    var sectionId = selectedOption.getAttribute('data-section') || '';
+    document.getElementById('section_id').value = sectionId;
+}
+</script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/bulletins/index.blade.php ENDPATH**/ ?>

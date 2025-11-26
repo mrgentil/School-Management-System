@@ -222,6 +222,15 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/send-parent-notifications', [\App\Http\Controllers\SupportTeam\ExamAnalyticsController::class, 'sendParentNotifications'])->name('exam_analytics.send_parent_notifications');
         });
 
+        /*************** Bulletins Scolaires *****************/
+        Route::group(['prefix' => 'bulletins', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'index'])->name('bulletins.index');
+            Route::get('/students', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'students'])->name('bulletins.students');
+            Route::get('/preview/{student_id}', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'preview'])->name('bulletins.preview');
+            Route::get('/generate/{student_id}', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'generate'])->name('bulletins.generate');
+            Route::post('/batch', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'generateBatch'])->name('bulletins.batch');
+        });
+
         Route::get('students/statistics', [\App\Http\Controllers\SupportTeam\StudentStatsController::class, 'index'])->name('students.statistics');
         Route::resource('students', '\App\Http\Controllers\SupportTeam\StudentRecordController');
         Route::resource('users', '\App\Http\Controllers\SupportTeam\UserController');
