@@ -118,6 +118,7 @@ class AssignmentController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'type' => 'required|in:devoir,interrogation',
             'description' => 'required|string',
             'my_class_id' => 'required|exists:my_classes,id',
             'subject_id' => 'required|exists:subjects,id',
@@ -146,8 +147,9 @@ class AssignmentController extends Controller
 
         Assignment::create($data);
 
+        $typeLabel = $request->type === 'interrogation' ? 'Interrogation' : 'Devoir';
         return redirect()->route('assignments.index')
-            ->with('flash_success', 'Devoir créé avec succès!');
+            ->with('flash_success', "$typeLabel créé(e) avec succès!");
     }
 
     /**

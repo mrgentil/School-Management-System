@@ -1,12 +1,12 @@
 @extends('layouts.master')
-@section('page_title', 'Créer un Devoir')
+@section('page_title', 'Créer Devoir/Interrogation')
 @section('content')
 
 <div class="card">
     <div class="card-header header-elements-inline bg-success">
         <h6 class="card-title text-white">
             <i class="icon-plus2 mr-2"></i>
-            Créer un Nouveau Devoir
+            Créer un Devoir ou une Interrogation
         </h6>
         {!! Qs::getPanelOptions() !!}
     </div>
@@ -16,10 +16,19 @@
             @csrf
 
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-8">
                     <div class="form-group">
                         <label class="font-weight-semibold">Titre <span class="text-danger">*</span></label>
                         <input type="text" name="title" class="form-control" required value="{{ old('title') }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="font-weight-semibold">Type d'évaluation <span class="text-danger">*</span></label>
+                        <select name="type" class="form-control select" required>
+                            <option value="devoir" {{ old('type') == 'devoir' ? 'selected' : '' }}>📝 Devoir</option>
+                            <option value="interrogation" {{ old('type') == 'interrogation' ? 'selected' : '' }}>📋 Interrogation</option>
+                        </select>
                     </div>
                 </div>
             </div>

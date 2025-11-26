@@ -245,6 +245,22 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/seed', [\App\Http\Controllers\SupportTeam\DataSeederController::class, 'seed'])->name('seeder.seed');
             Route::get('/run', [\App\Http\Controllers\SupportTeam\DataSeederController::class, 'seed'])->name('seeder.run');
         });
+        
+        /*************** Utilitaire Migration *****************/
+        Route::get('/run-migration', function() {
+            try {
+                // Ajouter directement la colonne type si elle n'existe pas
+                if (!\Schema::hasColumn('assignments', 'type')) {
+                    \Schema::table('assignments', function ($table) {
+                        $table->enum('type', ['devoir', 'interrogation'])->default('devoir')->after('title');
+                    });
+                    return 'Colonne "type" ajoutée à la table assignments avec succès!';
+                }
+                return 'La colonne "type" existe déjà dans la table assignments.';
+            } catch (\Exception $e) {
+                return 'Erreur: ' . $e->getMessage();
+            }
+        })->middleware('teamSA');
 
         Route::get('students/statistics', [\App\Http\Controllers\SupportTeam\StudentStatsController::class, 'index'])->name('students.statistics');
         Route::resource('students', '\App\Http\Controllers\SupportTeam\StudentRecordController');
