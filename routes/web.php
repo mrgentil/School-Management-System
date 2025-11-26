@@ -231,6 +231,13 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/batch', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'generateBatch'])->name('bulletins.batch');
         });
 
+        /*************** Générateur de Données Test *****************/
+        Route::group(['prefix' => 'seeder', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\DataSeederController::class, 'index'])->name('seeder.index');
+            Route::post('/seed', [\App\Http\Controllers\SupportTeam\DataSeederController::class, 'seed'])->name('seeder.seed');
+            Route::get('/run', [\App\Http\Controllers\SupportTeam\DataSeederController::class, 'seed'])->name('seeder.run');
+        });
+
         Route::get('students/statistics', [\App\Http\Controllers\SupportTeam\StudentStatsController::class, 'index'])->name('students.statistics');
         Route::resource('students', '\App\Http\Controllers\SupportTeam\StudentRecordController');
         Route::resource('users', '\App\Http\Controllers\SupportTeam\UserController');
