@@ -55,24 +55,37 @@ class BulletinPublication extends Model
 
     /**
      * Vérifier si un bulletin est publié pour une classe/période donnée
+     *
+     * Règle :
+     * - S'il existe une publication spécifique pour la classe, c'est SON statut
+     *   qui fait foi (published/draft/review).
+     * - Sinon, on regarde éventuellement une publication globale (my_class_id = null).
      */
     public static function isPublished($classId, $type, $periodOrSemester, $year)
     {
-        $query = self::where('year', $year)
-            ->where('type', $type)
-            ->where('status', self::STATUS_PUBLISHED);
+        $baseQuery = self::where('year', $year)
+            ->where('type', $type);
 
         if ($type === self::TYPE_PERIOD) {
-            $query->where('period', $periodOrSemester);
+            $baseQuery->where('period', $periodOrSemester);
         } else {
-            $query->where('semester', $periodOrSemester);
+            $baseQuery->where('semester', $periodOrSemester);
         }
 
-        // Vérifier pour la classe spécifique OU pour toutes les classes (null)
-        return $query->where(function($q) use ($classId) {
-            $q->where('my_class_id', $classId)
-              ->orWhereNull('my_class_id');
-        })->exists();
+        // 1) Vérifier s'il existe une entrée pour cette classe
+        $classPublication = (clone $baseQuery)
+            ->where('my_class_id', $classId)
+            ->first();
+
+        if ($classPublication) {
+            return $classPublication->status === self::STATUS_PUBLISHED;
+        }
+
+        // 2) Sinon, on tombe sur une éventuelle publication globale
+        return (clone $baseQuery)
+            ->whereNull('my_class_id')
+            ->where('status', self::STATUS_PUBLISHED)
+            ->exists();
     }
 
     /**

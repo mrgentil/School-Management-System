@@ -1,25 +1,26 @@
-@extends('layouts.master')
-@section('page_title', 'Gérer les Promotions')
-@section('content')
 
-    {{--Réinitialiser toutes les promotions--}}
+<?php $__env->startSection('page_title', 'Gérer les Promotions'); ?>
+<?php $__env->startSection('content'); ?>
+
+    
     <div class="card">
         <div class="card-body text-center">
             <button id="promotion-reset-all" class="btn btn-danger btn-large">Réinitialiser toutes les promotions pour la session</button>
         </div>
     </div>
 
-{{-- Réinitialiser les promotions --}}
+
     <div class="card">
         <div class="card-header header-elements-inline">
             <h5 class="card-title font-weight-bold">
                 Gérer les Promotions - Étudiants promus de
-                <span class="text-danger">{{ $old_year }}</span>
+                <span class="text-danger"><?php echo e($old_year); ?></span>
                 vers
-                <span class="text-success">{{ $new_year }}</span>
+                <span class="text-success"><?php echo e($new_year); ?></span>
                 
             </h5>
-            {!! Qs::getPanelOptions() !!}
+            <?php echo Qs::getPanelOptions(); ?>
+
         </div>
 
         <div class="card-body">
@@ -37,34 +38,34 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($promotions->sortBy('fc.name')->sortBy('student.name') as $p)
+                <?php $__currentLoopData = $promotions->sortBy('fc.name')->sortBy('student.name'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $p->student->photo }}" alt="photo"></td>
-                        <td>{{ $p->student->name }}</td>
-                        <td>{{ ($p->fc->full_name ?: $p->fc->name).' '.$p->fs->name }}</td>
-                        <td>{{ ($p->tc->full_name ?: $p->tc->name).' '.$p->ts->name }}</td>
-                        @if($p->status === 'P')
+                        <td><?php echo e($loop->iteration); ?></td>
+                        <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="<?php echo e($p->student->photo); ?>" alt="photo"></td>
+                        <td><?php echo e($p->student->name); ?></td>
+                        <td><?php echo e(($p->fc->full_name ?: $p->fc->name).' '.$p->fs->name); ?></td>
+                        <td><?php echo e(($p->tc->full_name ?: $p->tc->name).' '.$p->ts->name); ?></td>
+                        <?php if($p->status === 'P'): ?>
                             <td><span class="text-success">Promu</span></td>
-                        @elseif($p->status === 'D')
+                        <?php elseif($p->status === 'D'): ?>
                             <td><span class="text-danger">Non promu</span></td>
-                        @else
+                        <?php else: ?>
                             <td><span class="text-primary">Diplômé</span></td>
-                        @endif
+                        <?php endif; ?>
                         <td class="text-center">
-                            <button data-id="{{ $p->id }}" class="btn btn-danger promotion-reset">Réinitialiser</button>
-                            <form id="promotion-reset-{{ $p->id }}" method="post" action="{{ route('students.promotion_reset', $p->id) }}">@csrf @method('DELETE')</form>
+                            <button data-id="<?php echo e($p->id); ?>" class="btn btn-danger promotion-reset">Réinitialiser</button>
+                            <form id="promotion-reset-<?php echo e($p->id); ?>" method="post" action="<?php echo e(route('students.promotion_reset', $p->id)); ?>"><?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?></form>
                         </td>
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
     </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
     <script>
         /* Réinitialisation individuelle */
         $('.promotion-reset').on('click', function () {
@@ -79,7 +80,7 @@
         $('#promotion-reset-all').on('click', function () {
             if (confirm('Voulez-vous vraiment réinitialiser toutes les promotions pour cette session ?')){
                 $.ajax({
-                    url:"{{ route('students.promotion_reset_all') }}",
+                    url:"<?php echo e(route('students.promotion_reset_all')); ?>",
                     type:'DELETE',
                     data:{ '_token' : $('#csrf-token').attr('content') },
                     success:function (resp) {
@@ -91,4 +92,6 @@
             return false;
         })
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/students/promotion/reset.blade.php ENDPATH**/ ?>

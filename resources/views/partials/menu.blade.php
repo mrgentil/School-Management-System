@@ -211,13 +211,8 @@
                             @endif
 
                             {{--Student Information--}}
-                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'nav-item-expanded' : '' }}">
-                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'active' : '' }}">Informations étudiants</a>
-                                <ul class="nav nav-group-sub">
-                                    @foreach(App\Models\MyClass::orderBy('name')->get() as $c)
-                                        <li class="nav-item"><a href="{{ route('students.list', $c->id) }}" class="nav-link ">{{ $c->name }}</a></li>
-                                    @endforeach
-                                </ul>
+                            <li class="nav-item">
+                                <a href="{{ route('students.info') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['students.info', 'students.list', 'students.edit', 'students.show']) ? 'active' : '' }}">Informations étudiants</a>
                             </li>
 
                             <li class="nav-item">

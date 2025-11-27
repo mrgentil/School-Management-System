@@ -108,6 +108,14 @@ class StudentRecordController extends Controller
         return view('pages.support_team.students.graduated', $data);
     }
 
+    public function info()
+    {
+        // Page de filtre pour accéder aux listes d'étudiants
+        $data['my_classes'] = $this->my_class->all();
+
+        return view('pages.support_team.students.info', $data);
+    }
+
     public function not_graduated($sr_id)
     {
         $d['grad'] = 0;
@@ -125,7 +133,12 @@ class StudentRecordController extends Controller
 
         $data['sr'] = $this->student->getRecord(['id' => $sr_id])->first();
 
-        /* Prevent Other Students/Parents from viewing Profile of others */
+        // Si aucun enregistrement étudiant trouvé (par ex. diplômé ou supprimé), afficher une page dédiée
+        if(!$data['sr']){
+            return view('pages.support_team.students.archived');
+        }
+
+        /* Empêcher d'autres étudiants/parents de voir le profil d'un autre étudiant */
         if(Auth::user()->id != $data['sr']->user_id && !Qs::userIsTeamSAT() && !Qs::userIsMyChild($data['sr']->user_id, Auth::user()->id)){
             return redirect(route('dashboard'))->with('pop_error', __('msg.denied'));
         }

@@ -1,10 +1,15 @@
 @extends('layouts.master')
-@section('page_title', 'Student Promotion')
+@section('page_title', 'Promotion des Étudiants')
 @section('content')
 
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h5 class="card-title font-weight-bold">Student Promotion From <span class="text-danger">{{ $old_year }}</span> TO <span class="text-success">{{ $new_year }}</span> Session</h5>
+            <h5 class="card-title font-weight-bold">
+                Promotion des Étudiants de la session
+                <span class="text-danger">{{ $old_year }}</span>
+                vers
+                <span class="text-success">{{ $new_year }}</span>
+            </h5>
             {!! Qs::getPanelOptions() !!}
         </div>
 
@@ -16,7 +21,18 @@
     @if($selected)
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h5 class="card-title font-weight-bold">Promote Students From <span class="text-teal">{{ $my_classes->where('id', $fc)->first()->name.' '.$sections->where('id', $fs)->first()->name }}</span> TO <span class="text-purple">{{ $my_classes->where('id', $tc)->first()->name.' '.$sections->where('id', $ts)->first()->name }}</span> </h5>
+            <h5 class="card-title font-weight-bold">
+                Promouvoir les étudiants de
+                <span class="text-teal">
+                    {{ optional($my_classes->where('id', $fc)->first())->full_name ?: optional($my_classes->where('id', $fc)->first())->name }}
+                    {{ $sections->where('id', $fs)->first()->name ?? '' }}
+                </span>
+                vers
+                <span class="text-purple">
+                    {{ optional($my_classes->where('id', $tc)->first())->full_name ?: optional($my_classes->where('id', $tc)->first())->name }}
+                    {{ $sections->where('id', $ts)->first()->name ?? '' }}
+                </span>
+            </h5>
             {!! Qs::getPanelOptions() !!}
         </div>
 

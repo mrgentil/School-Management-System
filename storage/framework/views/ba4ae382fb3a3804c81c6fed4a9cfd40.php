@@ -25,8 +25,16 @@
                             <div class="col-lg-9">
                                 <select data-placeholder="Choose..." required name="current_session" id="current_session" class="select-search form-control">
                                     <option value=""></option>
-                                    <?php for($y=date('Y', strtotime('- 3 years')); $y<=date('Y', strtotime('+ 1 years')); $y++): ?>
-                                        <option <?php echo e(($s['current_session'] == (($y-=1).'-'.($y+=1))) ? 'selected' : ''); ?>><?php echo e(($y-=1).'-'.($y+=1)); ?></option>
+                                    <?php
+                                        // Déterminer l'année de début de la session actuelle (ex. 2025 pour 2025-2026)
+                                        [$startYear] = explode('-', $s['current_session'] ?? date('Y').'-'.(date('Y')+1));
+                                        $startYear = (int) $startYear;
+                                        $fromYear  = $startYear - 3; // 3 ans avant
+                                        $toYear    = $startYear + 3; // 3 ans après
+                                    ?>
+                                    <?php for($y = $fromYear; $y <= $toYear; $y++): ?>
+                                        <?php $session = $y.'-'.($y + 1); ?>
+                                        <option value="<?php echo e($session); ?>" <?php echo e(($s['current_session'] == $session) ? 'selected' : ''); ?>><?php echo e($session); ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>

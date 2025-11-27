@@ -7,6 +7,20 @@
 </li>
 
 
+<li class="nav-item">
+    <a href="<?php echo e(route('student.notifications.index')); ?>" class="nav-link <?php echo e((Route::is('student.notifications.*')) ? 'active' : ''); ?>">
+        <i class="icon-bell2"></i>
+        <span>Notifications</span>
+        <?php
+            $unreadNotifications = \App\Models\UserNotification::where('user_id', Auth::id())->where('is_read', false)->count();
+        ?>
+        <?php if($unreadNotifications > 0): ?>
+            <span class="badge badge-danger badge-pill ml-auto"><?php echo e($unreadNotifications); ?></span>
+        <?php endif; ?>
+    </a>
+</li>
+
+
 <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['student.library.index', 'student.library.show', 'student.library.search', 'student.library.requests.index', 'student.library.requests.show']) ? 'nav-item-open' : ''); ?>">
     <a href="#" class="nav-link">
         <i class="icon-books"></i>

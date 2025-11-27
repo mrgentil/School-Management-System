@@ -1,5 +1,5 @@
-<form method="post" action="{{ route('students.promote_selector') }}">
-    @csrf
+<form method="post" action="<?php echo e(route('students.promote_selector')); ?>">
+    <?php echo csrf_field(); ?>
     <div class="row">
         <div class="col-md-10">
             <fieldset>
@@ -10,9 +10,9 @@
                             <label for="fc" class="col-form-label font-weight-bold">Classe d'origine :</label>
                             <select required onchange="getClassSections(this.value, '#fs')" id="fc" name="fc" class="form-control select">
                                 <option value="">Sélectionner une classe</option>
-                                @foreach($my_classes as $c)
-                                    <option {{ ($selected && $fc == $c->id) ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->full_name ?: $c->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option <?php echo e(($selected && $fc == $c->id) ? 'selected' : ''); ?> value="<?php echo e($c->id); ?>"><?php echo e($c->full_name ?: $c->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                     </div>
@@ -21,9 +21,9 @@
                         <div class="form-group">
                             <label for="fs" class="col-form-label font-weight-bold">Section d'origine :</label>
                             <select required id="fs" name="fs" data-placeholder="Sélectionner une classe d'abord" class="form-control select">
-                                @if($selected && $fs)
-                                    <option value="{{ $fs }}">{{ $sections->where('id', $fs)->first()->name }}</option>
-                                @endif
+                                <?php if($selected && $fs): ?>
+                                    <option value="<?php echo e($fs); ?>"><?php echo e($sections->where('id', $fs)->first()->name); ?></option>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -33,9 +33,9 @@
                             <label for="tc" class="col-form-label font-weight-bold">Classe de destination :</label>
                             <select required onchange="getClassSections(this.value, '#ts')" id="tc" name="tc" class="form-control select">
                                 <option value="">Sélectionner une classe</option>
-                                @foreach($my_classes as $c)
-                                    <option {{ ($selected && $tc == $c->id) ? 'selected' : '' }} value="{{ $c->id }}">{{ $c->full_name ?: $c->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option <?php echo e(($selected && $tc == $c->id) ? 'selected' : ''); ?> value="<?php echo e($c->id); ?>"><?php echo e($c->full_name ?: $c->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                     </div>
@@ -44,9 +44,9 @@
                         <div class="form-group">
                             <label for="ts" class="col-form-label font-weight-bold">Section de destination :</label>
                             <select required id="ts" name="ts" data-placeholder="Sélectionner une classe d'abord" class="form-control select">
-                                @if($selected && $ts)
-                                    <option value="{{ $ts }}">{{ $sections->where('id', $ts)->first()->name }}</option>
-                                @endif
+                                <?php if($selected && $ts): ?>
+                                    <option value="<?php echo e($ts); ?>"><?php echo e($sections->where('id', $ts)->first()->name); ?></option>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -65,3 +65,4 @@
     </div>
 
 </form>
+<?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/students/promotion/selector.blade.php ENDPATH**/ ?>

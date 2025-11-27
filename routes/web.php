@@ -45,6 +45,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('graduated', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'graduated'])->name('students.graduated');
             Route::put('not_graduated/{id}', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'not_graduated'])->name('st.not_graduated');
             Route::get('list/{class_id}', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'listByClass'])->name('students.list')->middleware('teamSAT');
+            Route::get('info', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'info'])->name('students.info')->middleware('teamSAT');
 
             /* Assignation de classes */
             Route::get('assign-class', [\App\Http\Controllers\SupportTeam\StudentRecordController::class, 'assign_class'])->name('students.assign_class');

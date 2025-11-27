@@ -118,6 +118,14 @@
                                    📄 Bulletins Scolaires
                                 </a>
                             </li>
+                            
+                            
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('bulletin_publications.index')); ?>" 
+                                   class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['bulletin_publications.index', 'bulletin_publications.history']) ? 'active' : ''); ?>">
+                                   📢 Publication Bulletins
+                                </a>
+                            </li>
                         <?php endif; ?>
 
                         
@@ -204,13 +212,8 @@
                             <?php endif; ?>
 
                             
-                            <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'nav-item-expanded' : ''); ?>">
-                                <a href="#" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'active' : ''); ?>">Informations étudiants</a>
-                                <ul class="nav nav-group-sub">
-                                    <?php $__currentLoopData = App\Models\MyClass::orderBy('name')->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <li class="nav-item"><a href="<?php echo e(route('students.list', $c->id)); ?>" class="nav-link "><?php echo e($c->name); ?></a></li>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </ul>
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('students.info')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['students.info', 'students.list', 'students.edit', 'students.show']) ? 'active' : ''); ?>">Informations étudiants</a>
                             </li>
 
                             <li class="nav-item">
