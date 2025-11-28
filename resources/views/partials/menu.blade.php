@@ -137,6 +137,14 @@
                                    📢 Publication Bulletins
                                 </a>
                             </li>
+                            
+                            {{--Progression Élèves--}}
+                            <li class="nav-item">
+                                <a href="{{ route('student_progress.index') }}" 
+                                   class="nav-link {{ in_array(Route::currentRouteName(), ['student_progress.index', 'student_progress.show']) ? 'active' : '' }}">
+                                   📊 Progression Élèves
+                                </a>
+                            </li>
                         @endif
 
                         {{--Subject Grades Config (RDC System)--}}

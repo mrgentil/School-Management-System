@@ -264,6 +264,14 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/bulletin', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'testBulletin'])->name('whatsapp.test.bulletin');
         });
 
+        /*************** Progression Élèves *****************/
+        Route::group(['prefix' => 'student-progress', 'middleware' => 'teamSAT'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\StudentProgressController::class, 'index'])->name('student_progress.index');
+            Route::get('/{student_id}', [\App\Http\Controllers\SupportTeam\StudentProgressController::class, 'show'])->name('student_progress.show');
+            Route::get('/{student_id}/pdf', [\App\Http\Controllers\SupportTeam\StudentProgressController::class, 'exportPdf'])->name('student_progress.pdf');
+            Route::post('/compare', [\App\Http\Controllers\SupportTeam\StudentProgressController::class, 'compare'])->name('student_progress.compare');
+        });
+
         /*************** Gestion Années Scolaires *****************/
         Route::group(['prefix' => 'academic-sessions', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'index'])->name('academic_sessions.index');

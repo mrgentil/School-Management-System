@@ -138,6 +138,14 @@
                                    📢 Publication Bulletins
                                 </a>
                             </li>
+                            
+                            
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('student_progress.index')); ?>" 
+                                   class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['student_progress.index', 'student_progress.show']) ? 'active' : ''); ?>">
+                                   📊 Progression Élèves
+                                </a>
+                            </li>
                         <?php endif; ?>
 
                         
