@@ -294,11 +294,48 @@ class MyGradesController extends Controller
             'address' => Qs::getSetting('address'),
             'phone' => Qs::getSetting('phone'),
             'email' => Qs::getSetting('system_email'),
+            'province' => Qs::getSetting('province') ?? 'KINSHASA',
+            'city' => Qs::getSetting('city') ?? '',
+            'commune' => Qs::getSetting('commune') ?? '',
+            'code' => Qs::getSetting('school_code') ?? '',
+        ];
+
+        // Transformer les données pour le format RDC
+        $rdcBulletinData = [];
+        foreach ($bulletinData as $item) {
+            $gradeConfig = SubjectGradeConfig::getConfig(
+                $studentRecord->my_class_id, 
+                $item['subject']->id, 
+                $year
+            );
+            
+            $rdcBulletinData[] = [
+                'subject' => $item['subject']->name,
+                'total_obtained' => $item['points'],
+                'percentage' => $item['percentage'],
+                'period_max' => $gradeConfig ? $gradeConfig->period_max_points : 20,
+                'exam_max' => $gradeConfig ? $gradeConfig->exam_max_points : 40,
+                'p1_avg' => $type == 'period' && $period == 1 ? $item['points'] : null,
+                'p2_avg' => $type == 'period' && $period == 2 ? $item['points'] : null,
+                'p3_avg' => $type == 'period' && $period == 3 ? $item['points'] : null,
+                'p4_avg' => $type == 'period' && $period == 4 ? $item['points'] : null,
+                's1_exam' => $type == 'semester' && $semester == 1 ? $item['exam_average'] : null,
+                's2_exam' => $type == 'semester' && $semester == 2 ? $item['exam_average'] : null,
+                's1_total' => $type == 'semester' && $semester == 1 ? $item['points'] : null,
+                's2_total' => $type == 'semester' && $semester == 2 ? $item['points'] : null,
+            ];
+        }
+
+        $stats = [
+            'average' => $overallPercentage,
+            'total_subjects' => $subjectCount,
+            'passed' => $passedCount,
+            'failed' => $failedCount,
         ];
 
         $data = [
-            'bulletinData' => $bulletinData,
-            'student' => $student,
+            'bulletinData' => $rdcBulletinData,
+            'student' => $studentRecord, // StudentRecord pour compatibilité avec bulletin_rdc
             'studentRecord' => $studentRecord,
             'year' => $year,
             'type' => $type,
@@ -307,14 +344,13 @@ class MyGradesController extends Controller
             'school' => $school,
             'rank' => $rank,
             'totalStudents' => $totalStudents,
-            'overallPercentage' => $overallPercentage,
-            'overallAverage' => round($overallPercentage * 20 / 100, 2),
-            'passedCount' => $passedCount,
-            'failedCount' => $failedCount,
+            'stats' => $stats,
             'appreciation' => $this->getAppreciationFromPercentage($overallPercentage),
+            'generated_at' => now()->format('d/m/Y à H:i'),
         ];
 
-        return view('pages.student.grades.bulletin', $data);
+        // Utiliser le bulletin RDC
+        return view('pages.support_team.bulletins.bulletin_rdc', $data);
     }
 
     /**

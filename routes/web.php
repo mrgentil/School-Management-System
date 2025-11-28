@@ -423,6 +423,13 @@ Route::group(['middleware' => 'super_admin', 'prefix' => 'super_admin', 'as' => 
 /************************ TEACHER ****************************/
 Route::group(['middleware' => ['auth', 'teamSAT'], 'prefix' => 'teacher', 'as' => 'teacher.'], function(){
 
+    // Bulletins des élèves
+    Route::group(['prefix' => 'bulletins', 'as' => 'bulletins.'], function() {
+        Route::get('/', [\App\Http\Controllers\Teacher\BulletinController::class, 'index'])->name('index');
+        Route::get('/students', [\App\Http\Controllers\Teacher\BulletinController::class, 'students'])->name('students');
+        Route::get('/preview/{student_id}', [\App\Http\Controllers\Teacher\BulletinController::class, 'preview'])->name('preview');
+    });
+
     // Messagerie Enseignant
     Route::group(['prefix' => 'messages', 'as' => 'messages.'], function() {
         Route::get('/', [\App\Http\Controllers\Teacher\MessageController::class, 'index'])->name('index');
@@ -440,9 +447,15 @@ Route::group(['middleware' => ['auth', 'teamSAT'], 'prefix' => 'teacher', 'as' =
 });
 
 /************************ PARENT ****************************/
-Route::group(['middleware' => 'my_parent'], function(){
+Route::group(['middleware' => 'my_parent', 'prefix' => 'parent', 'as' => 'parent.'], function(){
 
     Route::get('/my_children', [\App\Http\Controllers\MyParent\MyController::class, 'children'])->name('my_children');
+
+    // Bulletins des enfants
+    Route::group(['prefix' => 'bulletins', 'as' => 'bulletins.'], function() {
+        Route::get('/', [\App\Http\Controllers\MyParent\BulletinController::class, 'index'])->name('index');
+        Route::get('/{student_id}', [\App\Http\Controllers\MyParent\BulletinController::class, 'show'])->name('show');
+    });
 
 });
 
