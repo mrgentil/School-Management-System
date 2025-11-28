@@ -72,12 +72,14 @@
                 </li>
                 @endif
 
-                {{-- Calendrier Scolaire (accessible à tous) --}}
+                {{-- Calendrier Scolaire (pour non-admins seulement) --}}
+                @if(!Qs::userIsTeamSA())
                 <li class="nav-item">
                     <a href="{{ route('calendar.public') }}" class="nav-link {{ Route::is('calendar.public') ? 'active' : '' }}">
                         <i class="icon-calendar3"></i> <span>📅 Calendrier</span>
                     </a>
                 </li>
+                @endif
 
                 {{--Academics (Non-Students)--}}
                 @if(Qs::userIsAcademic() && !Qs::userIsStudent())
