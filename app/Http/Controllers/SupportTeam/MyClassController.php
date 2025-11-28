@@ -28,13 +28,14 @@ class MyClassController extends Controller
         $d['class_types'] = $this->my_class->getTypes();
         $d['academic_sections'] = \App\Models\AcademicSection::all(); // Gardé pour le groupement des options
         $d['options'] = \App\Models\Option::with('academic_section')->get();
+        $d['teachers'] = \App\Models\User::where('user_type', 'teacher')->orderBy('name')->get();
 
         return view('pages.support_team.classes.index', $d);
     }
 
     public function store(ClassCreate $req)
     {
-        $data = $req->only(['class_type_id', 'academic_level', 'division', 'academic_option', 'option_id']);
+        $data = $req->only(['class_type_id', 'academic_level', 'division', 'academic_option', 'option_id', 'teacher_id']);
         
         // Si une option est sélectionnée, récupérer automatiquement sa section académique
         if ($req->option_id) {
@@ -80,13 +81,14 @@ class MyClassController extends Controller
     public function edit($id)
     {
         $d['c'] = $c = $this->my_class->find($id);
+        $d['teachers'] = \App\Models\User::where('user_type', 'teacher')->orderBy('name')->get();
 
         return is_null($c) ? Qs::goWithDanger('classes.index') : view('pages.support_team.classes.edit', $d) ;
     }
 
     public function update(ClassUpdate $req, $id)
     {
-        $data = $req->only(['name']);
+        $data = $req->only(['name', 'teacher_id']);
         $this->my_class->update($id, $data);
 
         return Qs::jsonUpdateOk();

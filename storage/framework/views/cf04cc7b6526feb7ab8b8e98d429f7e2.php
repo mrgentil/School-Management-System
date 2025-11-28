@@ -220,6 +220,13 @@
                                     <i class="icon-bell mr-1"></i> 🔔 Rappels
                                 </a>
                             </li>
+                            
+                            
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('finance.dashboard')); ?>" class="nav-link <?php echo e(Route::is('finance.*') ? 'active' : ''); ?>">
+                                    <i class="icon-stats-bars mr-1"></i> 💰 Rapports Financiers
+                                </a>
+                            </li>
                             <?php endif; ?>
 
                             

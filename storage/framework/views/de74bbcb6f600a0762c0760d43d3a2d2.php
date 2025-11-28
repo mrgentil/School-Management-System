@@ -1,11 +1,12 @@
-@extends('layouts.master')
-@section('page_title', 'Gestion des Classes')
-@section('content')
+
+<?php $__env->startSection('page_title', 'Gestion des Classes'); ?>
+<?php $__env->startSection('content'); ?>
 
     <div class="card">
         <div class="card-header header-elements-inline">
             <h6 class="card-title">Gestion des Classes</h6>
-            {!! Qs::getPanelOptions() !!}
+            <?php echo Qs::getPanelOptions(); ?>
+
         </div>
 
         <div class="card-body">
@@ -27,23 +28,23 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($my_classes as $c)
+                            <?php $__currentLoopData = $my_classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td><?php echo e($loop->iteration); ?></td>
                                     <td>
-                                        <strong>{{ $c->full_name ?: $c->name }}</strong>
-                                        @if($c->academic_level || $c->division || $c->academic_option)
-                                            <br><small class="text-muted">{{ $c->name }}</small>
-                                        @endif
+                                        <strong><?php echo e($c->full_name ?: $c->name); ?></strong>
+                                        <?php if($c->academic_level || $c->division || $c->academic_option): ?>
+                                            <br><small class="text-muted"><?php echo e($c->name); ?></small>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if($c->teacher)
-                                            <span class="badge badge-primary">{{ $c->teacher->name }}</span>
-                                        @else
+                                        <?php if($c->teacher): ?>
+                                            <span class="badge badge-primary"><?php echo e($c->teacher->name); ?></span>
+                                        <?php else: ?>
                                             <span class="text-muted">Non assigné</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
-                                    <td>{{ $c->class_type->name }}</td>
+                                    <td><?php echo e($c->class_type->name); ?></td>
                                     <td class="text-center">
                                         <div class="list-icons">
                                             <div class="dropdown">
@@ -52,22 +53,22 @@
                                                 </a>
 
                                                 <div class="dropdown-menu dropdown-menu-left">
-                                                    @if(Qs::userIsTeamSA())
-                                                    {{--Modifier--}}
-                                                    <a href="{{ route('classes.edit', $c->id) }}" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
-                                                   @endif
-                                                        @if(Qs::userIsSuperAdmin())
-                                                    {{--Supprimer--}}
-                                                    <a id="{{ $c->id }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
-                                                    <form method="post" id="item-delete-{{ $c->id }}" action="{{ route('classes.destroy', $c->id) }}" class="hidden">@csrf @method('delete')</form>
-                                                        @endif
+                                                    <?php if(Qs::userIsTeamSA()): ?>
+                                                    
+                                                    <a href="<?php echo e(route('classes.edit', $c->id)); ?>" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
+                                                   <?php endif; ?>
+                                                        <?php if(Qs::userIsSuperAdmin()): ?>
+                                                    
+                                                    <a id="<?php echo e($c->id); ?>" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
+                                                    <form method="post" id="item-delete-<?php echo e($c->id); ?>" action="<?php echo e(route('classes.destroy', $c->id)); ?>" class="hidden"><?php echo csrf_field(); ?> <?php echo method_field('delete'); ?></form>
+                                                        <?php endif; ?>
 
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                         </table>
                     </div>
@@ -85,17 +86,17 @@
 
                     <div class="row">
                         <div class="col-md-8">
-                            <form class="ajax-store" method="post" action="{{ route('classes.store') }}">
-                                @csrf
+                            <form class="ajax-store" method="post" action="<?php echo e(route('classes.store')); ?>">
+                                <?php echo csrf_field(); ?>
                                 
                                 <div class="form-group row">
                                     <label for="class_type_id" class="col-lg-3 col-form-label font-weight-semibold">Type de classe <span class="text-danger">*</span></label>
                                     <div class="col-lg-9">
                                         <select required data-placeholder="Sélectionner le type" class="form-control select" name="class_type_id" id="class_type_id">
                                             <option value="">-- Sélectionner --</option>
-                                            @foreach($class_types as $ct)
-                                                <option {{ old('class_type_id') == $ct->id ? 'selected' : '' }} value="{{ $ct->id }}">{{ $ct->name }}</option>
-                                            @endforeach
+                                            <?php $__currentLoopData = $class_types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ct): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option <?php echo e(old('class_type_id') == $ct->id ? 'selected' : ''); ?> value="<?php echo e($ct->id); ?>"><?php echo e($ct->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
                                 </div>
@@ -155,13 +156,13 @@
                                     <div class="col-lg-9">
                                         <select data-placeholder="Sélectionner l'option" class="form-control select" name="option_id" id="option_id">
                                             <option value="">-- Choisir une option --</option>
-                                            @foreach($academic_sections as $section)
-                                                <optgroup label="{{ $section->name }}">
-                                                    @foreach($options->where('academic_section_id', $section->id) as $option)
-                                                        <option value="{{ $option->id }}">{{ $option->name }}</option>
-                                                    @endforeach
+                                            <?php $__currentLoopData = $academic_sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <optgroup label="<?php echo e($section->name); ?>">
+                                                    <?php $__currentLoopData = $options->where('academic_section_id', $section->id); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $option): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($option->id); ?>"><?php echo e($option->name); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                 </optgroup>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                         <small class="form-text text-muted">Choisissez l'option/spécialisation de la classe</small>
                                     </div>
@@ -172,9 +173,9 @@
                                     <div class="col-lg-9">
                                         <select data-placeholder="Sélectionner le titulaire" class="form-control select-search" name="teacher_id" id="teacher_id">
                                             <option value="">-- Choisir un titulaire --</option>
-                                            @foreach($teachers as $teacher)
-                                                <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
-                                            @endforeach
+                                            <?php $__currentLoopData = $teachers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $teacher): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($teacher->id); ?>"><?php echo e($teacher->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                         <small class="form-text text-muted">Le professeur responsable/garant de cette classe</small>
                                     </div>
@@ -251,6 +252,8 @@
         </div>
     </div>
 
-    {{--Class List Ends--}}
+    
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/classes/index.blade.php ENDPATH**/ ?>

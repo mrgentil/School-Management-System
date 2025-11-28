@@ -13,8 +13,25 @@ class MyClass extends Eloquent
         'option_id', 
         'division',
         'academic_level',
-        'academic_option'
+        'academic_option',
+        'teacher_id'
     ];
+
+    /**
+     * Titulaire de la classe (professeur responsable)
+     */
+    public function teacher()
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    /**
+     * Alias pour le titulaire
+     */
+    public function titulaire()
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
 
     public function section()
     {

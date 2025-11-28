@@ -58,30 +58,25 @@
 </li>
 
 {{-- Rapports Financiers --}}
-<li class="nav-item nav-item-submenu">
+<li class="nav-item nav-item-submenu {{ Route::is('finance.*') ? 'nav-item-open' : '' }}">
     <a href="#" class="nav-link">
         <i class="icon-stats-dots"></i>
-        <span>Rapports</span>
+        <span>📊 Rapports</span>
     </a>
     <ul class="nav nav-group-sub" data-submenu-title="Rapports">
         <li class="nav-item">
-            <a href="{{ route('accountant.dashboard') }}" class="nav-link">
-                Vue d'Ensemble
+            <a href="{{ route('finance.dashboard') }}" class="nav-link {{ Route::is('finance.dashboard') ? 'active' : '' }}">
+                <i class="icon-stats-bars mr-2"></i>Dashboard Financier
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link" onclick="alert('Rapport mensuel en développement'); return false;">
-                Rapport Mensuel
+            <a href="{{ route('finance.by_class') }}" class="nav-link {{ Route::is('finance.by_class') ? 'active' : '' }}">
+                <i class="icon-list mr-2"></i>Par Classe
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link" onclick="alert('Rapport annuel en développement'); return false;">
-                Rapport Annuel
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('payments.index') }}" class="nav-link">
-                États Financiers
+            <a href="{{ route('finance.export') }}" class="nav-link">
+                <i class="icon-download mr-2"></i>Export CSV
             </a>
         </li>
     </ul>

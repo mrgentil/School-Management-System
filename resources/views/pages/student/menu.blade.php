@@ -181,6 +181,14 @@
     </a>
 </li>
 
+{{-- Calendrier Scolaire --}}
+<li class="nav-item">
+    <a href="{{ route('calendar.public') }}" class="nav-link {{ Route::is('calendar.public') ? 'active' : '' }}">
+        <i class="icon-calendar3"></i>
+        <span>📅 Calendrier</span>
+    </a>
+</li>
+
 {{-- Mon Compte --}}
 <li class="nav-item">
     <a href="{{ route('my_account') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['my_account']) ? 'active' : '' }}">

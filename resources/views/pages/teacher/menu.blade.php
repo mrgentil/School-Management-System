@@ -12,3 +12,10 @@
         @endif
     </a>
 </li>
+
+{{--Calendrier Scolaire--}}
+<li class="nav-item">
+    <a href="{{ route('calendar.public') }}" class="nav-link {{ Route::is('calendar.public') ? 'active' : '' }}">
+        <i class="icon-calendar3"></i> <span>📅 Calendrier</span>
+    </a>
+</li>

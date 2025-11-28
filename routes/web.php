@@ -269,6 +269,14 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/bulletin', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'testBulletin'])->name('whatsapp.test.bulletin');
         });
 
+        /*************** Rapports Financiers *****************/
+        // Note: Accessible via middleware custom dans le contrôleur (teamSA + accountant)
+        Route::group(['prefix' => 'finance-reports'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\FinanceReportController::class, 'index'])->name('finance.dashboard');
+            Route::get('/by-class', [\App\Http\Controllers\SupportTeam\FinanceReportController::class, 'byClass'])->name('finance.by_class');
+            Route::get('/export', [\App\Http\Controllers\SupportTeam\FinanceReportController::class, 'export'])->name('finance.export');
+        });
+
         /*************** Gestion des Rappels *****************/
         Route::group(['prefix' => 'reminders', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\ReminderController::class, 'index'])->name('reminders.index');
@@ -514,12 +522,36 @@ Route::group(['middleware' => ['auth', 'teamSAT'], 'prefix' => 'teacher', 'as' =
 /************************ PARENT ****************************/
 Route::group(['middleware' => 'my_parent', 'prefix' => 'parent', 'as' => 'parent.'], function(){
 
+    // Dashboard Parent
+    Route::get('/dashboard', [\App\Http\Controllers\MyParent\DashboardController::class, 'index'])->name('dashboard');
+
     Route::get('/my_children', [\App\Http\Controllers\MyParent\MyController::class, 'children'])->name('my_children');
 
     // Bulletins des enfants
     Route::group(['prefix' => 'bulletins', 'as' => 'bulletins.'], function() {
         Route::get('/', [\App\Http\Controllers\MyParent\BulletinController::class, 'index'])->name('index');
         Route::get('/{student_id}', [\App\Http\Controllers\MyParent\BulletinController::class, 'show'])->name('show');
+    });
+
+    // Progression des enfants
+    Route::group(['prefix' => 'progress', 'as' => 'progress.'], function() {
+        Route::get('/', [\App\Http\Controllers\Parent\ProgressController::class, 'index'])->name('index');
+        Route::get('/{student_id}', [\App\Http\Controllers\Parent\ProgressController::class, 'show'])->name('show');
+    });
+
+    // Messagerie Parent
+    Route::group(['prefix' => 'messages', 'as' => 'messages.'], function() {
+        Route::get('/', [\App\Http\Controllers\MyParent\MessageController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\MyParent\MessageController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\MyParent\MessageController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\MyParent\MessageController::class, 'show'])->name('show');
+        Route::post('/{id}/reply', [\App\Http\Controllers\MyParent\MessageController::class, 'reply'])->name('reply');
+    });
+
+    // Présences des enfants
+    Route::group(['prefix' => 'attendance', 'as' => 'attendance.'], function() {
+        Route::get('/', [\App\Http\Controllers\MyParent\AttendanceController::class, 'index'])->name('index');
+        Route::get('/{student_id}', [\App\Http\Controllers\MyParent\AttendanceController::class, 'show'])->name('show');
     });
 
 });

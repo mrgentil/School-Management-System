@@ -219,6 +219,13 @@
                                     <i class="icon-bell mr-1"></i> 🔔 Rappels
                                 </a>
                             </li>
+                            
+                            {{-- Rapports Financiers --}}
+                            <li class="nav-item">
+                                <a href="{{ route('finance.dashboard') }}" class="nav-link {{ Route::is('finance.*') ? 'active' : '' }}">
+                                    <i class="icon-stats-bars mr-1"></i> 💰 Rapports Financiers
+                                </a>
+                            </li>
                             @endif
 
                             {{--Payments--}}
