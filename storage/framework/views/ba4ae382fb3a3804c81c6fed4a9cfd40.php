@@ -93,6 +93,34 @@
                                     <span class="font-weight-bold font-italic text-info-800"><?php echo e(__('msg.lock_exam')); ?></span>
                             </div>
                         </div>
+                    
+                    <fieldset class="mb-4">
+                        <legend><strong><i class="icon-file-text2 mr-2"></i>Paramètres Bulletin RDC</strong></legend>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label font-weight-semibold">Province</label>
+                            <div class="col-lg-9">
+                                <input name="province" value="<?php echo e($s['province'] ?? 'KINSHASA'); ?>" type="text" class="form-control" placeholder="Ex: KINSHASA">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label font-weight-semibold">Ville</label>
+                            <div class="col-lg-9">
+                                <input name="city" value="<?php echo e($s['city'] ?? ''); ?>" type="text" class="form-control" placeholder="Ex: Kinshasa">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label font-weight-semibold">Commune</label>
+                            <div class="col-lg-9">
+                                <input name="commune" value="<?php echo e($s['commune'] ?? ''); ?>" type="text" class="form-control" placeholder="Ex: Lemba">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label font-weight-semibold">Code École</label>
+                            <div class="col-lg-9">
+                                <input name="school_code" value="<?php echo e($s['school_code'] ?? ''); ?>" type="text" class="form-control" placeholder="Ex: KIN/LEMBA/001">
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
                 <div class="col-md-6">
                     
