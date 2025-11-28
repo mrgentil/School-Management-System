@@ -73,8 +73,8 @@
                                     </a>
                                     
                                     {{-- Télécharger PDF --}}
-                                    <a href="{{ route('bulletins.generate', $student->user_id) }}?type={{ $type }}&period={{ $period }}&semester={{ $semester }}" 
-                                       class="btn btn-primary btn-sm" title="Télécharger PDF" target="_blank">
+                                    <a href="{{ route('bulletins.pdf', $student->user_id) }}?type={{ $type }}&period={{ $period }}&semester={{ $semester }}" 
+                                       class="btn btn-primary btn-sm" title="Télécharger PDF">
                                         <i class="icon-file-pdf"></i>
                                     </a>
                                     

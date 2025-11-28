@@ -240,6 +240,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/students', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'students'])->name('bulletins.students');
             Route::get('/preview/{student_id}', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'preview'])->name('bulletins.preview');
             Route::get('/generate/{student_id}', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'generate'])->name('bulletins.generate');
+            Route::get('/pdf/{student_id}', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'exportPdf'])->name('bulletins.pdf');
+            Route::get('/export-class', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'exportClass'])->name('bulletins.export_class');
             Route::post('/batch', [\App\Http\Controllers\SupportTeam\BulletinController::class, 'generateBatch'])->name('bulletins.batch');
         });
 

@@ -84,11 +84,16 @@
                     </div>
                 </div>
 
-                {{-- Bouton --}}
+                {{-- Boutons --}}
                 <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="icon-search4 mr-2"></i> Rechercher les Étudiants
-                    </button>
+                    <div class="btn-group btn-block">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="icon-search4 mr-1"></i> Rechercher
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="exportClass()">
+                            <i class="icon-download mr-1"></i> Export ZIP
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -140,6 +145,26 @@ function updateSection(select) {
     var selectedOption = select.options[select.selectedIndex];
     var sectionId = selectedOption.getAttribute('data-section') || '';
     document.getElementById('section_id').value = sectionId;
+}
+
+function exportClass() {
+    var classId = document.getElementById('my_class_id').value;
+    if (!classId) {
+        alert('Veuillez sélectionner une classe');
+        return;
+    }
+    
+    var type = document.querySelector('input[name="type"]:checked').value;
+    var period = document.getElementById('period').value;
+    var semester = document.getElementById('semester').value;
+    
+    var url = '{{ route("bulletins.export_class") }}?my_class_id=' + classId + '&type=' + type;
+    url += '&period=' + period + '&semester=' + semester;
+    
+    // Afficher un message de chargement
+    if (confirm('Voulez-vous exporter tous les bulletins de cette classe en ZIP ?\n\nCela peut prendre quelques minutes selon le nombre d\'étudiants.')) {
+        window.location.href = url;
+    }
 }
 </script>
 @endsection

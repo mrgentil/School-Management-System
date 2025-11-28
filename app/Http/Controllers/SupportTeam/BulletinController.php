@@ -70,17 +70,17 @@ class BulletinController extends Controller
     }
 
     /**
-     * Générer le bulletin PDF d'un étudiant
+     * Générer le bulletin PDF d'un étudiant (format RDC)
      */
     public function generate($student_id, Request $req)
     {
         $type = $req->type ?? 'period';
-        $period = $req->period ?? 1;
-        $semester = $req->semester ?? 1;
+        $period = (int) ($req->period ?? 1);
+        $semester = (int) ($req->semester ?? 1);
 
         $student = StudentRecord::where('user_id', $student_id)
             ->where('session', $this->year)
-            ->with(['user.lga', 'user.state', 'my_class', 'section', 'option'])
+            ->with(['user.lga', 'user.state', 'my_class.academicSection', 'my_class.option', 'section', 'option'])
             ->first();
 
         if (!$student) {
@@ -92,6 +92,7 @@ class BulletinController extends Controller
 
         $data = [
             'student' => $student,
+            'studentRecord' => $student,
             'bulletinData' => $bulletinData['subjects'],
             'stats' => $bulletinData['stats'],
             'school' => $school,
@@ -99,37 +100,36 @@ class BulletinController extends Controller
             'type' => $type,
             'period' => $period,
             'semester' => $semester,
-            'rank' => $this->getStudentRank($student, $type, $period, $semester),
-            'totalStudents' => $this->getTotalStudentsInClass($student),
-            'appreciation' => $this->getAppreciation($bulletinData['stats']['average']),
             'generated_at' => now()->format('d/m/Y à H:i'),
+            'pdf_mode' => true, // Indiquer qu'on génère un PDF
         ];
 
-        $pdf = Pdf::loadView('pages.support_team.bulletins.pdf', $data);
+        // Utiliser le bulletin RDC
+        $pdf = Pdf::loadView('pages.support_team.bulletins.bulletin_rdc', $data);
         $pdf->setPaper('A4', 'portrait');
         
         $filename = 'Bulletin_' . str_replace(' ', '_', $student->user->name) . '_' . 
                     ($type == 'period' ? 'P'.$period : 'S'.$semester) . '_' . 
                     str_replace('/', '-', $this->year) . '.pdf';
 
-        return $pdf->stream($filename);
+        return $pdf->download($filename);
     }
 
     /**
-     * Générer les bulletins en lot (ZIP)
+     * Générer les bulletins en lot (ZIP) - Format RDC
      */
     public function generateBatch(Request $req)
     {
         $class_id = $req->my_class_id;
         $section_id = $req->section_id;
         $type = $req->type ?? 'period';
-        $period = $req->period ?? 1;
-        $semester = $req->semester ?? 1;
+        $period = (int) ($req->period ?? 1);
+        $semester = (int) ($req->semester ?? 1);
 
         $students = StudentRecord::where('my_class_id', $class_id)
             ->when($section_id, fn($q) => $q->where('section_id', $section_id))
             ->where('session', $this->year)
-            ->with(['user', 'my_class', 'section'])
+            ->with(['user', 'my_class.academicSection', 'my_class.option', 'section', 'option'])
             ->get();
 
         if ($students->isEmpty()) {
@@ -137,16 +137,15 @@ class BulletinController extends Controller
         }
 
         $school = $this->getSchoolInfo();
-        $totalStudents = $students->count();
 
         // Créer un ZIP
         $zipFileName = 'Bulletins_' . ($type == 'period' ? 'P'.$period : 'S'.$semester) . '_' . 
                        str_replace('/', '-', $this->year) . '.zip';
-        $zipPath = storage_path('app/public/bulletins/' . $zipFileName);
+        $zipPath = storage_path('app/temp/' . $zipFileName);
 
         // Créer le dossier s'il n'existe pas
-        if (!file_exists(storage_path('app/public/bulletins'))) {
-            mkdir(storage_path('app/public/bulletins'), 0755, true);
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
         }
 
         $zip = new \ZipArchive();
@@ -159,6 +158,7 @@ class BulletinController extends Controller
             
             $data = [
                 'student' => $student,
+                'studentRecord' => $student,
                 'bulletinData' => $bulletinData['subjects'],
                 'stats' => $bulletinData['stats'],
                 'school' => $school,
@@ -166,16 +166,17 @@ class BulletinController extends Controller
                 'type' => $type,
                 'period' => $period,
                 'semester' => $semester,
-                'rank' => $this->getStudentRank($student, $type, $period, $semester),
-                'totalStudents' => $totalStudents,
-                'appreciation' => $this->getAppreciation($bulletinData['stats']['average']),
                 'generated_at' => now()->format('d/m/Y à H:i'),
+                'pdf_mode' => true,
             ];
 
-            $pdf = Pdf::loadView('pages.support_team.bulletins.pdf', $data);
+            // Utiliser le bulletin RDC
+            $pdf = Pdf::loadView('pages.support_team.bulletins.bulletin_rdc', $data);
+            $pdf->setPaper('A4', 'portrait');
             $pdfContent = $pdf->output();
             
-            $filename = str_replace(' ', '_', $student->user->name) . '.pdf';
+            $filename = 'Bulletin_' . str_replace(' ', '_', $student->user->name) . '_' .
+                        ($type == 'period' ? 'P'.$period : 'S'.$semester) . '.pdf';
             $zip->addFromString($filename, $pdfContent);
         }
 
@@ -456,5 +457,149 @@ class BulletinController extends Controller
         if ($percentage >= 50) return 'Passable';
         if ($percentage >= 40) return 'Insuffisant';
         return 'Très Faible';
+    }
+
+    /**
+     * Exporter tous les bulletins d'une classe en ZIP
+     */
+    public function exportClass(Request $request)
+    {
+        $class_id = $request->my_class_id;
+        $type = $request->type ?? 'period';
+        $period = (int) ($request->period ?? 1);
+        $semester = (int) ($request->semester ?? 1);
+
+        // Récupérer tous les étudiants de la classe
+        $students = StudentRecord::where('my_class_id', $class_id)
+            ->where('session', $this->year)
+            ->with(['user', 'my_class.academicSection', 'my_class.option', 'section', 'option'])
+            ->get()
+            ->sortBy('user.name');
+
+        if ($students->isEmpty()) {
+            return back()->with('flash_danger', 'Aucun étudiant dans cette classe.');
+        }
+
+        $class = $students->first()->my_class;
+        $school = $this->getSchoolInfo();
+
+        // Créer un dossier temporaire
+        $tempDir = storage_path('app/temp/bulletins_' . time());
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $pdfFiles = [];
+
+        foreach ($students as $student) {
+            // Générer les données du bulletin
+            $bulletinData = $this->getBulletinData($student, $type, $period, $semester);
+
+            $data = [
+                'student' => $student,
+                'studentRecord' => $student,
+                'bulletinData' => $bulletinData['subjects'],
+                'stats' => $bulletinData['stats'],
+                'school' => $school,
+                'year' => $this->year,
+                'type' => $type,
+                'period' => $period,
+                'semester' => $semester,
+                'generated_at' => now()->format('d/m/Y à H:i'),
+                'pdf_mode' => true,
+            ];
+
+            // Générer le PDF
+            $pdf = Pdf::loadView('pages.support_team.bulletins.bulletin_rdc', $data);
+            $pdf->setPaper('A4', 'portrait');
+
+            // Nom du fichier
+            $filename = sprintf(
+                'Bulletin_%s_%s_%s.pdf',
+                str_replace(' ', '_', $student->user->name),
+                $type == 'period' ? 'P' . $period : 'S' . $semester,
+                $this->year
+            );
+
+            $filepath = $tempDir . '/' . $filename;
+            $pdf->save($filepath);
+            $pdfFiles[] = $filepath;
+        }
+
+        // Créer le fichier ZIP
+        $zipFilename = sprintf(
+            'Bulletins_%s_%s_%s.zip',
+            str_replace(' ', '_', $class->name),
+            $type == 'period' ? 'Periode_' . $period : 'Semestre_' . $semester,
+            $this->year
+        );
+        $zipPath = storage_path('app/temp/' . $zipFilename);
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            foreach ($pdfFiles as $file) {
+                $zip->addFile($file, basename($file));
+            }
+            $zip->close();
+        }
+
+        // Nettoyer les fichiers PDF temporaires
+        foreach ($pdfFiles as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+        rmdir($tempDir);
+
+        // Télécharger le ZIP
+        return response()->download($zipPath, $zipFilename)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Exporter un seul bulletin en PDF
+     */
+    public function exportPdf($student_id, Request $request)
+    {
+        $type = $request->type ?? 'period';
+        $period = (int) ($request->period ?? 1);
+        $semester = (int) ($request->semester ?? 1);
+
+        $student = StudentRecord::where('user_id', $student_id)
+            ->where('session', $this->year)
+            ->with(['user', 'my_class.academicSection', 'my_class.option', 'section', 'option'])
+            ->first();
+
+        if (!$student) {
+            return back()->with('flash_danger', 'Étudiant non trouvé.');
+        }
+
+        $bulletinData = $this->getBulletinData($student, $type, $period, $semester);
+        $school = $this->getSchoolInfo();
+
+        $data = [
+            'student' => $student,
+            'studentRecord' => $student,
+            'bulletinData' => $bulletinData['subjects'],
+            'stats' => $bulletinData['stats'],
+            'school' => $school,
+            'year' => $this->year,
+            'type' => $type,
+            'period' => $period,
+            'semester' => $semester,
+            'generated_at' => now()->format('d/m/Y à H:i'),
+            'pdf_mode' => true,
+        ];
+
+        $pdf = Pdf::loadView('pages.support_team.bulletins.bulletin_rdc', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        $filename = sprintf(
+            'Bulletin_%s_%s_%s.pdf',
+            str_replace(' ', '_', $student->user->name),
+            $type == 'period' ? 'P' . $period : 'S' . $semester,
+            $this->year
+        );
+
+        return $pdf->download($filename);
     }
 }

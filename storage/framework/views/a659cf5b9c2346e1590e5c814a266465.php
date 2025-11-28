@@ -2,8 +2,26 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Bulletin de Notes - <?php echo e($student->user->name); ?></title>
+    <?php
+        // Détecter si on est en mode PDF (pas de request disponible en PDF)
+        $isPdf = !isset($_SERVER['HTTP_HOST']) || (isset($pdf_mode) && $pdf_mode);
+        
+        // Convertir les images en base64 pour PDF
+        $flagPath = public_path('rdc.jpg');
+        $emblemPath = public_path('citoyennete.jpg');
+        
+        $flagBase64 = '';
+        $emblemBase64 = '';
+        
+        if (file_exists($flagPath)) {
+            $flagBase64 = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($flagPath));
+        }
+        if (file_exists($emblemPath)) {
+            $emblemBase64 = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($emblemPath));
+        }
+    ?>
     <style>
         * {
             margin: 0;
@@ -296,17 +314,27 @@
     </style>
 </head>
 <body>
-    <!-- Boutons d'action -->
+    <?php if(!$isPdf): ?>
+    <!-- Boutons d'action (masqués en PDF) -->
     <div class="action-buttons no-print">
         <button class="btn-back" onclick="history.back()">← Retour</button>
         <button class="btn-print" onclick="window.print()">🖨️ Imprimer</button>
     </div>
+    <?php endif; ?>
 
     <div class="bulletin-container">
         <!-- En-tête -->
         <div class="header">
             <div class="header-left">
-                <img src="<?php echo e(asset('rdc.jpg')); ?>" alt="Drapeau RDC" style="width: 60px; height: auto;">
+                <?php if($flagBase64): ?>
+                    <img src="<?php echo e($flagBase64); ?>" alt="Drapeau RDC" style="width: 60px; height: auto;">
+                <?php else: ?>
+                    <div class="flag-placeholder">
+                        <div class="flag-blue"></div>
+                        <div class="flag-yellow"></div>
+                        <div class="flag-red"></div>
+                    </div>
+                <?php endif; ?>
             </div>
             <div class="header-center">
                 <h1>REPUBLIQUE DEMOCRATIQUE DU CONGO</h1>
@@ -314,7 +342,11 @@
                 <h2>INITIATION A LA NOUVELLE CITOYENNETE</h2>
             </div>
             <div class="header-right">
-                <img src="<?php echo e(asset('citoyennete.jpg')); ?>" alt="Armoiries" style="width: 60px; height: auto;">
+                <?php if($emblemBase64): ?>
+                    <img src="<?php echo e($emblemBase64); ?>" alt="Armoiries" style="width: 60px; height: auto;">
+                <?php else: ?>
+                    <div class="emblem-placeholder">Armoiries</div>
+                <?php endif; ?>
             </div>
         </div>
 

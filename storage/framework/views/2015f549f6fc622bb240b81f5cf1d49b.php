@@ -73,8 +73,8 @@
                                     </a>
                                     
                                     
-                                    <a href="<?php echo e(route('bulletins.generate', $student->user_id)); ?>?type=<?php echo e($type); ?>&period=<?php echo e($period); ?>&semester=<?php echo e($semester); ?>" 
-                                       class="btn btn-primary btn-sm" title="Télécharger PDF" target="_blank">
+                                    <a href="<?php echo e(route('bulletins.pdf', $student->user_id)); ?>?type=<?php echo e($type); ?>&period=<?php echo e($period); ?>&semester=<?php echo e($semester); ?>" 
+                                       class="btn btn-primary btn-sm" title="Télécharger PDF">
                                         <i class="icon-file-pdf"></i>
                                     </a>
                                     
