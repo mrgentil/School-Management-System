@@ -285,6 +285,13 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/payment', [\App\Http\Controllers\SupportTeam\ReminderController::class, 'sendPaymentReminders'])->name('reminders.payment');
         });
 
+        /*************** Gestion des Notifications *****************/
+        Route::group(['prefix' => 'notifications', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\NotificationController::class, 'index'])->name('notifications.index');
+            Route::post('/send', [\App\Http\Controllers\SupportTeam\NotificationController::class, 'send'])->name('notifications.send');
+            Route::get('/stats', [\App\Http\Controllers\SupportTeam\NotificationController::class, 'stats'])->name('notifications.stats');
+        });
+
         /*************** Calendrier Scolaire *****************/
         Route::group(['prefix' => 'calendar', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'index'])->name('calendar.index');
@@ -495,6 +502,9 @@ Route::group(['middleware' => 'super_admin', 'prefix' => 'super_admin', 'as' => 
 
 /************************ TEACHER ****************************/
 Route::group(['middleware' => ['auth', 'teamSAT'], 'prefix' => 'teacher', 'as' => 'teacher.'], function(){
+
+    // Dashboard Enseignant
+    Route::get('/dashboard', [\App\Http\Controllers\Teacher\DashboardController::class, 'index'])->name('dashboard');
 
     // Bulletins des élèves
     Route::group(['prefix' => 'bulletins', 'as' => 'bulletins.'], function() {

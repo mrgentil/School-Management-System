@@ -56,6 +56,8 @@ class HomeController extends Controller
                 return redirect()->route('accountant.dashboard');
             case 'parent':
                 return redirect()->route('parent.dashboard');
+            case 'teacher':
+                return redirect()->route('teacher.dashboard');
         }
         
         // Pour admin et teacher, afficher le dashboard support_team

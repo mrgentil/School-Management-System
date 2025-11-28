@@ -17,8 +17,11 @@ class Librarian
      */
     public function handle($request, Closure $next)
     {
-        return (Auth::check() && Qs::userIsLibrarian()) 
-            ? $next($request) 
-            : redirect()->route('login');
+        // Accès: Librarian + Super Admin + Admin
+        if (Auth::check() && (Qs::userIsLibrarian() || Qs::userIsTeamSA())) {
+            return $next($request);
+        }
+        
+        return redirect()->route('login');
     }
 }

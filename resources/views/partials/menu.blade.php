@@ -220,11 +220,47 @@
                                 </a>
                             </li>
                             
+                            {{-- Notifications --}}
+                            <li class="nav-item">
+                                <a href="{{ route('notifications.index') }}" class="nav-link {{ Route::is('notifications.*') ? 'active' : '' }}">
+                                    <i class="icon-envelop mr-1"></i> 📧 Notifications
+                                </a>
+                            </li>
+                            
                             {{-- Rapports Financiers --}}
                             <li class="nav-item">
                                 <a href="{{ route('finance.dashboard') }}" class="nav-link {{ Route::is('finance.*') ? 'active' : '' }}">
                                     <i class="icon-stats-bars mr-1"></i> 💰 Rapports Financiers
                                 </a>
+                            </li>
+                            
+                            {{-- Bibliothèque (accès admin) --}}
+                            <li class="nav-item nav-item-submenu {{ Route::is('librarian.*') ? 'nav-item-open' : '' }}">
+                                <a href="#" class="nav-link">
+                                    <i class="icon-books mr-1"></i> 📚 Bibliothèque
+                                </a>
+                                <ul class="nav nav-group-sub">
+                                    <li class="nav-item">
+                                        <a href="{{ route('librarian.dashboard') }}" class="nav-link {{ Route::is('librarian.dashboard') ? 'active' : '' }}">
+                                            <i class="icon-home4 mr-2"></i>Tableau de bord
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('librarian.books.index') }}" class="nav-link {{ Route::is('librarian.books.*') ? 'active' : '' }}">
+                                            <i class="icon-book mr-2"></i>Gestion des Livres
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('librarian.book-requests.index') }}" class="nav-link {{ Route::is('librarian.book-requests.*') ? 'active' : '' }}">
+                                            <i class="icon-clipboard3 mr-2"></i>Demandes de Prêt
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('librarian.reports.index') }}" class="nav-link {{ Route::is('librarian.reports.*') ? 'active' : '' }}">
+                                            <i class="icon-stats-dots mr-2"></i>Rapports
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             @endif
 
