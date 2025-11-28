@@ -44,15 +44,31 @@ class Qs
             return self::getDefaultUserImage();
         }
 
-        // Si la photo est une URL complète, vérifier si le fichier existe
+        // Si la photo est une URL complète
         if (filter_var($photo, FILTER_VALIDATE_URL)) {
             $relativePath = str_replace(url('/'), '', $photo);
-            if (!file_exists(public_path($relativePath))) {
-                return self::getDefaultUserImage();
+            $relativePath = ltrim($relativePath, '/');
+            if (file_exists(public_path($relativePath))) {
+                return $photo;
             }
+            return self::getDefaultUserImage();
         }
 
-        return $photo;
+        // Si c'est un chemin relatif (storage/uploads/...)
+        if (str_starts_with($photo, 'storage/') || str_starts_with($photo, '/storage/')) {
+            $cleanPath = ltrim($photo, '/');
+            if (file_exists(public_path($cleanPath))) {
+                return asset($cleanPath);
+            }
+            return self::getDefaultUserImage();
+        }
+
+        // Ancien format ou autre
+        if (file_exists(public_path($photo))) {
+            return asset($photo);
+        }
+
+        return self::getDefaultUserImage();
     }
 
     public static function getPanelOptions()
@@ -242,7 +258,8 @@ class Qs
 
     public static function getPTA()
     {
-        return ['super_admin', 'admin', 'teacher', 'parent'];
+        // Tous les utilisateurs qui peuvent modifier leur profil et photo
+        return ['super_admin', 'admin', 'teacher', 'parent', 'student', 'accountant', 'librarian'];
     }
 
     /*public static function filesToUpload($programme)

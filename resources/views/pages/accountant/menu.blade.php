@@ -82,6 +82,14 @@
     </ul>
 </li>
 
+{{-- Centre d'Impression --}}
+<li class="nav-item">
+    <a href="{{ route('print.index') }}" class="nav-link {{ Route::is('print.*') ? 'active' : '' }}">
+        <i class="icon-printer"></i>
+        <span>🖨️ Impression</span>
+    </a>
+</li>
+
 {{-- Mon Compte --}}
 <li class="nav-item">
     <a href="{{ route('my_account') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['my_account']) ? 'active' : '' }}">

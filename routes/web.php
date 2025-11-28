@@ -298,6 +298,18 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/export', [\App\Http\Controllers\SupportTeam\StatisticsController::class, 'export'])->name('statistics.export');
         });
 
+        /*************** Centre d'Impression *****************/
+        Route::group(['prefix' => 'print', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'index'])->name('print.index');
+            Route::post('/class-list', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'classList'])->name('print.class_list');
+            Route::post('/payment-status', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'paymentStatus'])->name('print.payment_status');
+            Route::post('/grade-sheet', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'gradeSheet'])->name('print.grade_sheet');
+            Route::post('/certificate', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'certificate'])->name('print.certificate');
+            Route::post('/student-cards', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'studentCards'])->name('print.student_cards');
+            Route::post('/timetable', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'timetable'])->name('print.timetable');
+            Route::post('/summary', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'summary'])->name('print.summary');
+        });
+
         /*************** Calendrier Scolaire *****************/
         Route::group(['prefix' => 'calendar', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'index'])->name('calendar.index');

@@ -26,3 +26,10 @@
         <i class="icon-calendar3"></i> <span>📅 Calendrier</span>
     </a>
 </li>
+
+{{--Centre d'Impression--}}
+<li class="nav-item">
+    <a href="{{ route('print.index') }}" class="nav-link {{ Route::is('print.*') ? 'active' : '' }}">
+        <i class="icon-printer"></i> <span>🖨️ Impression</span>
+    </a>
+</li>

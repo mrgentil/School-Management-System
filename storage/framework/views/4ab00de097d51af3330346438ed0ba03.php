@@ -183,6 +183,14 @@
 
 
 <li class="nav-item">
+    <a href="<?php echo e(route('calendar.public')); ?>" class="nav-link <?php echo e(Route::is('calendar.public') ? 'active' : ''); ?>">
+        <i class="icon-calendar3"></i>
+        <span>📅 Calendrier</span>
+    </a>
+</li>
+
+
+<li class="nav-item">
     <a href="<?php echo e(route('my_account')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['my_account']) ? 'active' : ''); ?>">
         <i class="icon-user"></i>
         <span>Mon Compte</span>

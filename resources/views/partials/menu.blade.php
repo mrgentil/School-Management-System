@@ -234,6 +234,13 @@
                                 </a>
                             </li>
                             
+                            {{-- Centre d'Impression --}}
+                            <li class="nav-item">
+                                <a href="{{ route('print.index') }}" class="nav-link {{ Route::is('print.*') ? 'active' : '' }}">
+                                    <i class="icon-printer mr-1"></i> 🖨️ Centre d'Impression
+                                </a>
+                            </li>
+                            
                             {{-- Rapports Financiers --}}
                             <li class="nav-item">
                                 <a href="{{ route('finance.dashboard') }}" class="nav-link {{ Route::is('finance.*') ? 'active' : '' }}">

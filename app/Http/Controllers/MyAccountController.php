@@ -29,24 +29,44 @@ class MyAccountController extends Controller
     {
         $user = Auth::user();
 
-        $d = $user->username ? $req->only(['email', 'phone', 'address']) : $req->only(['email', 'phone', 'address', 'username']);
-
-        if(!$user->username && !$req->username && !$req->email){
-            return back()->with('pop_error', __('msg.user_invalid'));
+        // Récupérer tous les champs modifiables
+        $d = $req->only(['email', 'phone', 'phone2', 'address']);
+        
+        // Ajouter username seulement si pas déjà défini
+        if (!$user->username && $req->username) {
+            $d['username'] = $req->username;
         }
 
         $user_type = $user->user_type;
-        $code = $user->code;
+        $code = $user->code ?: $user->id; // Utiliser l'ID si pas de code
 
-        if($req->hasFile('photo')) {
+        // Traitement de la photo
+        if ($req->hasFile('photo')) {
             $photo = $req->file('photo');
-            $f = Qs::getFileMetaData($photo);
-            $f['name'] = 'photo.' . $f['ext'];
-            $f['path'] = $photo->storeAs(Qs::getUploadPath($user_type).$code, $f['name'], 'public');
-            $d['photo'] = asset('storage/' . $f['path']);
+            
+            if ($photo->isValid()) {
+                $ext = strtolower($photo->getClientOriginalExtension());
+                $fileName = 'photo_' . time() . '.' . $ext;
+                
+                // Créer le dossier si nécessaire
+                $uploadPath = 'uploads/' . $user_type . '/' . $code;
+                $fullPath = storage_path('app/public/' . $uploadPath);
+                
+                if (!file_exists($fullPath)) {
+                    mkdir($fullPath, 0755, true);
+                }
+                
+                // Déplacer le fichier directement
+                $photo->move($fullPath, $fileName);
+                
+                // Sauvegarder le chemin dans la base de données
+                $d['photo'] = 'storage/' . $uploadPath . '/' . $fileName;
+            }
         }
 
+        // Mettre à jour l'utilisateur
         $this->user->update($user->id, $d);
+        
         return back()->with('flash_success', __('msg.update_ok'));
     }
 

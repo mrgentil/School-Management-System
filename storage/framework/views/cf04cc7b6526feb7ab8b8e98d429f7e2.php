@@ -237,6 +237,13 @@
                             
                             
                             <li class="nav-item">
+                                <a href="<?php echo e(route('print.index')); ?>" class="nav-link <?php echo e(Route::is('print.*') ? 'active' : ''); ?>">
+                                    <i class="icon-printer mr-1"></i> 🖨️ Centre d'Impression
+                                </a>
+                            </li>
+                            
+                            
+                            <li class="nav-item">
                                 <a href="<?php echo e(route('finance.dashboard')); ?>" class="nav-link <?php echo e(Route::is('finance.*') ? 'active' : ''); ?>">
                                     <i class="icon-stats-bars mr-1"></i> 💰 Rapports Financiers
                                 </a>
