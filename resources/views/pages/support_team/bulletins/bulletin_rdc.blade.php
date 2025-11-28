@@ -32,61 +32,55 @@
         body {
             font-family: 'Times New Roman', Times, serif;
             font-size: 10px;
-            line-height: 1.2;
+            line-height: 1.3;
             background: white;
             color: #000;
         }
         
         .bulletin-container {
-            width: 210mm;
-            min-height: 297mm;
+            width: 100%;
+            max-width: 210mm;
             margin: 0 auto;
-            padding: 8mm;
+            padding: 5mm;
             background: white;
         }
         
+        /* Tables de mise en page */
+        .layout-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .layout-table td {
+            vertical-align: top;
+            padding: 2px;
+        }
+        
         /* En-tête */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 5px;
+        .header-table {
+            width: 100%;
             border-bottom: 2px solid #000;
-            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .header-table td {
+            vertical-align: middle;
+            padding: 5px;
         }
         
         .header-left {
-            width: 60px;
+            width: 70px;
             text-align: center;
         }
-        
-        .header-left img {
-            width: 50px;
-            height: auto;
-        }
-        
-        .flag-placeholder {
-            width: 50px;
-            height: 35px;
-            border: 1px solid #000;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .flag-blue { background: #007FFF; height: 33.33%; }
-        .flag-yellow { background: #F7D618; height: 33.33%; }
-        .flag-red { background: #CE1126; height: 33.33%; }
         
         .header-center {
-            flex: 1;
             text-align: center;
-            padding: 0 10px;
         }
         
         .header-center h1 {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
         
         .header-center h2 {
@@ -96,49 +90,33 @@
         }
         
         .header-right {
-            width: 60px;
+            width: 70px;
             text-align: center;
         }
         
-        .header-right img {
-            width: 50px;
+        .header-img {
+            width: 55px;
             height: auto;
         }
         
-        .emblem-placeholder {
-            width: 50px;
-            height: 50px;
-            border: 1px solid #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-        }
-        
         /* Info section */
-        .info-section {
-            display: flex;
-            justify-content: space-between;
+        .info-table {
+            width: 100%;
             margin: 8px 0;
             font-size: 9px;
         }
         
-        .info-left, .info-right {
-            width: 48%;
-        }
-        
-        .info-row {
-            display: flex;
-            margin-bottom: 3px;
+        .info-table td {
+            padding: 2px 5px;
+            vertical-align: top;
         }
         
         .info-label {
             font-weight: bold;
-            min-width: 80px;
+            white-space: nowrap;
         }
         
         .info-value {
-            flex: 1;
             border-bottom: 1px dotted #000;
             padding-left: 5px;
         }
@@ -323,87 +301,73 @@
     @endif
 
     <div class="bulletin-container">
-        <!-- En-tête -->
-        <div class="header">
-            <div class="header-left">
-                @if($flagBase64)
-                    <img src="{{ $flagBase64 }}" alt="Drapeau RDC" style="width: 60px; height: auto;">
-                @else
-                    <div class="flag-placeholder">
-                        <div class="flag-blue"></div>
-                        <div class="flag-yellow"></div>
-                        <div class="flag-red"></div>
-                    </div>
-                @endif
-            </div>
-            <div class="header-center">
-                <h1>REPUBLIQUE DEMOCRATIQUE DU CONGO</h1>
-                <h2>MINISTERE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE</h2>
-                <h2>INITIATION A LA NOUVELLE CITOYENNETE</h2>
-            </div>
-            <div class="header-right">
-                @if($emblemBase64)
-                    <img src="{{ $emblemBase64 }}" alt="Armoiries" style="width: 60px; height: auto;">
-                @else
-                    <div class="emblem-placeholder">Armoiries</div>
-                @endif
-            </div>
-        </div>
+        <!-- En-tête avec table -->
+        <table class="header-table">
+            <tr>
+                <td class="header-left">
+                    @if($flagBase64)
+                        <img src="{{ $flagBase64 }}" class="header-img" alt="Drapeau RDC">
+                    @endif
+                </td>
+                <td class="header-center">
+                    <h1>REPUBLIQUE DEMOCRATIQUE DU CONGO</h1>
+                    <h2>MINISTERE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE</h2>
+                    <h2>INITIATION A LA NOUVELLE CITOYENNETE</h2>
+                </td>
+                <td class="header-right">
+                    @if($emblemBase64)
+                        <img src="{{ $emblemBase64 }}" class="header-img" alt="Armoiries">
+                    @endif
+                </td>
+            </tr>
+        </table>
 
         <!-- N° ID -->
         <div class="id-box">N° ID. {{ $studentRecord->adm_no ?? '' }}</div>
 
-        <!-- Informations école/élève -->
-        <div class="info-section">
-            <div class="info-left">
-                <div class="info-row">
-                    <span class="info-label">PROVINCE :</span>
-                    <span class="info-value">{{ $school['province'] ?? 'KINSHASA' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">VILLE :</span>
-                    <span class="info-value">{{ $school['city'] ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">COMMUNE :</span>
-                    <span class="info-value">{{ $school['commune'] ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">ECOLE :</span>
-                    <span class="info-value">{{ $school['name'] ?? config('app.name') }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">CODE :</span>
-                    <span class="info-value">{{ $school['code'] ?? '' }}</span>
-                </div>
-            </div>
-            <div class="info-right">
-                <div class="info-row">
-                    <span class="info-label">ELEVE :</span>
-                    <span class="info-value">{{ $student->user->name ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">SEXE :</span>
-                    <span class="info-value">{{ $student->user->gender == 'Male' ? 'M' : ($student->user->gender == 'Female' ? 'F' : ($student->user->gender ?? '')) }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">NE(E) A :</span>
-                    <span class="info-value"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">LE :</span>
-                    <span class="info-value">{{ $student->user->dob ? \Carbon\Carbon::parse($student->user->dob)->format('d/m/Y') : '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">CLASSE :</span>
-                    <span class="info-value">{{ $studentRecord->my_class->full_name ?? $studentRecord->my_class->name ?? '' }} {{ $studentRecord->section->name ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">N° PERM. :</span>
-                    <span class="info-value">{{ $studentRecord->adm_no ?? '' }}</span>
-                </div>
-            </div>
-        </div>
+        <!-- Informations école/élève avec table -->
+        <table class="info-table">
+            <tr>
+                <td class="info-label">PROVINCE :</td>
+                <td class="info-value">{{ $school['province'] ?? 'KINSHASA' }}</td>
+                <td width="20"></td>
+                <td class="info-label">ELEVE :</td>
+                <td class="info-value">{{ $student->user->name ?? '' }}</td>
+            </tr>
+            <tr>
+                <td class="info-label">VILLE :</td>
+                <td class="info-value">{{ $school['city'] ?? '' }}</td>
+                <td></td>
+                <td class="info-label">SEXE :</td>
+                <td class="info-value">{{ $student->user->gender == 'Male' ? 'M' : ($student->user->gender == 'Female' ? 'F' : '') }}</td>
+            </tr>
+            <tr>
+                <td class="info-label">COMMUNE :</td>
+                <td class="info-value">{{ $school['commune'] ?? '' }}</td>
+                <td></td>
+                <td class="info-label">NE(E) A :</td>
+                <td class="info-value"></td>
+            </tr>
+            <tr>
+                <td class="info-label">ECOLE :</td>
+                <td class="info-value">{{ $school['name'] ?? config('app.name') }}</td>
+                <td></td>
+                <td class="info-label">LE :</td>
+                <td class="info-value">{{ $student->user->dob ? \Carbon\Carbon::parse($student->user->dob)->format('d/m/Y') : '' }}</td>
+            </tr>
+            <tr>
+                <td class="info-label">CODE :</td>
+                <td class="info-value">{{ $school['code'] ?? '' }}</td>
+                <td></td>
+                <td class="info-label">CLASSE :</td>
+                <td class="info-value">{{ $studentRecord->my_class->full_name ?? $studentRecord->my_class->name ?? '' }}</td>
+            </tr>
+            <tr>
+                <td colspan="3"></td>
+                <td class="info-label">N° PERM. :</td>
+                <td class="info-value">{{ $studentRecord->adm_no ?? '' }}</td>
+            </tr>
+        </table>
 
         <!-- Titre du bulletin -->
         <div class="bulletin-title">
@@ -690,57 +654,56 @@
             </tr>
         </table>
 
-        <!-- Signatures -->
-        <div class="signatures-section">
-            <div class="signature-block">
-                <p>Le Titulaire de Classe</p>
-                <div class="signature-line">
-                    <p>Signature</p>
-                </div>
-            </div>
-            <div class="signature-block">
-                <p>Le Parent / Tuteur</p>
-                <div class="signature-line">
-                    <p>Signature</p>
-                </div>
-            </div>
-            <div class="signature-block">
-                <p>Le Chef d'Établissement</p>
-                <div class="signature-line">
-                    <p>Signature & Cachet</p>
-                </div>
-            </div>
-        </div>
+        <!-- Signatures avec table -->
+        <table class="layout-table" style="margin: 10px 0;">
+            <tr>
+                <td style="width: 33%; text-align: center;">
+                    <p>Le Titulaire de Classe</p>
+                    <br><br>
+                    <p style="border-top: 1px solid #000; padding-top: 5px;">Signature</p>
+                </td>
+                <td style="width: 33%; text-align: center;">
+                    <p>Le Parent / Tuteur</p>
+                    <br><br>
+                    <p style="border-top: 1px solid #000; padding-top: 5px;">Signature</p>
+                </td>
+                <td style="width: 33%; text-align: center;">
+                    <p>Le Chef d'Établissement</p>
+                    <br><br>
+                    <p style="border-top: 1px solid #000; padding-top: 5px;">Signature & Cachet</p>
+                </td>
+            </tr>
+        </table>
 
         <!-- Pied de page -->
-        <div class="footer">
+        <div class="footer" style="font-size: 9px; margin-top: 10px; border-top: 2px solid #000; padding-top: 10px;">
             <p>- L'élève ne pourra passer dans la classe supérieure s'il ne subit avec succès un examen de repêchage en ................................ (1)</p>
             <p>- L'élève passe dans la classe supérieure (1)</p>
-            <p>- L'élève double sa classe (1)</p>
+            <p style="border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 5px;">- L'élève double sa classe (1)</p>
             <p>- L'élève a échoué et orienté vers ................................ (1)</p>
             <br>
-            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                <div>
-                    <p>Signature de l'élève</p>
-                    <br><br>
-                    <p>_______________________</p>
-                </div>
-                <div style="text-align: center;">
-                    <p>Sceau de l'école</p>
-                    <br><br>
-                    <p></p>
-                </div>
-                <div style="text-align: right;">
-                    <p>Fait à {{ $school['city'] ?? '..................' }}, le {{ now()->format('d/m/Y') }}</p>
-                    <p>Le Chef d'Établissement,</p>
-                    <br>
-                    <p>Nom et signature</p>
-                </div>
-            </div>
+            <table class="layout-table" style="margin-top: 10px;">
+                <tr>
+                    <td style="width: 33%;">
+                        <p>Signature de l'élève</p>
+                        <br><br>
+                        <p>_______________________</p>
+                    </td>
+                    <td style="width: 33%; text-align: center;">
+                        <p>Sceau de l'école</p>
+                    </td>
+                    <td style="width: 33%; text-align: right;">
+                        <p>Fait à {{ $school['city'] ?? '..................' }}, le {{ now()->format('d/m/Y') }}</p>
+                        <p>Le Chef d'Établissement,</p>
+                        <br>
+                        <p>Nom et signature</p>
+                    </td>
+                </tr>
+            </table>
             <br>
-            <p class="mention-biffer">(1) Biffer la mention inutile</p>
+            <p style="color: #666; font-style: italic;">(1) Biffer la mention inutile</p>
             <p><strong>Note importante :</strong> Le bulletin est sans valeur s'il est raturé ou surchargé</p>
-            <p class="code-ref">Document généré le {{ now()->format('d/m/Y à H:i') }}</p>
+            <p style="text-align: right; font-size: 8px; color: #999;">Document généré le {{ now()->format('d/m/Y à H:i') }}</p>
         </div>
     </div>
 
