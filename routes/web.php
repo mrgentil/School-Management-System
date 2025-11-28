@@ -254,6 +254,13 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/history', [\App\Http\Controllers\SupportTeam\BulletinPublicationController::class, 'history'])->name('bulletin_publications.history');
         });
 
+        /*************** Test WhatsApp *****************/
+        Route::group(['prefix' => 'whatsapp-test', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'index'])->name('whatsapp.test');
+            Route::post('/send', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'send'])->name('whatsapp.test.send');
+            Route::post('/bulletin', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'testBulletin'])->name('whatsapp.test.bulletin');
+        });
+
         /*************** Générateur de Données Test *****************/
         Route::group(['prefix' => 'seeder', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\DataSeederController::class, 'index'])->name('seeder.index');

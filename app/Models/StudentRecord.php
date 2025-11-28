@@ -21,7 +21,7 @@ class StudentRecord extends Eloquent
 
     public function my_parent()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'my_parent_id');
     }
 
     public function my_class()

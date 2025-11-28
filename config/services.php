@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | WhatsApp Cloud API
+    |--------------------------------------------------------------------------
+    |
+    | Configuration pour l'envoi de messages WhatsApp via Meta Cloud API.
+    | Créez une application sur https://developers.facebook.com/
+    |
+    */
+    'whatsapp' => [
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+    ],
+
 ];
+

@@ -95,6 +95,31 @@
                         </div>
                     
                     <fieldset class="mb-4">
+                        <legend><strong><i class="icon-bell mr-2"></i>Notifications Parents</strong></legend>
+                        <div class="form-group row">
+                            <label class="col-lg-6 col-form-label font-weight-semibold">Notifications Email</label>
+                            <div class="col-lg-6">
+                                <select class="form-control select" name="email_notifications">
+                                    <option <?php echo e(($s['email_notifications'] ?? 'no') == 'yes' ? 'selected' : ''); ?> value="yes">Oui</option>
+                                    <option <?php echo e(($s['email_notifications'] ?? 'no') == 'no' ? 'selected' : ''); ?> value="no">Non</option>
+                                </select>
+                                <small class="text-muted">Emails envoyés quand un bulletin est publié</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-6 col-form-label font-weight-semibold">Notifications WhatsApp</label>
+                            <div class="col-lg-6">
+                                <select class="form-control select" name="whatsapp_notifications">
+                                    <option <?php echo e(($s['whatsapp_notifications'] ?? 'no') == 'yes' ? 'selected' : ''); ?> value="yes">Oui</option>
+                                    <option <?php echo e(($s['whatsapp_notifications'] ?? 'no') == 'no' ? 'selected' : ''); ?> value="no">Non</option>
+                                </select>
+                                <small class="text-muted">WhatsApp envoyé si parent a un numéro de téléphone</small>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    
+                    <fieldset class="mb-4">
                         <legend><strong><i class="icon-file-text2 mr-2"></i>Paramètres Bulletin RDC</strong></legend>
                         <div class="form-group row">
                             <label class="col-lg-3 col-form-label font-weight-semibold">Province</label>

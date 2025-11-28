@@ -9,8 +9,11 @@ use App\Models\Section;
 use App\Models\StudentRecord;
 use App\Models\UserNotification;
 use App\Helpers\Qs;
+use App\Mail\BulletinPublishedNotification;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class BulletinPublicationController extends Controller
 {
@@ -222,29 +225,32 @@ class BulletinPublicationController extends Controller
     }
 
     /**
-     * Envoyer les notifications aux étudiants
+     * Envoyer les notifications aux étudiants ET aux parents
      */
     protected function sendNotifications(BulletinPublication $publication)
     {
-        $query = StudentRecord::query();
+        $query = StudentRecord::with(['user', 'my_parent', 'my_class']);
 
         if ($publication->my_class_id) {
             $query->where('my_class_id', $publication->my_class_id);
         }
 
-        $students = $query->get();
+        $students = $query->where('session', $this->year)->get();
 
         $typeLabel = $publication->type === BulletinPublication::TYPE_PERIOD 
             ? "Période {$publication->period}" 
             : "Semestre {$publication->semester}";
 
-        $url = route('student.grades.bulletin', [
+        $studentUrl = route('student.grades.bulletin', [
             'type' => $publication->type,
             'period' => $publication->period ?? 1,
             'semester' => $publication->semester ?? 1,
         ]);
 
+        $notifiedParents = []; // Éviter les doublons si parent a plusieurs enfants
+
         foreach ($students as $student) {
+            // Notification pour l'étudiant
             UserNotification::create([
                 'user_id' => $student->user_id,
                 'type' => UserNotification::TYPE_BULLETIN_PUBLISHED,
@@ -255,9 +261,70 @@ class BulletinPublicationController extends Controller
                     'period' => $publication->period,
                     'semester' => $publication->semester,
                     'year' => $publication->year,
-                    'url' => $url,
+                    'url' => $studentUrl,
                 ],
             ]);
+
+            // Notification pour le parent (si existe et pas déjà notifié)
+            if ($student->my_parent_id && !in_array($student->my_parent_id, $notifiedParents)) {
+                $studentName = $student->user->name ?? 'votre enfant';
+                $className = $student->my_class->name ?? '';
+                
+                $parentUrl = route('parent.bulletins.show', [
+                    'student_id' => $student->user_id,
+                    'type' => $publication->type,
+                    'period' => $publication->period ?? 1,
+                    'semester' => $publication->semester ?? 1,
+                ]);
+                
+                // Notification dans l'application
+                UserNotification::create([
+                    'user_id' => $student->my_parent_id,
+                    'type' => UserNotification::TYPE_BULLETIN_PUBLISHED,
+                    'title' => '📋 Bulletin de ' . $studentName,
+                    'message' => "Le bulletin de notes ({$typeLabel}) de {$studentName} ({$className}) est maintenant disponible.",
+                    'data' => [
+                        'type' => $publication->type,
+                        'period' => $publication->period,
+                        'semester' => $publication->semester,
+                        'year' => $publication->year,
+                        'student_id' => $student->user_id,
+                        'url' => $parentUrl,
+                    ],
+                ]);
+                
+                $notificationData = [
+                    'student_name' => $studentName,
+                    'class_name' => $className,
+                    'type_label' => $typeLabel,
+                    'year' => $publication->year,
+                    'school_name' => Qs::getSetting('system_name'),
+                    'url' => $parentUrl,
+                ];
+
+                // Envoi d'email au parent (si email actif dans les paramètres)
+                if (Qs::getSetting('email_notifications', 'no') === 'yes' && $student->my_parent && $student->my_parent->email) {
+                    try {
+                        Mail::to($student->my_parent->email)->queue(new BulletinPublishedNotification($notificationData));
+                    } catch (\Exception $e) {
+                        \Log::error('Erreur envoi email bulletin: ' . $e->getMessage());
+                    }
+                }
+
+                // Envoi WhatsApp au parent (si WhatsApp actif et numéro disponible)
+                if (Qs::getSetting('whatsapp_notifications', 'no') === 'yes' && $student->my_parent && $student->my_parent->phone) {
+                    try {
+                        $whatsapp = new WhatsAppService();
+                        if ($whatsapp->isConfigured()) {
+                            $whatsapp->sendBulletinNotification($student->my_parent->phone, $notificationData);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Erreur envoi WhatsApp bulletin: ' . $e->getMessage());
+                    }
+                }
+                
+                $notifiedParents[] = $student->my_parent_id;
+            }
         }
     }
 
