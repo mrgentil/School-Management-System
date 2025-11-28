@@ -124,13 +124,15 @@
 {{-- Messagerie --}}
 <li class="nav-item">
     <a href="{{ route('student.messages.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['student.messages.index', 'student.messages.show', 'student.messages.create']) ? 'active' : '' }}">
-        <i class="icon-bubbles4"></i>
+        <i class="icon-envelop"></i>
         <span>Messagerie</span>
         @php
-            $unreadMessages = \App\Models\Message::where('receiver_id', Auth::id())->where('is_read', false)->count();
+            $unreadMsgCount = \App\Models\MessageRecipient::where('recipient_id', Auth::id())
+                ->where('is_read', false)
+                ->count();
         @endphp
-        @if($unreadMessages > 0)
-            <span class="badge badge-danger badge-pill ml-2">{{ $unreadMessages }}</span>
+        @if($unreadMsgCount > 0)
+            <span class="badge badge-danger badge-pill ml-auto">{{ $unreadMsgCount }}</span>
         @endif
     </a>
 </li>

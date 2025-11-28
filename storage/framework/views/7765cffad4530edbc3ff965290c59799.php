@@ -1,7 +1,6 @@
-@extends('layouts.master')
-@section('page_title', 'Nouveau message')
+<?php $__env->startSection('page_title', 'Nouveau message'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-10 offset-lg-1">
@@ -13,7 +12,7 @@
                             <h4 class="mb-0">✉️ Nouveau message</h4>
                             <small class="opacity-75">Composez votre message</small>
                         </div>
-                        <a href="{{ route('student.messages.index') }}" class="btn btn-light btn-sm">
+                        <a href="<?php echo e(route('student.messages.index')); ?>" class="btn btn-light btn-sm">
                             <i class="icon-arrow-left8 mr-1"></i> Retour
                         </a>
                     </div>
@@ -23,27 +22,28 @@
             <!-- Formulaire moderne -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    @if(session('success'))
+                    <?php if(session('success')): ?>
                         <div class="alert alert-success alert-dismissible fade show border-0">
                             <button type="button" class="close" data-dismiss="alert">×</button>
-                            <i class="icon-checkmark-circle mr-2"></i>{{ session('success') }}
-                        </div>
-                    @endif
+                            <i class="icon-checkmark-circle mr-2"></i><?php echo e(session('success')); ?>
 
-                    @if($errors->any())
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if($errors->any()): ?>
                         <div class="alert alert-danger alert-dismissible fade show border-0">
                             <button type="button" class="close" data-dismiss="alert">×</button>
                             <strong>⚠️ Erreur :</strong>
                             <ul class="mb-0 mt-2">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
+                                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <li><?php echo e($error); ?></li>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </ul>
                         </div>
-                    @endif
+                    <?php endif; ?>
 
-                    <form action="{{ route('student.messages.store') }}" method="POST" enctype="multipart/form-data" id="messageForm">
-                        @csrf
+                    <form action="<?php echo e(route('student.messages.store')); ?>" method="POST" enctype="multipart/form-data" id="messageForm">
+                        <?php echo csrf_field(); ?>
                         
                         <!-- Destinataires avec Select2 moderne -->
                         <div class="form-group">
@@ -53,18 +53,20 @@
                             </label>
                             <select name="recipients[]" class="form-control select2-recipients" multiple="multiple" required>
                                 <optgroup label="👨‍🏫 Enseignants">
-                                    @foreach($teachers as $teacher)
-                                        <option value="{{ $teacher->id }}" data-type="teacher">
-                                            {{ $teacher->name }}
+                                    <?php $__currentLoopData = $teachers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $teacher): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($teacher->id); ?>" data-type="teacher">
+                                            <?php echo e($teacher->name); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </optgroup>
                                 <optgroup label="👔 Administration">
-                                    @foreach($admins as $admin)
-                                        <option value="{{ $admin->id }}" data-type="admin">
-                                            {{ $admin->name }}
+                                    <?php $__currentLoopData = $admins; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $admin): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($admin->id); ?>" data-type="admin">
+                                            <?php echo e($admin->name); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </optgroup>
                             </select>
                             <small class="form-text text-muted">
@@ -82,7 +84,7 @@
                                    name="subject" 
                                    class="form-control form-control-lg" 
                                    placeholder="📝 Ex: Question sur le cours de mathématiques..."
-                                   value="{{ old('subject') }}" 
+                                   value="<?php echo e(old('subject')); ?>" 
                                    required>
                         </div>
                         
@@ -115,7 +117,7 @@
                                       rows="10" 
                                       class="form-control" 
                                       placeholder="✍️ Écrivez votre message ici... Vous pouvez utiliser les emojis ci-dessus !"
-                                      required>{{ old('content') }}</textarea>
+                                      required><?php echo e(old('content')); ?></textarea>
                             <small class="form-text text-muted">
                                 <span id="charCount">0</span> caractères
                             </small>
@@ -159,15 +161,15 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
-<link href="{{ asset('global_assets/js/plugins/select2/css/select2.min.css') }}" rel="stylesheet">
-<link href="{{ asset('global_assets/js/plugins/select2/css/select2-bootstrap.min.css') }}" rel="stylesheet">
-@endpush
+<?php $__env->startPush('styles'); ?>
+<link href="<?php echo e(asset('global_assets/js/plugins/select2/css/select2.min.css')); ?>" rel="stylesheet">
+<link href="<?php echo e(asset('global_assets/js/plugins/select2/css/select2-bootstrap.min.css')); ?>" rel="stylesheet">
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
-<script src="{{ asset('global_assets/js/plugins/select2/js/select2.full.min.js') }}"></script>
+<?php $__env->startPush('scripts'); ?>
+<script src="<?php echo e(asset('global_assets/js/plugins/select2/js/select2.full.min.js')); ?>"></script>
 <script>
 $(function() {
     // ===== Select2 avec recherche et tags =====
@@ -397,4 +399,6 @@ $(function() {
         box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.075) !important;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/student/messages/create.blade.php ENDPATH**/ ?>

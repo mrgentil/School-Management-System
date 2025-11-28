@@ -38,6 +38,7 @@
                                 <div>
                                     <h6 class="mb-1 {{ !$notification->is_read ? 'font-weight-bold' : '' }}">
                                         {{ $notification->title }}
+                                        <small class="text-muted">(#{{ $notification->id }} - user:{{ $notification->user_id }})</small>
                                         @if(!$notification->is_read)
                                             <span class="badge badge-primary badge-pill ml-1">Nouveau</span>
                                         @endif

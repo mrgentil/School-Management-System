@@ -126,7 +126,14 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
         Route::get('/create', [StudentMessageController::class, 'create'])->name('create');
         Route::post('/', [StudentMessageController::class, 'store'])->name('store');
         Route::get('/{id}', [StudentMessageController::class, 'show'])->name('show')->where('id', '[0-9]+');
+        // POST = envoi de la réponse
         Route::post('/{id}/reply', [StudentMessageController::class, 'reply'])->name('reply')->where('id', '[0-9]+');
+
+        // GET = fallback (par ex. après un redirect()->back() suite à une erreur de validation)
+        // Redirige toujours vers l'affichage du message au lieu d'une 404
+        Route::get('/{id}/reply', function ($id) {
+            return redirect()->route('student.messages.show', $id);
+        })->where('id', '[0-9]+');
     });
 
     // Demandes de livres
@@ -141,9 +148,10 @@ Route::group(['middleware' => ['auth', 'student'], 'prefix' => 'student', 'as' =
     Route::group(['prefix' => 'notifications', 'as' => 'notifications.'], function() {
         Route::get('/', [\App\Http\Controllers\Student\NotificationController::class, 'index'])->name('index');
         Route::get('/unread', [\App\Http\Controllers\Student\NotificationController::class, 'getUnread'])->name('unread');
-        Route::post('/{id}/read', [\App\Http\Controllers\Student\NotificationController::class, 'markAsRead'])->name('read');
         Route::post('/mark-all-read', [\App\Http\Controllers\Student\NotificationController::class, 'markAllAsRead'])->name('mark_all_read');
-        Route::delete('/{id}', [\App\Http\Controllers\Student\NotificationController::class, 'destroy'])->name('destroy');
         Route::post('/clear-read', [\App\Http\Controllers\Student\NotificationController::class, 'clearRead'])->name('clear_read');
+        Route::get('/{notification}', [\App\Http\Controllers\Student\NotificationController::class, 'show'])->name('show')->where('notification', '[0-9]+');
+        Route::match(['get', 'post'], '/{notification}/read', [\App\Http\Controllers\Student\NotificationController::class, 'markAsRead'])->name('read')->where('notification', '[0-9]+');
+        Route::delete('/{notification}', [\App\Http\Controllers\Student\NotificationController::class, 'destroy'])->name('destroy')->where('notification', '[0-9]+');
     });
 });

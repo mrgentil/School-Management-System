@@ -281,9 +281,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('grades', '\App\Http\Controllers\SupportTeam\GradeController');
         
         // Custom Remarks (Mentions personnalisées)
-        Route::post('custom-remarks', [CustomRemarkController::class, 'store'])->name('custom-remarks.store');
-        Route::put('custom-remarks/{id}', [CustomRemarkController::class, 'update'])->name('custom-remarks.update');
-        Route::delete('custom-remarks/{id}', [CustomRemarkController::class, 'destroy'])->name('custom-remarks.destroy');
+        Route::post('custom-remarks', [\App\Http\Controllers\SupportTeam\CustomRemarkController::class, 'store'])->name('custom-remarks.store');
+        Route::put('custom-remarks/{id}', [\App\Http\Controllers\SupportTeam\CustomRemarkController::class, 'update'])->name('custom-remarks.update');
+        Route::delete('custom-remarks/{id}', [\App\Http\Controllers\SupportTeam\CustomRemarkController::class, 'destroy'])->name('custom-remarks.destroy');
 
         // Routes pour la configuration des cotes par matière (Système RDC)
         Route::get('subject-grades-config', [\App\Http\Controllers\SupportTeam\SubjectGradeConfigController::class, 'index'])->name('subject-grades-config.index');
@@ -407,13 +407,37 @@ Route::group(['middleware' => 'super_admin', 'prefix' => 'super_admin', 'as' => 
         Route::get('/', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'store'])->name('store');
-        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'show'])->name('show');
-        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'show'])->name('show')->where('id', '[0-9]+');
+        Route::post('/{id}/reply', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'reply'])->name('reply')->where('id', '[0-9]+');
+        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\MessageController::class, 'destroy'])->name('destroy')->where('id', '[0-9]+');
+        // GET fallback pour éviter 404 après redirect
+        Route::get('/{id}/reply', function ($id) {
+            return redirect()->route('super_admin.messages.show', $id);
+        })->where('id', '[0-9]+');
     });
 
 });
 
 
+
+/************************ TEACHER ****************************/
+Route::group(['middleware' => ['auth', 'teamSAT'], 'prefix' => 'teacher', 'as' => 'teacher.'], function(){
+
+    // Messagerie Enseignant
+    Route::group(['prefix' => 'messages', 'as' => 'messages.'], function() {
+        Route::get('/', [\App\Http\Controllers\Teacher\MessageController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Teacher\MessageController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Teacher\MessageController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\Teacher\MessageController::class, 'show'])->name('show')->where('id', '[0-9]+');
+        Route::post('/{id}/reply', [\App\Http\Controllers\Teacher\MessageController::class, 'reply'])->name('reply')->where('id', '[0-9]+');
+        Route::delete('/{id}', [\App\Http\Controllers\Teacher\MessageController::class, 'destroy'])->name('destroy')->where('id', '[0-9]+');
+        // GET fallback pour éviter 404 après redirect
+        Route::get('/{id}/reply', function ($id) {
+            return redirect()->route('teacher.messages.show', $id);
+        })->where('id', '[0-9]+');
+    });
+
+});
 
 /************************ PARENT ****************************/
 Route::group(['middleware' => 'my_parent'], function(){

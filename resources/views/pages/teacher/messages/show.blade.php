@@ -2,7 +2,7 @@
 @section('page_title', 'Message - ' . $message->subject)
 
 @section('content')
-    @php $routePrefix = 'super_admin'; @endphp
+    @php $routePrefix = 'teacher'; @endphp
     @include('partials.messages.show', [
         'message' => $message,
         'conversation' => $conversation,

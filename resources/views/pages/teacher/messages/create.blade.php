@@ -2,10 +2,10 @@
 @section('page_title', 'Nouveau message')
 
 @section('content')
-    @php $routePrefix = 'super_admin'; @endphp
+    @php $routePrefix = 'teacher'; @endphp
     @include('partials.messages.create', [
         'recipients' => $recipients,
         'routePrefix' => $routePrefix,
-        'showBulkOptions' => true
+        'showBulkOptions' => false
     ])
 @endsection

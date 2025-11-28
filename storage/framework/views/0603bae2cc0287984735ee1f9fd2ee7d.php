@@ -1,7 +1,15 @@
 
 <li class="nav-item">
-    <a href="<?php echo e(route('super_admin.messages.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['super_admin.messages.index', 'super_admin.messages.create']) ? 'active' : ''); ?>">
-        <i class="icon-envelop"></i> <span>📧 Messagerie Admin</span>
+    <a href="<?php echo e(route('super_admin.messages.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['super_admin.messages.index', 'super_admin.messages.create', 'super_admin.messages.show']) ? 'active' : ''); ?>">
+        <i class="icon-envelop"></i> <span>Messagerie</span>
+        <?php
+            $unreadMsgCount = \App\Models\MessageRecipient::where('recipient_id', Auth::id())
+                ->where('is_read', false)
+                ->count();
+        ?>
+        <?php if($unreadMsgCount > 0): ?>
+            <span class="badge badge-danger badge-pill ml-auto"><?php echo e($unreadMsgCount); ?></span>
+        <?php endif; ?>
     </a>
 </li>
 

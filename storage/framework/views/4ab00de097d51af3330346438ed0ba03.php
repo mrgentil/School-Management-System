@@ -124,13 +124,15 @@
 
 <li class="nav-item">
     <a href="<?php echo e(route('student.messages.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['student.messages.index', 'student.messages.show', 'student.messages.create']) ? 'active' : ''); ?>">
-        <i class="icon-bubbles4"></i>
+        <i class="icon-envelop"></i>
         <span>Messagerie</span>
         <?php
-            $unreadMessages = \App\Models\Message::where('receiver_id', Auth::id())->where('is_read', false)->count();
+            $unreadMsgCount = \App\Models\MessageRecipient::where('recipient_id', Auth::id())
+                ->where('is_read', false)
+                ->count();
         ?>
-        <?php if($unreadMessages > 0): ?>
-            <span class="badge badge-danger badge-pill ml-2"><?php echo e($unreadMessages); ?></span>
+        <?php if($unreadMsgCount > 0): ?>
+            <span class="badge badge-danger badge-pill ml-auto"><?php echo e($unreadMsgCount); ?></span>
         <?php endif; ?>
     </a>
 </li>

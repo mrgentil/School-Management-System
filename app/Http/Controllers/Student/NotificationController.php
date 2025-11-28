@@ -48,25 +48,60 @@ class NotificationController extends Controller
     }
 
     /**
+     * Afficher une notification
+     */
+    public function show($notification)
+    {
+        $notif = UserNotification::where('user_id', Auth::id())
+            ->where('id', $notification)
+            ->first();
+
+        if (!$notif) {
+            return redirect()->route('student.notifications.index')
+                ->with('flash_danger', 'Notification non trouvée.');
+        }
+
+        // Marquer comme lue automatiquement
+        $notif->markAsRead();
+
+        // Si la notification a une URL, rediriger vers celle-ci
+        if ($notif->data && isset($notif->data['url'])) {
+            return redirect($notif->data['url']);
+        }
+
+        // Sinon afficher la liste des notifications
+        return redirect()->route('student.notifications.index');
+    }
+
+    /**
      * Marquer une notification comme lue
      */
-    public function markAsRead($id)
+    public function markAsRead($notification)
     {
-        $notification = UserNotification::where('user_id', Auth::id())
-            ->findOrFail($id);
+        $notif = UserNotification::where('user_id', Auth::id())
+            ->where('id', $notification)
+            ->first();
 
-        $notification->markAsRead();
+        if (!$notif) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Notification non trouvée'], 404);
+            }
+            return redirect()->route('student.notifications.index')
+                ->with('flash_danger', 'Notification non trouvée ou déjà supprimée.');
+        }
+
+        $notif->markAsRead();
 
         if (request()->ajax()) {
             return response()->json(['success' => true]);
         }
 
         // Rediriger vers l'URL si présente dans les données
-        if ($notification->data && isset($notification->data['url'])) {
-            return redirect($notification->data['url']);
+        if ($notif->data && isset($notif->data['url'])) {
+            return redirect($notif->data['url']);
         }
 
-        return redirect()->back();
+        return redirect()->route('student.notifications.index');
     }
 
     /**
@@ -91,18 +126,37 @@ class NotificationController extends Controller
     /**
      * Supprimer une notification
      */
-    public function destroy($id)
+    public function destroy($notification)
     {
-        $notification = UserNotification::where('user_id', Auth::id())
-            ->findOrFail($id);
+        \Log::info('Destroy notification', ['id' => $notification, 'user_id' => Auth::id()]);
+        
+        $notif = UserNotification::where('user_id', Auth::id())
+            ->where('id', $notification)
+            ->first();
 
-        $notification->delete();
+        if (!$notif) {
+            // Debug: vérifier si la notification existe pour un autre utilisateur
+            $existsForOther = UserNotification::where('id', $notification)->first();
+            \Log::warning('Notification not found', [
+                'requested_id' => $notification,
+                'auth_user_id' => Auth::id(),
+                'exists_for_other' => $existsForOther ? $existsForOther->user_id : 'not exists'
+            ]);
+            
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Notification non trouvée'], 404);
+            }
+            return redirect()->route('student.notifications.index')
+                ->with('flash_danger', "Notification #$notification non trouvée pour l'utilisateur #" . Auth::id());
+        }
+
+        $notif->delete();
 
         if (request()->ajax()) {
             return response()->json(['success' => true]);
         }
 
-        return redirect()->back()->with('flash_success', 'Notification supprimée.');
+        return redirect()->route('student.notifications.index')->with('flash_success', 'Notification supprimée.');
     }
 
     /**

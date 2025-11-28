@@ -80,7 +80,7 @@ class BulletinController extends Controller
 
         $student = StudentRecord::where('user_id', $student_id)
             ->where('session', $this->year)
-            ->with(['user', 'my_class', 'section'])
+            ->with(['user.lga', 'user.state', 'my_class', 'section', 'option'])
             ->first();
 
         if (!$student) {
@@ -186,16 +186,18 @@ class BulletinController extends Controller
 
     /**
      * Prévisualiser le bulletin (HTML)
+     * @param string $format - 'default' ou 'rdc' pour le format RDC officiel
      */
     public function preview($student_id, Request $req)
     {
         $type = $req->type ?? 'period';
         $period = $req->period ?? 1;
         $semester = $req->semester ?? 1;
+        $format = $req->format ?? 'default'; // 'default' ou 'rdc'
 
         $student = StudentRecord::where('user_id', $student_id)
             ->where('session', $this->year)
-            ->with(['user', 'my_class', 'section'])
+            ->with(['user.lga', 'user.state', 'my_class.academicSection', 'my_class.option', 'section', 'option'])
             ->first();
 
         if (!$student) {
@@ -205,7 +207,8 @@ class BulletinController extends Controller
         $bulletinData = $this->getBulletinData($student, $type, $period, $semester);
         $school = $this->getSchoolInfo();
 
-        $d['student'] = $student;
+        $d['student'] = $student; // L'objet StudentRecord (pour preview.blade.php)
+        $d['studentRecord'] = $student; // Alias pour compatibilité
         $d['bulletinData'] = $bulletinData['subjects'];
         $d['stats'] = $bulletinData['stats'];
         $d['school'] = $school;
@@ -218,7 +221,8 @@ class BulletinController extends Controller
         $d['appreciation'] = $this->getAppreciation($bulletinData['stats']['average']);
         $d['generated_at'] = now()->format('d/m/Y à H:i');
 
-        return view('pages.support_team.bulletins.preview', $d);
+        // Utiliser le format RDC par défaut
+        return view('pages.support_team.bulletins.bulletin_rdc', $d);
     }
 
     /**
@@ -403,6 +407,11 @@ class BulletinController extends Controller
             'email' => Setting::where('type', 'email')->value('description') ?? '',
             'logo' => Setting::where('type', 'logo')->value('description') ?? asset('global_assets/images/logo.png'),
             'motto' => Setting::where('type', 'motto')->value('description') ?? '',
+            // Infos RDC
+            'province' => Setting::where('type', 'province')->value('description') ?? 'KINSHASA',
+            'city' => Setting::where('type', 'city')->value('description') ?? '',
+            'commune' => Setting::where('type', 'commune')->value('description') ?? '',
+            'code' => Setting::where('type', 'school_code')->value('description') ?? '',
         ];
     }
 

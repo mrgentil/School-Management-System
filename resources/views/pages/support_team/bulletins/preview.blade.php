@@ -1,8 +1,9 @@
 @extends('layouts.master')
-@section('page_title', 'Aperçu Bulletin - ' . $student->user->name)
+@section('page_title', 'Bulletin - ' . $student->user->name)
 
 @section('content')
 
+{{-- Boutons d'action --}}
 <div class="d-flex justify-content-between align-items-center mb-3 no-print">
     <div>
         <a href="{{ url()->previous() }}" class="btn btn-light">
@@ -20,260 +21,228 @@
     </div>
 </div>
 
-<div class="card bulletin-card">
-    <div class="card-body p-4">
-        {{-- Header --}}
-        <div class="bulletin-header text-center mb-4">
-            <div class="row align-items-center">
-                <div class="col-md-2">
-                    <img src="{{ $school['logo'] ?? asset('global_assets/images/logo.png') }}" 
-                         width="80" class="rounded" alt="Logo">
-                </div>
-                <div class="col-md-8">
-                    <h2 class="text-primary font-weight-bold mb-1">{{ $school['name'] ?? 'ÉCOLE' }}</h2>
-                    @if($school['motto'] ?? false)
-                        <p class="font-italic text-muted mb-1">"{{ $school['motto'] }}"</p>
-                    @endif
-                    <small class="text-muted">
-                        {{ $school['address'] ?? '' }}
-                        @if($school['phone'] ?? false) | Tél: {{ $school['phone'] }} @endif
-                    </small>
-                </div>
-                <div class="col-md-2 text-right">
-                    <strong>Année Scolaire</strong><br>
-                    <span class="badge badge-primary badge-lg">{{ $year }}</span>
+<div class="card bulletin-rdc">
+    <div class="card-body p-3" style="font-family: 'Times New Roman', Times, serif; font-size: 11px;">
+        
+        {{-- En-tête RDC --}}
+        <div class="row align-items-center border-bottom pb-2 mb-2">
+            <div class="col-2 text-center">
+                {{-- Drapeau RDC --}}
+                <div style="width: 50px; height: 35px; border: 1px solid #000; margin: auto;">
+                    <div style="background: #007FFF; height: 33.33%;"></div>
+                    <div style="background: #F7D618; height: 33.33%;"></div>
+                    <div style="background: #CE1126; height: 33.33%;"></div>
                 </div>
             </div>
-            <hr class="my-3" style="border-top: 3px double #003366;">
-        </div>
-
-        {{-- Title --}}
-        <div class="bg-primary text-white text-center py-2 mb-4 rounded">
-            <h4 class="mb-0 font-weight-bold">
-                <i class="icon-file-text2 mr-2"></i>
-                BULLETIN DE NOTES - {{ $type == 'period' ? 'PÉRIODE ' . $period : 'SEMESTRE ' . $semester }}
-            </h4>
-            <small>Année Scolaire {{ $year }}</small>
-        </div>
-
-        {{-- Student Info --}}
-        <div class="bg-light p-3 rounded mb-4">
-            <div class="row">
-                <div class="col-md-4">
-                    <table class="table table-borderless mb-0">
-                        <tr>
-                            <th class="text-primary">Nom et Prénom:</th>
-                            <td><strong>{{ $student->user->name }}</strong></td>
-                        </tr>
-                        <tr>
-                            <th class="text-primary">Matricule:</th>
-                            <td>{{ $student->adm_no }}</td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="col-md-4">
-                    <table class="table table-borderless mb-0">
-                        <tr>
-                            <th class="text-primary">Classe:</th>
-                            <td>{{ $student->my_class->full_name ?? $student->my_class->name }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-primary">{{ $type == 'period' ? 'Période:' : 'Semestre:' }}</th>
-                            <td><span class="badge badge-info badge-lg">{{ $type == 'period' ? 'P' . $period : 'S' . $semester }}</span></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="col-md-4">
-                    <table class="table table-borderless mb-0">
-                        <tr>
-                            <th class="text-primary">Rang:</th>
-                            <td>
-                                <span class="badge badge-{{ $rank <= 3 ? 'warning' : 'secondary' }} badge-lg" style="font-size: 16px;">
-                                    {{ $rank }}{{ $rank == 1 ? 'er' : 'ème' }} / {{ $totalStudents }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-primary">Moyenne:</th>
-                            <td>
-                                <span class="badge badge-{{ $stats['average'] >= 10 ? 'success' : 'danger' }} badge-lg" style="font-size: 16px;">
-                                    {{ number_format($stats['average'], 2) }} / 20
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
+            <div class="col-8 text-center">
+                <h6 class="font-weight-bold mb-0" style="font-size: 12px;">REPUBLIQUE DEMOCRATIQUE DU CONGO</h6>
+                <p class="mb-0" style="font-size: 10px;">MINISTERE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE</p>
+                <p class="mb-0" style="font-size: 9px;">INITIATION A LA NOUVELLE CITOYENNETE</p>
+            </div>
+            <div class="col-2 text-center">
+                {{-- Armoiries --}}
+                <div style="width: 50px; height: 50px; border: 1px solid #000; margin: auto; display: flex; align-items: center; justify-content: center;">
+                    <small style="font-size: 7px;">Armoiries</small>
                 </div>
             </div>
         </div>
 
-        {{-- Grades Table --}}
-        <div class="table-responsive mb-4">
-            <table class="table table-bordered">
-                <thead class="bg-primary text-white">
-                    <tr>
-                        <th style="width: 20%;">MATIÈRE</th>
-                        @if($type == 'period')
-                            <th class="text-center">POINTS</th>
-                            <th class="text-center">MAX</th>
-                        @else
-                            <th class="text-center">Moy. Périodes</th>
-                            <th class="text-center">-</th>
-                            <th class="text-center">EXAM</th>
-                            <th class="text-center">TOTAL</th>
-                        @endif
-                        <th class="text-center">%</th>
-                        <th class="text-center">NOTE</th>
-                        <th>APPRÉCIATION</th>
+        {{-- N° ID --}}
+        <div class="mb-2">
+            <span style="border: 1px solid #000; padding: 2px 8px; font-weight: bold;">N° ID. {{ $student->adm_no }}</span>
+        </div>
+
+        {{-- Infos École / Élève --}}
+        <div class="row mb-2" style="font-size: 10px;">
+            <div class="col-6">
+                <table class="table table-sm table-borderless mb-0">
+                    <tr><td><strong>PROVINCE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $school['province'] ?? 'KINSHASA' }}</td></tr>
+                    <tr><td><strong>VILLE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $school['city'] ?? '' }}</td></tr>
+                    <tr><td><strong>COMMUNE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $school['commune'] ?? '' }}</td></tr>
+                    <tr><td><strong>ECOLE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $school['name'] ?? config('app.name') }}</td></tr>
+                    <tr><td><strong>CODE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $school['code'] ?? '' }}</td></tr>
+                </table>
+            </div>
+            <div class="col-6">
+                <table class="table table-sm table-borderless mb-0">
+                    <tr><td><strong>ELEVE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $student->user->name }}</td></tr>
+                    <tr><td><strong>SEXE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $student->gender ?? '' }}</td></tr>
+                    <tr><td><strong>NE(E) A :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $student->lga ?? '' }}</td></tr>
+                    <tr><td><strong>LE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $student->dob ? \Carbon\Carbon::parse($student->dob)->format('d/m/Y') : '' }}</td></tr>
+                    <tr><td><strong>CLASSE :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $student->my_class->name ?? '' }} {{ $student->section->name ?? '' }}</td></tr>
+                    <tr><td><strong>N° PERM. :</strong></td><td style="border-bottom: 1px dotted #000;">{{ $student->adm_no }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        {{-- Titre du bulletin --}}
+        <div class="text-center py-2 mb-3" style="background: #f0f0f0; border: 1px solid #000; font-weight: bold;">
+            BULLETIN DE {{ $type == 'semester' ? 'SEMESTRE ' . $semester : 'PERIODE ' . $period }}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ANNEE SCOLAIRE {{ $year }}
+        </div>
+
+        {{-- Tableau des notes format RDC --}}
+        @php
+            $totalMax = 0;
+            $totalObtained = 0;
+        @endphp
+        
+        <div class="table-responsive mb-3">
+            <table class="table table-bordered table-sm" style="font-size: 9px;">
+                <thead>
+                    <tr style="background: #e0e0e0;">
+                        <th rowspan="2" class="text-center align-middle" style="width: 25%;">BRANCHES</th>
+                        <th colspan="2" class="text-center" style="background: #c0c0c0;">POINTS</th>
+                        <th rowspan="2" class="text-center align-middle" style="width: 8%;">%</th>
+                        <th rowspan="2" class="text-center align-middle" style="width: 20%;">APPRECIATION</th>
+                    </tr>
+                    <tr style="background: #e0e0e0;">
+                        <th class="text-center" style="width: 10%;">Obtenu</th>
+                        <th class="text-center" style="width: 10%;">Max</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($bulletinData as $data)
+                        @php
+                            $max = $data['total_max'] ?? 20;
+                            $obtained = $data['total_obtained'] ?? 0;
+                            $totalMax += $max;
+                            $totalObtained += $obtained;
+                        @endphp
                         <tr>
-                            <td><strong>{{ $data['subject'] }}</strong></td>
-                            @if($type == 'period')
-                                <td class="text-center"><strong>{{ $data['total_obtained'] !== null ? number_format($data['total_obtained'], 2) : '-' }}</strong></td>
-                                <td class="text-center">{{ $data['total_max'] ?? 20 }}</td>
-                            @else
-                                <td class="text-center">{{ $data['period_average'] !== null ? number_format($data['period_average'], 1).'%' : '-' }}</td>
-                                <td class="text-center">-</td>
-                                <td class="text-center">{{ $data['exam_average'] !== null ? number_format($data['exam_average'], 1).'%' : '-' }}</td>
-                                <td class="text-center"><strong>{{ $data['total_obtained'] !== null ? number_format($data['total_obtained'], 2) : '-' }}</strong></td>
-                            @endif
+                            <td style="padding-left: 5px;">{{ $data['subject'] }}</td>
+                            <td class="text-center">{{ $data['total_obtained'] !== null ? number_format($data['total_obtained'], 1) : '-' }}</td>
+                            <td class="text-center">{{ $max }}</td>
                             <td class="text-center">
                                 @if($data['percentage'] !== null)
-                                    <span class="badge badge-{{ $data['percentage'] >= 70 ? 'success' : ($data['percentage'] >= 50 ? 'info' : 'danger') }}">
+                                    <span class="badge badge-{{ $data['percentage'] >= 50 ? 'success' : 'danger' }}" style="font-size: 8px;">
                                         {{ number_format($data['percentage'], 1) }}%
                                     </span>
                                 @else
-                                    <span class="text-muted">-</span>
+                                    -
                                 @endif
                             </td>
-                            <td class="text-center"><strong>{{ $data['grade'] }}</strong></td>
-                            <td>
-                                <span class="text-{{ $data['percentage'] !== null && $data['percentage'] >= 70 ? 'success' : ($data['percentage'] !== null && $data['percentage'] >= 50 ? 'info' : 'danger') }}">
+                            <td class="text-center" style="font-size: 8px;">
+                                <span class="text-{{ $data['percentage'] !== null && $data['percentage'] >= 50 ? 'success' : 'danger' }}">
                                     {{ $data['remark'] }}
                                 </span>
                             </td>
                         </tr>
                     @endforeach
                     
-                    {{-- Total Row --}}
-                    <tr class="bg-light font-weight-bold">
-                        <td><strong>TOTAL GÉNÉRAL</strong></td>
-                        @if($type == 'period')
-                            <td colspan="2" class="text-center">-</td>
-                        @else
-                            <td colspan="4" class="text-center">-</td>
-                        @endif
+                    {{-- Ligne MAXIMA --}}
+                    <tr style="background: #f5f5f5; font-weight: bold;">
+                        <td style="padding-left: 5px;">MAXIMA</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">{{ $totalMax }}</td>
+                        <td class="text-center">100%</td>
+                        <td></td>
+                    </tr>
+                    
+                    {{-- Ligne TOTAUX --}}
+                    <tr style="background: #d0d0d0; font-weight: bold;">
+                        <td style="padding-left: 5px;">TOTAUX</td>
+                        <td class="text-center">{{ number_format($totalObtained, 1) }}</td>
+                        <td class="text-center">{{ $totalMax }}</td>
                         <td class="text-center">
-                            <span class="badge badge-{{ $stats['average'] >= 50 ? 'success' : ($stats['average'] >= 50 ? 'primary' : 'danger') }} badge-lg" style="font-size: 16px;">
+                            <span class="badge badge-{{ $stats['average'] >= 50 ? 'success' : 'danger' }}">
                                 {{ number_format($stats['average'], 2) }}%
                             </span>
                         </td>
-                        <td class="text-center">-</td>
-                        <td><strong class="text-{{ $appreciation['class'] }}">{{ $appreciation['text'] }}</strong></td>
+                        <td class="text-center">{{ $appreciation['text'] }}</td>
+                    </tr>
+                    
+                    {{-- Ligne PLACE/NBRE ELEVES --}}
+                    <tr>
+                        <td style="padding-left: 5px; font-weight: bold;">PLACE / NBRE ELEVES</td>
+                        <td colspan="4" class="text-center">
+                            <strong>{{ $rank }}{{ $rank == 1 ? 'er' : 'ème' }} / {{ $totalStudents }}</strong>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        {{-- Statistics Cards --}}
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card bg-primary text-white text-center">
-                    <div class="card-body py-3">
-                        <h2 class="mb-0">{{ number_format($stats['average'], 2) }}</h2>
-                        <small>Moyenne Générale</small>
+        {{-- Application et Conduite --}}
+        <div class="row mb-3">
+            <div class="col-6">
+                <table class="table table-bordered table-sm" style="font-size: 9px;">
+                    <tr>
+                        <td style="width: 40%;"><strong>APPLICATION</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CONDUITE</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SIGN. RESPONSABLE</strong></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-6">
+                <div style="font-size: 9px; border: 1px solid #000; padding: 5px;">
+                    <div class="mb-1">
+                        <input type="checkbox" {{ $stats['average'] >= 50 ? 'checked' : '' }}> Passe (1)
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-info text-white text-center">
-                    <div class="card-body py-3">
-                        <h2 class="mb-0">{{ $rank }}<sup>{{ $rank == 1 ? 'er' : 'ème' }}</sup></h2>
-                        <small>Rang / {{ $totalStudents }}</small>
+                    <div class="mb-1">
+                        <input type="checkbox"> Double (1)
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white text-center">
-                    <div class="card-body py-3">
-                        <h2 class="mb-0">{{ $stats['passed'] }}</h2>
-                        <small>Matières Réussies</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-danger text-white text-center">
-                    <div class="card-body py-3">
-                        <h2 class="mb-0">{{ $stats['failed'] }}</h2>
-                        <small>Matières Échouées</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Appreciation --}}
-        <div class="card border-primary mb-4">
-            <div class="card-header bg-primary text-white">
-                <h6 class="mb-0"><i class="icon-clipboard3 mr-2"></i>APPRÉCIATION GÉNÉRALE DU CONSEIL DE CLASSE</h6>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-{{ $appreciation['class'] }} text-center mb-3">
-                    <h4 class="mb-0">
-                        {{ $appreciation['text'] }}
-                        @if($stats['average'] >= 10)
-                            - <span class="text-success">Admis(e) à poursuivre</span>
-                        @else
-                            - <span class="text-danger">Doit redoubler ses efforts</span>
-                        @endif
-                    </h4>
-                </div>
-                <div class="form-group">
-                    <label class="font-weight-bold">Observations:</label>
-                    <div class="border p-3 rounded" style="min-height: 60px;">
-                        <span class="text-muted">_______________________________________________________________________</span>
+                    <div>
+                        <input type="checkbox" {{ $stats['average'] < 50 ? 'checked' : '' }}> A échoué (1)
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- Grading Scale --}}
-        <div class="alert alert-light mb-4">
-            <small>
-                <strong>Échelle de notation:</strong> 
-                <span class="badge badge-success">A+ (18-20)</span> Excellent |
-                <span class="badge badge-info">A (16-17.99)</span> Très Bien |
-                <span class="badge badge-primary">B+ (14-15.99)</span> Bien |
-                <span class="badge badge-secondary">B (12-13.99)</span> Assez Bien |
-                <span class="badge badge-warning">C (10-11.99)</span> Passable |
-                <span class="badge badge-danger">D/E (&lt;10)</span> Insuffisant
-            </small>
-        </div>
-
-        {{-- Signatures --}}
-        <div class="row mt-5">
-            <div class="col-md-4 text-center">
-                <p class="font-weight-bold mb-5">Le Titulaire de Classe</p>
-                <hr>
+        {{-- Signatures RDC --}}
+        <div class="row mt-3" style="font-size: 9px;">
+            <div class="col-4 text-center">
+                <p class="font-weight-bold mb-4">Le Titulaire de Classe</p>
+                <hr style="border-top: 1px solid #000;">
                 <small>Signature</small>
             </div>
-            <div class="col-md-4 text-center">
-                <p class="font-weight-bold mb-5">Le Parent / Tuteur</p>
-                <hr>
+            <div class="col-4 text-center">
+                <p class="font-weight-bold mb-4">Le Parent / Tuteur</p>
+                <hr style="border-top: 1px solid #000;">
                 <small>Signature</small>
             </div>
-            <div class="col-md-4 text-center">
-                <p class="font-weight-bold mb-5">Le Chef d'Établissement</p>
-                <hr>
+            <div class="col-4 text-center">
+                <p class="font-weight-bold mb-4">Le Chef d'Établissement</p>
+                <hr style="border-top: 1px solid #000;">
                 <small>Signature & Cachet</small>
             </div>
         </div>
 
-        {{-- Footer --}}
-        <hr class="mt-4">
-        <div class="text-center text-muted">
-            <small>Document généré le {{ $generated_at }} | {{ $school['name'] ?? 'École' }} - Année Scolaire {{ $year }}</small>
+        {{-- Pied de page RDC --}}
+        <div class="mt-3 pt-2" style="border-top: 1px solid #000; font-size: 8px;">
+            <p class="mb-1">- L'élève ne pourra passer dans la classe supérieure s'il ne subit avec succès un examen de repêchage en ........................... (1)</p>
+            <p class="mb-1">- L'élève passe dans la classe supérieure (1)</p>
+            <p class="mb-1">- L'élève double sa classe (1)</p>
+            <p class="mb-1">- L'élève a échoué et orienté vers ........................... (1)</p>
+            
+            <div class="row mt-3">
+                <div class="col-4">
+                    <p>Signature de l'élève</p>
+                    <br>
+                    <p>_______________________</p>
+                </div>
+                <div class="col-4 text-center">
+                    <p>Sceau de l'école</p>
+                </div>
+                <div class="col-4 text-right">
+                    <p>Fait à {{ $school['city'] ?? '..................' }}, le {{ now()->format('d/m/Y') }}</p>
+                    <p>Le Chef d'Établissement,</p>
+                    <br>
+                    <p>Nom et signature</p>
+                </div>
+            </div>
+            
+            <p class="mt-2"><em>(1) Biffer la mention inutile</em></p>
+            <p><strong>Note importante :</strong> Le bulletin est sans valeur s'il est raturé ou surchargé</p>
+            <p class="text-right">Document généré le {{ $generated_at }}</p>
         </div>
     </div>
 </div>
@@ -282,10 +251,25 @@
 
 @section('styles')
 <style>
+    .bulletin-rdc {
+        background: white;
+    }
+    
     @media print {
         .no-print { display: none !important; }
-        .bulletin-card { box-shadow: none !important; border: none !important; }
-        body { font-size: 12px; }
+        .bulletin-rdc { 
+            box-shadow: none !important; 
+            border: none !important;
+            margin: 0;
+            padding: 10px;
+        }
+        body { 
+            font-size: 10px;
+            background: white;
+        }
+        .card-body {
+            padding: 10px !important;
+        }
     }
 </style>
 @endsection
