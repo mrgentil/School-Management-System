@@ -5,12 +5,21 @@
 <div class="card bg-primary text-white mb-3">
     <div class="card-body py-3">
         <h4 class="mb-0"><i class="icon-printer mr-2"></i> Centre d'Impression</h4>
-        <small class="opacity-75">Générez et imprimez tous vos documents scolaires</small>
+        <small class="opacity-75">
+            <?php if($userType == 'teacher'): ?>
+                Imprimez les documents de vos classes
+            <?php elseif($userType == 'accountant'): ?>
+                Imprimez les documents financiers
+            <?php else: ?>
+                Générez et imprimez tous vos documents scolaires
+            <?php endif; ?>
+        </small>
     </div>
 </div>
 
 <div class="row">
     
+    <?php if(in_array($userType, ['super_admin', 'admin', 'teacher'])): ?>
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header bg-info text-white">
@@ -50,7 +59,7 @@
                         <div class="input-group">
                             <select name="subject_id" class="form-control" required>
                                 <option value="">-- Matière --</option>
-                                <?php $__currentLoopData = \App\Models\Subject::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($subject->id); ?>"><?php echo e($subject->name); ?></option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
@@ -82,8 +91,10 @@
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     
+    <?php if(in_array($userType, ['super_admin', 'admin'])): ?>
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header bg-success text-white">
@@ -141,8 +152,10 @@
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     
+    <?php if(in_array($userType, ['super_admin', 'admin', 'accountant'])): ?>
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header bg-warning text-white">
@@ -157,8 +170,8 @@
                         <div class="input-group">
                             <select name="class_id" class="form-control" required>
                                 <option value="">-- Classe --</option>
-                                <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($class->id); ?>"><?php echo e($class->name); ?></option>
+                                <?php $__currentLoopData = \App\Models\MyClass::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($c->id); ?>"><?php echo e($c->name); ?></option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <div class="input-group-append">
@@ -174,13 +187,16 @@
                     <a href="<?php echo e(route('payments.index')); ?>" class="btn btn-outline-warning btn-sm mb-2 btn-block">
                         <i class="icon-clipboard3 mr-1"></i> Gérer les Paiements
                     </a>
+                    <?php if(in_array($userType, ['super_admin', 'admin', 'accountant'])): ?>
                     <a href="<?php echo e(route('finance.dashboard')); ?>" class="btn btn-outline-warning btn-sm btn-block">
                         <i class="icon-stats-bars mr-1"></i> Rapports Financiers
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 

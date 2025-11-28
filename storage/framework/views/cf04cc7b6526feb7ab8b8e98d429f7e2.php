@@ -277,6 +277,15 @@
                                     </li>
                                 </ul>
                             </li>
+                            
+                            <?php if(Qs::userIsSuperAdmin()): ?>
+                            
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('backup.index')); ?>" class="nav-link <?php echo e(Route::is('backup.*') ? 'active' : ''); ?>">
+                                    <i class="icon-database mr-1"></i> 💾 Sauvegarde
+                                </a>
+                            </li>
+                            <?php endif; ?>
                             <?php endif; ?>
 
                             

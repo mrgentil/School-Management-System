@@ -276,6 +276,15 @@
                                     </li>
                                 </ul>
                             </li>
+                            
+                            @if(Qs::userIsSuperAdmin())
+                            {{-- Sauvegarde (Super Admin uniquement) --}}
+                            <li class="nav-item">
+                                <a href="{{ route('backup.index') }}" class="nav-link {{ Route::is('backup.*') ? 'active' : '' }}">
+                                    <i class="icon-database mr-1"></i> 💾 Sauvegarde
+                                </a>
+                            </li>
+                            @endif
                             @endif
 
                             {{--Payments--}}

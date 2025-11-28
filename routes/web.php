@@ -310,6 +310,15 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/summary', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'summary'])->name('print.summary');
         });
 
+        /*************** Sauvegarde Base de Données *****************/
+        Route::group(['prefix' => 'backup', 'middleware' => 'super_admin'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\BackupController::class, 'index'])->name('backup.index');
+            Route::post('/create', [\App\Http\Controllers\SupportTeam\BackupController::class, 'create'])->name('backup.create');
+            Route::get('/download/{filename}', [\App\Http\Controllers\SupportTeam\BackupController::class, 'download'])->name('backup.download');
+            Route::post('/restore/{filename}', [\App\Http\Controllers\SupportTeam\BackupController::class, 'restore'])->name('backup.restore');
+            Route::delete('/destroy/{filename}', [\App\Http\Controllers\SupportTeam\BackupController::class, 'destroy'])->name('backup.destroy');
+        });
+
         /*************** Calendrier Scolaire *****************/
         Route::group(['prefix' => 'calendar', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'index'])->name('calendar.index');
