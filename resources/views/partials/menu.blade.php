@@ -45,18 +45,30 @@
 
                 <!-- Main (Non-Students) -->
                 @if(!Qs::userIsStudent())
-                <li class="nav-item">
-                    @if(Qs::userIsSuperAdmin())
-                        <a href="{{ route('super_admin.dashboard') }}" class="nav-link {{ (Route::is('super_admin.dashboard')) ? 'active' : '' }}">
-                            <i class="icon-home4"></i>
-                            <span>📊 Tableau de bord</span>
-                        </a>
-                    @else
-                        <a href="{{ route('dashboard') }}" class="nav-link {{ (Route::is('dashboard')) ? 'active' : '' }}">
-                            <i class="icon-home4"></i>
-                            <span>Tableau de bord</span>
-                        </a>
-                    @endif
+                <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['dashboard', 'dashboard.enhanced', 'super_admin.dashboard']) ? 'nav-item-expanded nav-item-open' : '' }}">
+                    <a href="#" class="nav-link"><i class="icon-home4"></i> <span>Tableau de bord</span></a>
+                    <ul class="nav nav-group-sub">
+                        @if(Qs::userIsSuperAdmin())
+                            <li class="nav-item">
+                                <a href="{{ route('super_admin.dashboard') }}" class="nav-link {{ Route::is('super_admin.dashboard') ? 'active' : '' }}">
+                                    <i class="icon-clipboard3"></i> Vue Générale
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a href="{{ route('dashboard') }}" class="nav-link {{ Route::is('dashboard') ? 'active' : '' }}">
+                                    <i class="icon-clipboard3"></i> Vue Simple
+                                </a>
+                            </li>
+                        @endif
+                        @if(Qs::userIsTeamSA())
+                            <li class="nav-item">
+                                <a href="{{ route('dashboard.enhanced') }}" class="nav-link {{ Route::is('dashboard.enhanced') ? 'active' : '' }}">
+                                    <i class="icon-stats-bars"></i> 📊 Statistiques
+                                </a>
+                            </li>
+                        @endif
+                    </ul>
                 </li>
                 @endif
 
@@ -164,10 +176,19 @@
 
                 {{--Administrative--}}
                 @if(Qs::userIsAdministrative())
-                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show',]) ? 'nav-item-expanded nav-item-open' : '' }} ">
+                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show', 'academic_sessions.index', 'academic_sessions.create', 'academic_sessions.edit', 'academic_sessions.show']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-office"></i> <span> Administratif</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Administratif">
+
+                            {{-- Années Scolaires --}}
+                            @if(Qs::userIsTeamSA())
+                            <li class="nav-item">
+                                <a href="{{ route('academic_sessions.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['academic_sessions.index', 'academic_sessions.create', 'academic_sessions.edit', 'academic_sessions.show']) ? 'active' : '' }}">
+                                    <i class="icon-calendar mr-1"></i> Années Scolaires
+                                </a>
+                            </li>
+                            @endif
 
                             {{--Payments--}}
                             @if(Qs::userIsTeamAccount())

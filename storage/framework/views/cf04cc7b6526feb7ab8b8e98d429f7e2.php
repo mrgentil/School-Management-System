@@ -46,18 +46,30 @@
 
                 <!-- Main (Non-Students) -->
                 <?php if(!Qs::userIsStudent()): ?>
-                <li class="nav-item">
-                    <?php if(Qs::userIsSuperAdmin()): ?>
-                        <a href="<?php echo e(route('super_admin.dashboard')); ?>" class="nav-link <?php echo e((Route::is('super_admin.dashboard')) ? 'active' : ''); ?>">
-                            <i class="icon-home4"></i>
-                            <span>📊 Tableau de bord</span>
-                        </a>
-                    <?php else: ?>
-                        <a href="<?php echo e(route('dashboard')); ?>" class="nav-link <?php echo e((Route::is('dashboard')) ? 'active' : ''); ?>">
-                            <i class="icon-home4"></i>
-                            <span>Tableau de bord</span>
-                        </a>
-                    <?php endif; ?>
+                <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['dashboard', 'dashboard.enhanced', 'super_admin.dashboard']) ? 'nav-item-expanded nav-item-open' : ''); ?>">
+                    <a href="#" class="nav-link"><i class="icon-home4"></i> <span>Tableau de bord</span></a>
+                    <ul class="nav nav-group-sub">
+                        <?php if(Qs::userIsSuperAdmin()): ?>
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('super_admin.dashboard')); ?>" class="nav-link <?php echo e(Route::is('super_admin.dashboard') ? 'active' : ''); ?>">
+                                    <i class="icon-clipboard3"></i> Vue Générale
+                                </a>
+                            </li>
+                        <?php else: ?>
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('dashboard')); ?>" class="nav-link <?php echo e(Route::is('dashboard') ? 'active' : ''); ?>">
+                                    <i class="icon-clipboard3"></i> Vue Simple
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if(Qs::userIsTeamSA()): ?>
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('dashboard.enhanced')); ?>" class="nav-link <?php echo e(Route::is('dashboard.enhanced') ? 'active' : ''); ?>">
+                                    <i class="icon-stats-bars"></i> 📊 Statistiques
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
                 </li>
                 <?php endif; ?>
 
@@ -165,10 +177,19 @@
 
                 
                 <?php if(Qs::userIsAdministrative()): ?>
-                    <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show',]) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
+                    <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show', 'academic_sessions.index', 'academic_sessions.create', 'academic_sessions.edit', 'academic_sessions.show']) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
                         <a href="#" class="nav-link"><i class="icon-office"></i> <span> Administratif</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Administratif">
+
+                            
+                            <?php if(Qs::userIsTeamSA()): ?>
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('academic_sessions.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['academic_sessions.index', 'academic_sessions.create', 'academic_sessions.edit', 'academic_sessions.show']) ? 'active' : ''); ?>">
+                                    <i class="icon-calendar mr-1"></i> Années Scolaires
+                                </a>
+                            </li>
+                            <?php endif; ?>
 
                             
                             <?php if(Qs::userIsTeamAccount()): ?>

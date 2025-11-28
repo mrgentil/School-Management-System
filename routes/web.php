@@ -19,6 +19,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/', [HomeController::class, 'dashboard'])->name('home');
     Route::get('/home', [HomeController::class, 'dashboard'])->name('home');
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+    
+    // Dashboard amélioré avec graphiques
+    Route::get('/dashboard-enhanced', [\App\Http\Controllers\SupportTeam\DashboardController::class, 'index'])->name('dashboard.enhanced')->middleware('teamSA');
 
     Route::group(['prefix' => 'my_account'], function() {
         Route::get('/', [\App\Http\Controllers\MyAccountController::class, 'edit_profile'])->name('my_account');
@@ -259,6 +262,23 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'index'])->name('whatsapp.test');
             Route::post('/send', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'send'])->name('whatsapp.test.send');
             Route::post('/bulletin', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'testBulletin'])->name('whatsapp.test.bulletin');
+        });
+
+        /*************** Gestion Années Scolaires *****************/
+        Route::group(['prefix' => 'academic-sessions', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'index'])->name('academic_sessions.index');
+            Route::get('/create', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'create'])->name('academic_sessions.create');
+            Route::post('/', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'store'])->name('academic_sessions.store');
+            Route::get('/prepare-new-year', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'prepareNewYear'])->name('academic_sessions.prepare_new_year');
+            Route::post('/execute-new-year', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'executeNewYear'])->name('academic_sessions.execute_new_year');
+            Route::get('/{academicSession}', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'show'])->name('academic_sessions.show');
+            Route::get('/{academicSession}/edit', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'edit'])->name('academic_sessions.edit');
+            Route::put('/{academicSession}', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'update'])->name('academic_sessions.update');
+            Route::post('/{academicSession}/set-current', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'setCurrent'])->name('academic_sessions.set_current');
+            Route::post('/{academicSession}/archive', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'archive'])->name('academic_sessions.archive');
+            Route::get('/{academicSession}/copy-structure', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'copyStructureForm'])->name('academic_sessions.copy_structure');
+            Route::post('/{academicSession}/copy-structure', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'copyStructure'])->name('academic_sessions.copy_structure.execute');
+            Route::delete('/{academicSession}', [\App\Http\Controllers\SupportTeam\AcademicSessionController::class, 'destroy'])->name('academic_sessions.destroy');
         });
 
         /*************** Générateur de Données Test *****************/
