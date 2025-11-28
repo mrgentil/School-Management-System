@@ -269,6 +269,14 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/bulletin', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'testBulletin'])->name('whatsapp.test.bulletin');
         });
 
+        /*************** Gestion des Rappels *****************/
+        Route::group(['prefix' => 'reminders', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\ReminderController::class, 'index'])->name('reminders.index');
+            Route::post('/send-manual', [\App\Http\Controllers\SupportTeam\ReminderController::class, 'sendManual'])->name('reminders.send_manual');
+            Route::post('/send-event/{event}', [\App\Http\Controllers\SupportTeam\ReminderController::class, 'sendForEvent'])->name('reminders.send_event');
+            Route::post('/payment', [\App\Http\Controllers\SupportTeam\ReminderController::class, 'sendPaymentReminders'])->name('reminders.payment');
+        });
+
         /*************** Calendrier Scolaire *****************/
         Route::group(['prefix' => 'calendar', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'index'])->name('calendar.index');

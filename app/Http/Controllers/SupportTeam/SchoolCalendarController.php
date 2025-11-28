@@ -63,19 +63,13 @@ class SchoolCalendarController extends Controller
         $event = SchoolEvent::create([
             'title' => $request->title,
             'description' => $request->description,
-            'start_date' => $request->start_date,
             'event_date' => $request->start_date,
-            'end_date' => $request->end_date ?? $request->start_date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'type' => $request->type,
             'event_type' => $request->type,
             'color' => SchoolEvent::getTypeColor($request->type),
-            'is_all_day' => !$request->start_time,
             'target_audience' => $request->target_audience,
-            'send_notification' => $request->boolean('send_notification'),
             'created_by' => auth()->id(),
-            'is_active' => true,
         ]);
 
         return redirect()->route('calendar.index')
@@ -105,16 +99,12 @@ class SchoolCalendarController extends Controller
         $event->update([
             'title' => $request->title,
             'description' => $request->description,
-            'start_date' => $request->start_date,
             'event_date' => $request->start_date,
-            'end_date' => $request->end_date ?? $request->start_date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'type' => $request->type,
             'event_type' => $request->type,
             'color' => SchoolEvent::getTypeColor($request->type),
             'target_audience' => $request->target_audience,
-            'send_notification' => $request->boolean('send_notification'),
         ]);
 
         return redirect()->route('calendar.index')
@@ -140,19 +130,18 @@ class SchoolCalendarController extends Controller
         $end = $request->get('end');
 
         $events = SchoolEvent::query()
-            ->when($start, fn($q) => $q->where('start_date', '>=', $start)->orWhere('event_date', '>=', $start))
-            ->when($end, fn($q) => $q->where('start_date', '<=', $end)->orWhere('event_date', '<=', $end))
+            ->when($start, fn($q) => $q->where('event_date', '>=', $start))
+            ->when($end, fn($q) => $q->where('event_date', '<=', $end))
             ->get()
             ->map(function ($event) {
                 return [
                     'id' => $event->id,
                     'title' => $event->title,
-                    'start' => ($event->start_date ?? $event->event_date)?->format('Y-m-d'),
-                    'end' => $event->end_date?->format('Y-m-d'),
-                    'color' => $event->color ?? SchoolEvent::getTypeColor($event->type ?? $event->event_type),
-                    'allDay' => $event->is_all_day ?? true,
+                    'start' => $event->event_date?->format('Y-m-d'),
+                    'color' => $event->color ?? SchoolEvent::getTypeColor($event->event_type),
+                    'allDay' => true,
                     'extendedProps' => [
-                        'type' => $event->type ?? $event->event_type,
+                        'type' => $event->event_type,
                         'description' => $event->description,
                     ],
                 ];
@@ -171,8 +160,7 @@ class SchoolCalendarController extends Controller
             'title' => $event->title,
             'description' => $event->description,
             'start_date' => $event->formatted_date,
-            'end_date' => $event->end_date?->format('d/m/Y'),
-            'type' => $event->type ?? $event->event_type,
+            'type' => $event->event_type,
             'type_badge' => $event->type_badge,
             'target_audience' => $event->target_audience,
         ]);

@@ -43,12 +43,11 @@ class CalendarViewController extends Controller
                 return [
                     'id' => $event->id,
                     'title' => $event->title,
-                    'start' => ($event->start_date ?? $event->event_date)?->format('Y-m-d'),
-                    'end' => $event->end_date?->format('Y-m-d'),
-                    'color' => $event->color ?? SchoolEvent::getTypeColor($event->type ?? $event->event_type),
+                    'start' => $event->event_date?->format('Y-m-d'),
+                    'color' => $event->color ?? SchoolEvent::getTypeColor($event->event_type),
                     'allDay' => true,
                     'extendedProps' => [
-                        'type' => $event->type ?? $event->event_type,
+                        'type' => $event->event_type,
                         'description' => $event->description,
                     ],
                 ];
@@ -67,7 +66,6 @@ class CalendarViewController extends Controller
             'title' => $event->title,
             'description' => $event->description,
             'start_date' => $event->formatted_date,
-            'end_date' => $event->end_date?->format('d/m/Y'),
             'type_badge' => $event->type_badge,
         ]);
     }

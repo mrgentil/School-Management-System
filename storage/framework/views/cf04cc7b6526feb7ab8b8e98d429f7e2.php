@@ -74,11 +74,13 @@
                 <?php endif; ?>
 
                 
+                <?php if(!Qs::userIsTeamSA()): ?>
                 <li class="nav-item">
                     <a href="<?php echo e(route('calendar.public')); ?>" class="nav-link <?php echo e(Route::is('calendar.public') ? 'active' : ''); ?>">
                         <i class="icon-calendar3"></i> <span>📅 Calendrier</span>
                     </a>
                 </li>
+                <?php endif; ?>
 
                 
                 <?php if(Qs::userIsAcademic() && !Qs::userIsStudent()): ?>
@@ -209,6 +211,13 @@
                             <li class="nav-item">
                                 <a href="<?php echo e(route('calendar.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['calendar.index', 'calendar.create', 'calendar.edit']) ? 'active' : ''); ?>">
                                     <i class="icon-calendar3 mr-1"></i> 📅 Calendrier
+                                </a>
+                            </li>
+                            
+                            
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('reminders.index')); ?>" class="nav-link <?php echo e(Route::is('reminders.*') ? 'active' : ''); ?>">
+                                    <i class="icon-bell mr-1"></i> 🔔 Rappels
                                 </a>
                             </li>
                             <?php endif; ?>

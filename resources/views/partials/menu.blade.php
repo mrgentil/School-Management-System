@@ -212,6 +212,13 @@
                                     <i class="icon-calendar3 mr-1"></i> 📅 Calendrier
                                 </a>
                             </li>
+                            
+                            {{-- Rappels --}}
+                            <li class="nav-item">
+                                <a href="{{ route('reminders.index') }}" class="nav-link {{ Route::is('reminders.*') ? 'active' : '' }}">
+                                    <i class="icon-bell mr-1"></i> 🔔 Rappels
+                                </a>
+                            </li>
                             @endif
 
                             {{--Payments--}}

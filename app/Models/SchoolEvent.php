@@ -80,9 +80,8 @@ class SchoolEvent extends Model
 
     public function scopeUpcoming($query)
     {
-        $dateField = \Schema::hasColumn('school_events', 'start_date') ? 'start_date' : 'event_date';
-        return $query->where($dateField, '>=', now()->toDateString())
-                    ->orderBy($dateField, 'asc');
+        return $query->where('event_date', '>=', now()->toDateString())
+                    ->orderBy('event_date', 'asc');
     }
 
     public function scopeActive($query)
@@ -100,20 +99,13 @@ class SchoolEvent extends Model
 
     public function scopeInMonth($query, $year, $month)
     {
-        $dateField = \Schema::hasColumn('school_events', 'start_date') ? 'start_date' : 'event_date';
-        return $query->whereYear($dateField, $year)
-                    ->whereMonth($dateField, $month);
-    }
-
-    public function getStartDateAttribute($value)
-    {
-        return $value ? \Carbon\Carbon::parse($value) : ($this->event_date ?? null);
+        return $query->whereYear('event_date', $year)
+                    ->whereMonth('event_date', $month);
     }
 
     public function getFormattedDateAttribute()
     {
-        $date = $this->start_date ?? $this->event_date;
-        return $date ? $date->format('d/m/Y') : '';
+        return $this->event_date ? $this->event_date->format('d/m/Y') : '';
     }
 
     public function getTypeBadgeAttribute()
