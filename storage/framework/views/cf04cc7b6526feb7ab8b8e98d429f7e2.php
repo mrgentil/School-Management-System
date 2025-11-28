@@ -74,6 +74,13 @@
                 <?php endif; ?>
 
                 
+                <li class="nav-item">
+                    <a href="<?php echo e(route('calendar.public')); ?>" class="nav-link <?php echo e(Route::is('calendar.public') ? 'active' : ''); ?>">
+                        <i class="icon-calendar3"></i> <span>📅 Calendrier</span>
+                    </a>
+                </li>
+
+                
                 <?php if(Qs::userIsAcademic() && !Qs::userIsStudent()): ?>
                     <li class="nav-item nav-item-submenu <?php echo e(in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics', 'study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit', 'subject-grades-config.index', 'subject-grades-config.show', 'proclamations.index', 'proclamations.period', 'proclamations.semester', 'proclamations.student', 'marks.index', 'marks.manage', 'marks.bulk', 'marks.show', 'bulletins.index', 'bulletins.students', 'bulletins.preview']) ? 'nav-item-expanded nav-item-open' : ''); ?> ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Académique</span></a>
@@ -195,6 +202,13 @@
                             <li class="nav-item">
                                 <a href="<?php echo e(route('academic_sessions.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['academic_sessions.index', 'academic_sessions.create', 'academic_sessions.edit', 'academic_sessions.show']) ? 'active' : ''); ?>">
                                     <i class="icon-calendar mr-1"></i> Années Scolaires
+                                </a>
+                            </li>
+                            
+                            
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('calendar.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['calendar.index', 'calendar.create', 'calendar.edit']) ? 'active' : ''); ?>">
+                                    <i class="icon-calendar3 mr-1"></i> 📅 Calendrier
                                 </a>
                             </li>
                             <?php endif; ?>

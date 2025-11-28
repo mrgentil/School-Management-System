@@ -23,6 +23,11 @@ Route::group(['middleware' => 'auth'], function () {
     // Dashboard amélioré avec graphiques
     Route::get('/dashboard-enhanced', [\App\Http\Controllers\SupportTeam\DashboardController::class, 'index'])->name('dashboard.enhanced')->middleware('teamSA');
 
+    // Calendrier scolaire (accessible à tous)
+    Route::get('/view-calendar', [\App\Http\Controllers\CalendarViewController::class, 'index'])->name('calendar.public');
+    Route::get('/view-calendar/events', [\App\Http\Controllers\CalendarViewController::class, 'getEvents'])->name('calendar.public.events');
+    Route::get('/view-calendar/{event}', [\App\Http\Controllers\CalendarViewController::class, 'show'])->name('calendar.public.show');
+
     Route::group(['prefix' => 'my_account'], function() {
         Route::get('/', [\App\Http\Controllers\MyAccountController::class, 'edit_profile'])->name('my_account');
         Route::put('/', [\App\Http\Controllers\MyAccountController::class, 'update_profile'])->name('my_account.update');
@@ -262,6 +267,18 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'index'])->name('whatsapp.test');
             Route::post('/send', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'send'])->name('whatsapp.test.send');
             Route::post('/bulletin', [\App\Http\Controllers\SupportTeam\WhatsAppTestController::class, 'testBulletin'])->name('whatsapp.test.bulletin');
+        });
+
+        /*************** Calendrier Scolaire *****************/
+        Route::group(['prefix' => 'calendar', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'index'])->name('calendar.index');
+            Route::get('/events', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'getEvents'])->name('calendar.events');
+            Route::get('/create', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'create'])->name('calendar.create');
+            Route::post('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'store'])->name('calendar.store');
+            Route::get('/{event}', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'show'])->name('calendar.show');
+            Route::get('/{event}/edit', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'edit'])->name('calendar.edit');
+            Route::put('/{event}', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'update'])->name('calendar.update');
+            Route::delete('/{event}', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'destroy'])->name('calendar.destroy');
         });
 
         /*************** Progression Élèves *****************/

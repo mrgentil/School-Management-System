@@ -72,6 +72,13 @@
                 </li>
                 @endif
 
+                {{-- Calendrier Scolaire (accessible à tous) --}}
+                <li class="nav-item">
+                    <a href="{{ route('calendar.public') }}" class="nav-link {{ Route::is('calendar.public') ? 'active' : '' }}">
+                        <i class="icon-calendar3"></i> <span>📅 Calendrier</span>
+                    </a>
+                </li>
+
                 {{--Academics (Non-Students)--}}
                 @if(Qs::userIsAcademic() && !Qs::userIsStudent())
                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage', 'attendance.index', 'attendance.view', 'attendance.statistics', 'study-materials.index', 'study-materials.create', 'study-materials.show', 'study-materials.edit', 'subject-grades-config.index', 'subject-grades-config.show', 'proclamations.index', 'proclamations.period', 'proclamations.semester', 'proclamations.student', 'marks.index', 'marks.manage', 'marks.bulk', 'marks.show', 'bulletins.index', 'bulletins.students', 'bulletins.preview']) ? 'nav-item-expanded nav-item-open' : '' }} ">
@@ -194,6 +201,13 @@
                             <li class="nav-item">
                                 <a href="{{ route('academic_sessions.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['academic_sessions.index', 'academic_sessions.create', 'academic_sessions.edit', 'academic_sessions.show']) ? 'active' : '' }}">
                                     <i class="icon-calendar mr-1"></i> Années Scolaires
+                                </a>
+                            </li>
+                            
+                            {{-- Calendrier Scolaire --}}
+                            <li class="nav-item">
+                                <a href="{{ route('calendar.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['calendar.index', 'calendar.create', 'calendar.edit']) ? 'active' : '' }}">
+                                    <i class="icon-calendar3 mr-1"></i> 📅 Calendrier
                                 </a>
                             </li>
                             @endif
