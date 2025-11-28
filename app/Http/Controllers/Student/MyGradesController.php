@@ -138,7 +138,7 @@ class MyGradesController extends Controller
     /**
      * Afficher le bulletin complet - UTILISE LE MÊME SERVICE QUE L'ADMIN
      * Supporte: Période (1-4) ou Semestre (1-2)
-     * VÉRIFIE SI LE BULLETIN EST PUBLIÉ
+     * VÉRIFIE SI LE BULLETIN EST PUBLIÉ ET SI PIN EST REQUIS
      */
     public function bulletin(Request $request)
     {
@@ -151,8 +151,8 @@ class MyGradesController extends Controller
 
         $year = Qs::getCurrentSession();
         $type = $request->get('type', 'period'); // 'period' ou 'semester'
-        $period = $request->get('period', 1);
-        $semester = $request->get('semester', 1);
+        $period = (int) $request->get('period', 1);
+        $semester = (int) $request->get('semester', 1);
 
         // Vérifier si le bulletin est publié
         $periodOrSemester = $type === 'period' ? $period : $semester;
@@ -177,6 +177,28 @@ class MyGradesController extends Controller
                 'semester' => $semester,
                 'publishedBulletins' => $publishedBulletins,
             ]);
+        }
+
+        // Vérifier si un code PIN est requis pour accéder au bulletin
+        $pinRequired = Qs::getSetting('pin_required_for_bulletin', 'no') === 'yes';
+        
+        if ($pinRequired) {
+            // Vérifier si le PIN a déjà été validé pour ce bulletin
+            $sessionKey = "pin_verified_{$type}_{$periodOrSemester}_{$year}";
+            
+            if (!session()->has($sessionKey)) {
+                // Rediriger vers la page d'entrée du PIN
+                return redirect()->route('pins.enter', [
+                    'type' => $type,
+                    'period' => $period,
+                    'semester' => $semester,
+                    'redirect_url' => route('student.grades.bulletin', [
+                        'type' => $type,
+                        'period' => $period,
+                        'semester' => $semester,
+                    ]),
+                ]);
+            }
         }
 
         // Utiliser le service de proclamation (même que l'admin)

@@ -163,10 +163,13 @@ Route::group(['middleware' => 'auth'], function () {
 
         /*************** Pins *****************/
         Route::group(['prefix' => 'pins'], function(){
-            Route::get('create', [\App\Http\Controllers\SupportTeam\PinController::class, 'create'])->name('pins.create');
             Route::get('/', [\App\Http\Controllers\SupportTeam\PinController::class, 'index'])->name('pins.index');
+            Route::get('create', [\App\Http\Controllers\SupportTeam\PinController::class, 'create'])->name('pins.create');
             Route::post('/', [\App\Http\Controllers\SupportTeam\PinController::class, 'store'])->name('pins.store');
-            Route::get('enter/{id}', [\App\Http\Controllers\SupportTeam\PinController::class, 'enter_pin'])->name('pins.enter');
+            Route::post('toggle-required', [\App\Http\Controllers\SupportTeam\PinController::class, 'toggleRequired'])->name('pins.toggle_required');
+            Route::get('export', [\App\Http\Controllers\SupportTeam\PinController::class, 'export'])->name('pins.export');
+            Route::get('enter', [\App\Http\Controllers\SupportTeam\PinController::class, 'enter_pin'])->name('pins.enter');
+            Route::post('verify-bulletin', [\App\Http\Controllers\SupportTeam\PinController::class, 'verifyForBulletin'])->name('pins.verify_bulletin');
             Route::post('verify/{id}', [\App\Http\Controllers\SupportTeam\PinController::class, 'verify'])->name('pins.verify');
             Route::delete('/', [\App\Http\Controllers\SupportTeam\PinController::class, 'destroy'])->name('pins.destroy');
         });

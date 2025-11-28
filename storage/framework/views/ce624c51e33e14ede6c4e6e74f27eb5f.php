@@ -1,6 +1,6 @@
-@extends('layouts.master')
-@section('page_title', 'Entrer le Code PIN')
-@section('content')
+
+<?php $__env->startSection('page_title', 'Entrer le Code PIN'); ?>
+<?php $__env->startSection('content'); ?>
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
@@ -13,17 +13,17 @@
                         <i class="icon-lock2 icon-3x text-primary mb-3"></i>
                         <p class="text-muted">
                             Pour accéder à votre 
-                            <strong>{{ $type == 'period' ? 'bulletin de la période ' . $period : 'bulletin du semestre ' . $semester }}</strong>,
+                            <strong><?php echo e($type == 'period' ? 'bulletin de la période ' . $period : 'bulletin du semestre ' . $semester); ?></strong>,
                             veuillez entrer votre code PIN.
                         </p>
                     </div>
 
-                    <form method="post" action="{{ route('pins.verify_bulletin') }}">
-                        @csrf
-                        <input type="hidden" name="type" value="{{ $type }}">
-                        <input type="hidden" name="period" value="{{ $period }}">
-                        <input type="hidden" name="semester" value="{{ $semester }}">
-                        <input type="hidden" name="redirect_url" value="{{ $redirect_url }}">
+                    <form method="post" action="<?php echo e(route('pins.verify_bulletin')); ?>">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="type" value="<?php echo e($type); ?>">
+                        <input type="hidden" name="period" value="<?php echo e($period); ?>">
+                        <input type="hidden" name="semester" value="<?php echo e($semester); ?>">
+                        <input type="hidden" name="redirect_url" value="<?php echo e($redirect_url); ?>">
                         
                         <div class="form-group">
                             <label for="pin_code" class="font-weight-bold">Code PIN</label>
@@ -35,7 +35,7 @@
                                 required 
                                 name="pin_code" 
                                 autocomplete="off" 
-                                value="{{ old('pin_code') }}" 
+                                value="<?php echo e(old('pin_code')); ?>" 
                                 type="text"
                                 autofocus
                             >
@@ -62,4 +62,6 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/pins/enter.blade.php ENDPATH**/ ?>

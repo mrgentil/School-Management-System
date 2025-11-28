@@ -1,22 +1,22 @@
-@extends('layouts.master')
-@section('page_title', 'Générer des Codes PIN')
-@section('content')
+
+<?php $__env->startSection('page_title', 'Générer des Codes PIN'); ?>
+<?php $__env->startSection('content'); ?>
     <div class="card">
         <div class="card-header header-elements-inline">
             <h5 class="card-title"><i class="icon-key mr-2"></i> Générer des Codes PIN</h5>
-            <a href="{{ route('pins.index') }}" class="btn btn-light btn-sm">
+            <a href="<?php echo e(route('pins.index')); ?>" class="btn btn-light btn-sm">
                 <i class="icon-arrow-left5 mr-1"></i> Retour
             </a>
         </div>
 
         <div class="card-body">
-            <form method="post" action="{{ route('pins.store') }}">
-                @csrf
+            <form method="post" action="<?php echo e(route('pins.store')); ?>">
+                <?php echo csrf_field(); ?>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="font-weight-bold">Nombre de PINs à générer <span class="text-danger">*</span></label>
-                            <input class="form-control" placeholder="Ex: 10" required name="pin_count" type="number" min="1" max="100" value="{{ old('pin_count', 10) }}">
+                            <input class="form-control" placeholder="Ex: 10" required name="pin_count" type="number" min="1" max="100" value="<?php echo e(old('pin_count', 10)); ?>">
                             <small class="text-muted">Maximum 100 PINs par génération</small>
                         </div>
 
@@ -31,7 +31,7 @@
 
                         <div class="form-group">
                             <label class="font-weight-bold">Prix par PIN (FC)</label>
-                            <input class="form-control" name="price" type="number" min="0" step="100" value="{{ old('price', 500) }}" placeholder="0">
+                            <input class="form-control" name="price" type="number" min="0" step="100" value="<?php echo e(old('price', 500)); ?>" placeholder="0">
                             <small class="text-muted">Laisser 0 si gratuit</small>
                         </div>
 
@@ -49,16 +49,16 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="font-weight-bold">Année scolaire</label>
-                            <input class="form-control" name="year" type="text" value="{{ $year }}" readonly>
+                            <input class="form-control" name="year" type="text" value="<?php echo e($year); ?>" readonly>
                         </div>
 
                         <div class="form-group">
                             <label class="font-weight-bold">Restreindre à une classe</label>
                             <select name="my_class_id" class="form-control select-search">
                                 <option value="">Toutes les classes</option>
-                                @foreach($classes as $class)
-                                    <option value="{{ $class->id }}">{{ $class->full_name ?? $class->name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($class->id); ?>"><?php echo e($class->full_name ?? $class->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <small class="text-muted">Laisser vide pour toutes les classes</small>
                         </div>
@@ -100,4 +100,6 @@
             </form>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/pins/create.blade.php ENDPATH**/ ?>
