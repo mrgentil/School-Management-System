@@ -223,6 +223,20 @@
                             
                             
                             <li class="nav-item">
+                                <a href="<?php echo e(route('notifications.index')); ?>" class="nav-link <?php echo e(Route::is('notifications.*') ? 'active' : ''); ?>">
+                                    <i class="icon-envelop mr-1"></i> 📧 Notifications
+                                </a>
+                            </li>
+                            
+                            
+                            <li class="nav-item">
+                                <a href="<?php echo e(route('statistics.index')); ?>" class="nav-link <?php echo e(Route::is('statistics.*') ? 'active' : ''); ?>">
+                                    <i class="icon-stats-growth mr-1"></i> 📊 Statistiques
+                                </a>
+                            </li>
+                            
+                            
+                            <li class="nav-item">
                                 <a href="<?php echo e(route('finance.dashboard')); ?>" class="nav-link <?php echo e(Route::is('finance.*') ? 'active' : ''); ?>">
                                     <i class="icon-stats-bars mr-1"></i> 💰 Rapports Financiers
                                 </a>

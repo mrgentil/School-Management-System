@@ -12,30 +12,12 @@ use Illuminate\Support\Facades\Log;
 class EmailNotificationService
 {
     /**
-     * Envoyer une notification par email
+     * Envoyer une notification (in-app + email si configuré)
      */
-    public function send(User $user, string $subject, string $message, array $data = [])
+    public function send(User $user, string $subject, string $message, array $data = [], bool $sendEmail = true)
     {
         try {
-            // Vérifier que l'utilisateur a un email
-            if (!$user->email) {
-                Log::warning("EmailNotification: Pas d'email pour l'utilisateur {$user->id}");
-                return false;
-            }
-
-            // Envoyer l'email
-            Mail::send('emails.notification', [
-                'user' => $user,
-                'subject' => $subject,
-                'messageContent' => $message,
-                'data' => $data,
-                'schoolName' => Qs::getSetting('system_name'),
-            ], function ($mail) use ($user, $subject) {
-                $mail->to($user->email, $user->name)
-                     ->subject($subject);
-            });
-
-            // Créer aussi une notification in-app
+            // Toujours créer la notification in-app
             UserNotification::create([
                 'user_id' => $user->id,
                 'title' => $subject,
@@ -44,13 +26,47 @@ class EmailNotificationService
                 'data' => json_encode($data),
             ]);
 
-            Log::info("EmailNotification envoyé à {$user->email}: {$subject}");
+            // Envoyer l'email seulement si configuré et demandé
+            if ($sendEmail && $this->isMailConfigured() && $user->email) {
+                Mail::send('emails.notification', [
+                    'user' => $user,
+                    'subject' => $subject,
+                    'messageContent' => $message,
+                    'data' => $data,
+                    'schoolName' => Qs::getSetting('system_name'),
+                ], function ($mail) use ($user, $subject) {
+                    $mail->to($user->email, $user->name)
+                         ->subject($subject);
+                });
+
+                Log::info("EmailNotification envoyé à {$user->email}: {$subject}");
+            }
+
             return true;
 
         } catch (\Exception $e) {
             Log::error("EmailNotification erreur: " . $e->getMessage());
+            // La notification in-app a quand même été créée
+            return true;
+        }
+    }
+
+    /**
+     * Vérifier si le mail est configuré
+     */
+    protected function isMailConfigured(): bool
+    {
+        $mailer = config('mail.default');
+        
+        // Si c'est "log" ou "array", le mail n'est pas vraiment configuré
+        if (in_array($mailer, ['log', 'array'])) {
             return false;
         }
+
+        // Vérifier qu'il y a un host SMTP configuré
+        $host = config('mail.mailers.smtp.host');
+        
+        return !empty($host) && $host !== 'mailpit' && $host !== 'localhost';
     }
 
     /**

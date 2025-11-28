@@ -292,6 +292,12 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/stats', [\App\Http\Controllers\SupportTeam\NotificationController::class, 'stats'])->name('notifications.stats');
         });
 
+        /*************** Statistiques Avancées *****************/
+        Route::group(['prefix' => 'statistics', 'middleware' => 'teamSA'], function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\StatisticsController::class, 'index'])->name('statistics.index');
+            Route::get('/export', [\App\Http\Controllers\SupportTeam\StatisticsController::class, 'export'])->name('statistics.export');
+        });
+
         /*************** Calendrier Scolaire *****************/
         Route::group(['prefix' => 'calendar', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'index'])->name('calendar.index');

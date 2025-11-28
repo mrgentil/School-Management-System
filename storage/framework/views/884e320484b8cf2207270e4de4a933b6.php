@@ -1,7 +1,7 @@
-@extends('layouts.master')
-@section('page_title', 'Gestion des Notifications')
 
-@section('content')
+<?php $__env->startSection('page_title', 'Gestion des Notifications'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="card">
     <div class="card-header bg-primary text-white">
         <h5 class="card-title mb-0">
@@ -10,14 +10,14 @@
     </div>
 </div>
 
-@php
+<?php
     $mailConfigured = !empty(config('mail.mailers.smtp.host')) 
         && config('mail.mailers.smtp.host') !== 'mailpit' 
         && config('mail.mailers.smtp.host') !== 'localhost'
         && !in_array(config('mail.default'), ['log', 'array']);
-@endphp
+?>
 
-@if(!$mailConfigured)
+<?php if(!$mailConfigured): ?>
 <div class="alert alert-info d-flex align-items-center">
     <i class="icon-info22 mr-3" style="font-size: 24px;"></i>
     <div>
@@ -26,7 +26,7 @@
         Pour activer les emails, configurez SMTP dans le fichier <code>.env</code>
     </div>
 </div>
-@else
+<?php else: ?>
 <div class="alert alert-success d-flex align-items-center">
     <i class="icon-checkmark-circle mr-3" style="font-size: 24px;"></i>
     <div>
@@ -34,14 +34,14 @@
         Les notifications seront envoyées par email ET dans l'application.
     </div>
 </div>
-@endif
+<?php endif; ?>
 
-{{-- Statistiques --}}
+
 <div class="row">
     <div class="col-md-2">
         <div class="card bg-info text-white">
             <div class="card-body text-center py-3">
-                <h3 class="mb-0">{{ $stats['total_sent'] }}</h3>
+                <h3 class="mb-0"><?php echo e($stats['total_sent']); ?></h3>
                 <small>Total envoyées</small>
             </div>
         </div>
@@ -49,7 +49,7 @@
     <div class="col-md-2">
         <div class="card bg-success text-white">
             <div class="card-body text-center py-3">
-                <h3 class="mb-0">{{ $stats['today_sent'] }}</h3>
+                <h3 class="mb-0"><?php echo e($stats['today_sent']); ?></h3>
                 <small>Aujourd'hui</small>
             </div>
         </div>
@@ -57,7 +57,7 @@
     <div class="col-md-2">
         <div class="card bg-warning text-white">
             <div class="card-body text-center py-3">
-                <h3 class="mb-0">{{ $stats['unread'] }}</h3>
+                <h3 class="mb-0"><?php echo e($stats['unread']); ?></h3>
                 <small>Non lues</small>
             </div>
         </div>
@@ -65,7 +65,7 @@
     <div class="col-md-2">
         <div class="card bg-primary text-white">
             <div class="card-body text-center py-3">
-                <h3 class="mb-0">{{ $stats['parents_count'] }}</h3>
+                <h3 class="mb-0"><?php echo e($stats['parents_count']); ?></h3>
                 <small>Parents</small>
             </div>
         </div>
@@ -73,7 +73,7 @@
     <div class="col-md-2">
         <div class="card bg-secondary text-white">
             <div class="card-body text-center py-3">
-                <h3 class="mb-0">{{ $stats['teachers_count'] }}</h3>
+                <h3 class="mb-0"><?php echo e($stats['teachers_count']); ?></h3>
                 <small>Enseignants</small>
             </div>
         </div>
@@ -81,7 +81,7 @@
     <div class="col-md-2">
         <div class="card bg-dark text-white">
             <div class="card-body text-center py-3">
-                <h3 class="mb-0">{{ $stats['students_count'] }}</h3>
+                <h3 class="mb-0"><?php echo e($stats['students_count']); ?></h3>
                 <small>Étudiants</small>
             </div>
         </div>
@@ -89,15 +89,15 @@
 </div>
 
 <div class="row">
-    {{-- Formulaire d'envoi --}}
+    
     <div class="col-lg-5">
         <div class="card">
             <div class="card-header bg-success text-white">
                 <h6 class="card-title mb-0"><i class="icon-paperplane mr-2"></i> Envoyer une Notification</h6>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('notifications.send') }}">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('notifications.send')); ?>">
+                    <?php echo csrf_field(); ?>
                     
                     <div class="form-group">
                         <label><strong>Destinataires</strong> <span class="text-danger">*</span></label>
@@ -115,9 +115,9 @@
                         <label><strong>Utilisateur</strong></label>
                         <select name="user_id" class="form-control select-search">
                             <option value="">-- Sélectionner --</option>
-                            @foreach(\App\Models\User::orderBy('name')->get() as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->user_type }})</option>
-                            @endforeach
+                            <?php $__currentLoopData = \App\Models\User::orderBy('name')->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($user->id); ?>"><?php echo e($user->name); ?> (<?php echo e($user->user_type); ?>)</option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
 
@@ -134,12 +134,12 @@
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="send_email" name="send_email" value="1" 
-                                {{ $mailConfigured ? 'checked' : 'disabled' }}>
+                                <?php echo e($mailConfigured ? 'checked' : 'disabled'); ?>>
                             <label class="custom-control-label" for="send_email">
                                 📧 Envoyer aussi par email
-                                @if(!$mailConfigured)
+                                <?php if(!$mailConfigured): ?>
                                     <small class="text-muted">(non configuré)</small>
-                                @endif
+                                <?php endif; ?>
                             </label>
                         </div>
                     </div>
@@ -151,7 +151,7 @@
             </div>
         </div>
 
-        {{-- Templates rapides --}}
+        
         <div class="card">
             <div class="card-header bg-light">
                 <h6 class="card-title mb-0"><i class="icon-bookmark mr-2"></i> Templates Rapides</h6>
@@ -181,7 +181,7 @@
         </div>
     </div>
 
-    {{-- Historique --}}
+    
     <div class="col-lg-7">
         <div class="card">
             <div class="card-header bg-light">
@@ -199,34 +199,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($recentNotifications as $notif)
+                            <?php $__empty_1 = true; $__currentLoopData = $recentNotifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notif): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <tr>
                                     <td>
-                                        <small>{{ $notif->created_at->format('d/m/Y H:i') }}</small>
+                                        <small><?php echo e($notif->created_at->format('d/m/Y H:i')); ?></small>
                                     </td>
                                     <td>
-                                        <strong>{{ $notif->user->name ?? 'N/A' }}</strong>
-                                        <br><small class="text-muted">{{ $notif->user->user_type ?? '' }}</small>
+                                        <strong><?php echo e($notif->user->name ?? 'N/A'); ?></strong>
+                                        <br><small class="text-muted"><?php echo e($notif->user->user_type ?? ''); ?></small>
                                     </td>
                                     <td>
-                                        <strong>{{ Str::limit($notif->title, 30) }}</strong>
-                                        <br><small class="text-muted">{{ Str::limit($notif->message, 40) }}</small>
+                                        <strong><?php echo e(Str::limit($notif->title, 30)); ?></strong>
+                                        <br><small class="text-muted"><?php echo e(Str::limit($notif->message, 40)); ?></small>
                                     </td>
                                     <td>
-                                        @if($notif->is_read)
+                                        <?php if($notif->is_read): ?>
                                             <span class="badge badge-success">✓ Lu</span>
-                                        @else
+                                        <?php else: ?>
                                             <span class="badge badge-warning">Non lu</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
                                     <td colspan="4" class="text-center text-muted py-4">
                                         Aucune notification envoyée
                                     </td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -234,9 +234,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script>
     // Afficher/masquer le sélecteur d'utilisateur
     document.getElementById('target-select').addEventListener('change', function() {
@@ -253,4 +253,6 @@
         });
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/pages/support_team/notifications/index.blade.php ENDPATH**/ ?>

@@ -18,6 +18,11 @@ class MyClass extends Eloquent
     ];
 
     /**
+     * Relations à charger automatiquement
+     */
+    protected $with = ['option'];
+
+    /**
      * Titulaire de la classe (professeur responsable)
      */
     public function teacher()
@@ -83,7 +88,33 @@ class MyClass extends Eloquent
             $parts[] = $this->option->name;
         }
         
-        return implode(' ', $parts) ?: $this->name;
+        return implode(' ', $parts) ?: $this->attributes['name'] ?? '';
+    }
+
+    /**
+     * Accesseur pour le nom - retourne toujours le nom complet
+     * Cela permet d'utiliser ->name partout et d'avoir automatiquement le full_name
+     */
+    public function getNameAttribute($value)
+    {
+        // Si full_name existe et est différent de la valeur brute, l'utiliser
+        $parts = [];
+        
+        if ($this->academic_level) {
+            $parts[] = $this->academic_level;
+        }
+        if ($this->division) {
+            $parts[] = $this->division;
+        }
+        if ($this->academic_option) {
+            $parts[] = $this->academic_option;
+        } elseif ($this->option_id && $this->relationLoaded('option') && $this->option) {
+            $parts[] = $this->option->name;
+        }
+        
+        $fullName = implode(' ', $parts);
+        
+        return $fullName ?: $value;
     }
 
     /**

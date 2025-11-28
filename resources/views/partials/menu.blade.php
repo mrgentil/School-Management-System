@@ -227,6 +227,13 @@
                                 </a>
                             </li>
                             
+                            {{-- Statistiques --}}
+                            <li class="nav-item">
+                                <a href="{{ route('statistics.index') }}" class="nav-link {{ Route::is('statistics.*') ? 'active' : '' }}">
+                                    <i class="icon-stats-growth mr-1"></i> 📊 Statistiques
+                                </a>
+                            </li>
+                            
                             {{-- Rapports Financiers --}}
                             <li class="nav-item">
                                 <a href="{{ route('finance.dashboard') }}" class="nav-link {{ Route::is('finance.*') ? 'active' : '' }}">
