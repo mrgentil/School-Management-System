@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'examIsLocked' => \App\Http\Middleware\Custom\ExamIsLocked::class,
             'my_parent' => \App\Http\Middleware\Custom\MyParent::class,
             'student' => \App\Http\Middleware\Custom\Student::class,
+            'teacher' => \App\Http\Middleware\Custom\Teacher::class,
+            'teacher.class' => \App\Http\Middleware\Custom\TeacherClassAccess::class,
             'librarian' => \App\Http\Middleware\Custom\Librarian::class,
             'accountant' => \App\Http\Middleware\Custom\Accountant::class,
         ]);

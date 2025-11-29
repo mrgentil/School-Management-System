@@ -319,6 +319,17 @@ Route::group(['middleware' => 'auth'], function () {
             Route::delete('/destroy/{filename}', [\App\Http\Controllers\SupportTeam\BackupController::class, 'destroy'])->name('backup.destroy');
         });
 
+        /*************** Gestion des Professeurs *****************/
+        Route::prefix('teachers-management')->middleware('teamSA')->group(function(){
+            Route::get('/', [\App\Http\Controllers\SupportTeam\TeacherManagementController::class, 'index'])->name('teachers.management.index');
+            Route::post('/assign-subject', [\App\Http\Controllers\SupportTeam\TeacherManagementController::class, 'assignSubject'])->name('teachers.management.assign');
+            Route::post('/remove-subject', [\App\Http\Controllers\SupportTeam\TeacherManagementController::class, 'removeSubject'])->name('teachers.management.remove');
+            Route::get('/api/subjects/{classId}', [\App\Http\Controllers\SupportTeam\TeacherManagementController::class, 'getSubjectsByClass'])->name('teachers.management.subjects');
+            Route::get('/edit/{teacher_id}', [\App\Http\Controllers\SupportTeam\TeacherManagementController::class, 'edit'])->name('teachers.management.edit');
+            Route::put('/update/{teacher_id}', [\App\Http\Controllers\SupportTeam\TeacherManagementController::class, 'update'])->name('teachers.management.update');
+            Route::get('/show/{teacher_id}', [\App\Http\Controllers\SupportTeam\TeacherManagementController::class, 'show'])->name('teachers.management.show');
+        });
+
         /*************** Calendrier Scolaire *****************/
         Route::group(['prefix' => 'calendar', 'middleware' => 'teamSA'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\SchoolCalendarController::class, 'index'])->name('calendar.index');

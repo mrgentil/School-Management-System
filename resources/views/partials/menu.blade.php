@@ -241,6 +241,13 @@
                                 </a>
                             </li>
                             
+                            {{-- Gestion des Professeurs --}}
+                            <li class="nav-item">
+                                <a href="{{ route('teachers.management.index') }}" class="nav-link {{ Route::is('teachers.management.*') ? 'active' : '' }}">
+                                    <i class="icon-users4 mr-1"></i> 👨‍🏫 Gestion Professeurs
+                                </a>
+                            </li>
+                            
                             {{-- Rapports Financiers --}}
                             <li class="nav-item">
                                 <a href="{{ route('finance.dashboard') }}" class="nav-link {{ Route::is('finance.*') ? 'active' : '' }}">

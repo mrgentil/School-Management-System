@@ -19,3 +19,8 @@ if (!class_exists('Mk')) {
 if (!class_exists('PeriodCalculator') && class_exists('App\Helpers\PeriodCalculator')) {
     class_alias('App\Helpers\PeriodCalculator', 'PeriodCalculator');
 }
+
+// Charger la classe TeacherAccess
+if (!class_exists('TeacherAccess')) {
+    class_alias('App\Helpers\TeacherAccess', 'TeacherAccess');
+}

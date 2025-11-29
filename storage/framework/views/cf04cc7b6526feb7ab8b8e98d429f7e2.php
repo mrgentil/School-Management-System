@@ -244,6 +244,13 @@
                             
                             
                             <li class="nav-item">
+                                <a href="<?php echo e(route('teachers.management.index')); ?>" class="nav-link <?php echo e(Route::is('teachers.management.*') ? 'active' : ''); ?>">
+                                    <i class="icon-users4 mr-1"></i> 👨‍🏫 Gestion Professeurs
+                                </a>
+                            </li>
+                            
+                            
+                            <li class="nav-item">
                                 <a href="<?php echo e(route('finance.dashboard')); ?>" class="nav-link <?php echo e(Route::is('finance.*') ? 'active' : ''); ?>">
                                     <i class="icon-stats-bars mr-1"></i> 💰 Rapports Financiers
                                 </a>

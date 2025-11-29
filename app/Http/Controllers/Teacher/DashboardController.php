@@ -56,23 +56,27 @@ class DashboardController extends Controller
         $pendingAssignments = Assignment::where('teacher_id', $teacher->id)
             ->where('due_date', '<', now())
             ->whereDoesntHave('submissions', function($q) {
-                $q->whereNotNull('grade');
+                $q->whereNotNull('score');
             })
             ->count();
 
-        // Cours du jour
-        $todayCourses = TimeTable::where('teacher_id', $teacher->id)
+        // Cours du jour - filtrer par les matières de l'enseignant
+        $todayCourses = TimeTable::whereIn('subject_id', $subjectIds)
             ->where('day', strtolower(Carbon::now()->format('l')))
-            ->with(['my_class', 'subject'])
-            ->orderBy('time_start')
-            ->get();
+            ->with(['tt_record.my_class', 'subject', 'time_slot'])
+            ->get()
+            ->sortBy(function($item) {
+                return $item->time_slot->time_start ?? '00:00';
+            });
 
         // Cours de la semaine
-        $weekCourses = TimeTable::where('teacher_id', $teacher->id)
-            ->with(['my_class', 'subject'])
-            ->orderByRaw("FIELD(day, 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday')")
-            ->orderBy('time_start')
+        $weekCourses = TimeTable::whereIn('subject_id', $subjectIds)
+            ->with(['tt_record.my_class', 'subject', 'time_slot'])
             ->get()
+            ->sortBy(function($item) {
+                $dayOrder = ['monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6, 'sunday' => 7];
+                return ($dayOrder[$item->day] ?? 8) . ($item->time_slot->time_start ?? '00:00');
+            })
             ->groupBy('day');
 
         // Statistiques par classe (moyennes)
@@ -94,7 +98,7 @@ class DashboardController extends Controller
         // Dernières notes saisies
         $recentMarks = Mark::whereIn('subject_id', $subjectIds)
             ->where('year', $year)
-            ->with(['student', 'subject', 'my_class'])
+            ->with(['user', 'subject', 'my_class'])
             ->orderBy('updated_at', 'desc')
             ->limit(5)
             ->get();
@@ -151,7 +155,7 @@ class DashboardController extends Controller
         $marks = Mark::whereIn('my_class_id', $classes->pluck('id'))
             ->whereIn('subject_id', $subjectIds)
             ->where('year', $year)
-            ->with(['student', 'my_class', 'subject'])
+            ->with(['user', 'my_class', 'subject'])
             ->get();
 
         $byStudent = $marks->groupBy('student_id');
@@ -170,7 +174,7 @@ class DashboardController extends Controller
                 if ($globalAvg < 10) {
                     $first = $studentMarks->first();
                     $struggling[] = [
-                        'student' => $first->student,
+                        'student' => $first->user,
                         'class' => $first->my_class,
                         'average' => round($globalAvg, 1),
                     ];

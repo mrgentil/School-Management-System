@@ -72,6 +72,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Matières enseignées par ce professeur
+     */
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class, 'teacher_id');
+    }
+
+    /**
+     * Classes dont ce professeur est titulaire
+     */
+    public function titularClasses()
+    {
+        return $this->hasMany(MyClass::class, 'teacher_id');
+    }
+
+    /**
      * Accesseur pour la photo - retourne l'image par défaut si aucune photo n'est définie
      */
     public function getPhotoAttribute($value)
