@@ -58,11 +58,25 @@ class AssignmentController extends Controller
         $assignments = $query->orderBy('created_at', 'desc')->paginate(20);
 
         $data['assignments'] = $assignments;
-        // Charger les classes avec leurs relations complètes pour afficher les noms complets
-        $data['my_classes'] = MyClass::with(['academicSection', 'option'])
-            ->orderBy('name')
-            ->get();
-        $data['subjects'] = Subject::orderBy('name')->get();
+        
+        // Pour les professeurs, filtrer par leurs classes et matières uniquement
+        if (Qs::userIsTeacher()) {
+            $classIds = \App\Helpers\TeacherAccess::getTeacherClassIds();
+            $subjectIds = \App\Helpers\TeacherAccess::getTeacherSubjectIds();
+            
+            $data['my_classes'] = MyClass::whereIn('id', $classIds)
+                ->with(['academicSection', 'option'])
+                ->orderBy('name')
+                ->get();
+            $data['subjects'] = Subject::whereIn('id', $subjectIds)
+                ->orderBy('name')
+                ->get();
+        } else {
+            $data['my_classes'] = MyClass::with(['academicSection', 'option'])
+                ->orderBy('name')
+                ->get();
+            $data['subjects'] = Subject::orderBy('name')->get();
+        }
         $data['filters'] = [
             'my_class_id' => $request->my_class_id,
             'section_id' => $request->section_id,
@@ -79,14 +93,24 @@ class AssignmentController extends Controller
      */
     public function create()
     {
-        // Charger les classes avec leurs relations complètes
-        $data['my_classes'] = MyClass::with(['academicSection', 'option', 'section'])
-            ->orderBy('name')
-            ->get();
+        // Pour les professeurs, filtrer par leurs classes et matières uniquement
+        if (Qs::userIsTeacher()) {
+            $classIds = \App\Helpers\TeacherAccess::getTeacherClassIds();
+            $subjectIds = \App\Helpers\TeacherAccess::getTeacherSubjectIds();
             
-        // Charger les matières groupées par classe (si relation existe)
-        // Pour l'instant, on charge toutes les matières, mais on peut les filtrer côté client
-        $data['subjects'] = Subject::orderBy('name')->get();
+            $data['my_classes'] = MyClass::whereIn('id', $classIds)
+                ->with(['academicSection', 'option', 'section'])
+                ->orderBy('name')
+                ->get();
+            $data['subjects'] = Subject::whereIn('id', $subjectIds)
+                ->orderBy('name')
+                ->get();
+        } else {
+            $data['my_classes'] = MyClass::with(['academicSection', 'option', 'section'])
+                ->orderBy('name')
+                ->get();
+            $data['subjects'] = Subject::orderBy('name')->get();
+        }
         
         // Grouper les matières par classe si une relation existe
         // TODO: Implémenter la relation class_subjects si nécessaire

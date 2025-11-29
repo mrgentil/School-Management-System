@@ -64,7 +64,7 @@
                             </td>
                             <td>
                                 <strong>{{ $teacher->name }}</strong>
-                                <br><small class="text-muted">{{ $teacher->code }} | <span class="text-primary">ID: {{ $teacher->id }}</span></small>
+                                <br><small class="text-muted">{{ $teacher->code }}</small>
                             </td>
                             <td>{{ $teacher->email }}</td>
                             <td>

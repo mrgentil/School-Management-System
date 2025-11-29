@@ -1,12 +1,5 @@
 
 <li class="nav-item">
-    <a href="<?php echo e(route('teacher.dashboard')); ?>" class="nav-link <?php echo e(Route::is('teacher.dashboard') ? 'active' : ''); ?>">
-        <i class="icon-home4"></i> <span>🏠 Tableau de Bord</span>
-    </a>
-</li>
-
-
-<li class="nav-item">
     <a href="<?php echo e(route('teacher.messages.index')); ?>" class="nav-link <?php echo e(in_array(Route::currentRouteName(), ['teacher.messages.index', 'teacher.messages.create', 'teacher.messages.show']) ? 'active' : ''); ?>">
         <i class="icon-envelop"></i> <span>💬 Messagerie</span>
         <?php

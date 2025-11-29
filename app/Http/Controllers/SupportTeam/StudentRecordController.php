@@ -93,6 +93,14 @@ class StudentRecordController extends Controller
 
     public function listByClass($class_id)
     {
+        // Vérifier les permissions pour les professeurs
+        $user = Auth::user();
+        if ($user->user_type === 'teacher') {
+            if (!\App\Helpers\TeacherAccess::canAccessClass($class_id)) {
+                return redirect()->back()->with('flash_danger', '❌ Vous n\'avez pas accès à cette classe.');
+            }
+        }
+        
         $data['my_class'] = $mc = $this->my_class->getMC(['id' => $class_id])->first();
         $data['students'] = $this->student->findStudentsByClass($class_id);
         $data['sections'] = $this->my_class->getClassSections($class_id);
@@ -111,7 +119,18 @@ class StudentRecordController extends Controller
     public function info()
     {
         // Page de filtre pour accéder aux listes d'étudiants
-        $data['my_classes'] = $this->my_class->all();
+        $user = Auth::user();
+        
+        // Pour les professeurs, filtrer par leurs classes uniquement
+        if ($user->user_type === 'teacher') {
+            $classIds = \App\Helpers\TeacherAccess::getTeacherClassIds();
+            $data['my_classes'] = \App\Models\MyClass::whereIn('id', $classIds)
+                ->with(['academicSection', 'option'])
+                ->orderBy('name')
+                ->get();
+        } else {
+            $data['my_classes'] = $this->my_class->all();
+        }
 
         return view('pages.support_team.students.info', $data);
     }

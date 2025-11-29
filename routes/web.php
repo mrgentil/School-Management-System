@@ -299,7 +299,7 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
         /*************** Centre d'Impression *****************/
-        Route::group(['prefix' => 'print', 'middleware' => 'teamSA'], function(){
+        Route::group(['prefix' => 'print', 'middleware' => 'teamSAT'], function(){
             Route::get('/', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'index'])->name('print.index');
             Route::post('/class-list', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'classList'])->name('print.class_list');
             Route::post('/payment-status', [\App\Http\Controllers\SupportTeam\PrintCenterController::class, 'paymentStatus'])->name('print.payment_status');

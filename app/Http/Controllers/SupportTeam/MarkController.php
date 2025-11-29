@@ -65,10 +65,27 @@ class MarkController extends Controller
 
     public function index()
     {
+        $user = Auth::user();
         $d['exams'] = $this->exam->getExam(['year' => $this->year]);
-        $d['my_classes'] = $this->my_class->all();
+        
+        // Pour les professeurs, filtrer par leurs classes et matières uniquement
+        if ($user->user_type === 'teacher') {
+            $classIds = \App\Helpers\TeacherAccess::getTeacherClassIds();
+            $subjectIds = \App\Helpers\TeacherAccess::getTeacherSubjectIds();
+            
+            $d['my_classes'] = \App\Models\MyClass::whereIn('id', $classIds)
+                ->with(['academicSection', 'option'])
+                ->orderBy('name')
+                ->get();
+            $d['subjects'] = \App\Models\Subject::whereIn('id', $subjectIds)
+                ->with('my_class')
+                ->get();
+        } else {
+            $d['my_classes'] = $this->my_class->all();
+            $d['subjects'] = $this->my_class->getAllSubjects();
+        }
+        
         $d['sections'] = $this->my_class->getAllSections();
-        $d['subjects'] = $this->my_class->getAllSubjects();
         $d['selected'] = false;
 
         return view('pages.support_team.marks.index', $d);
@@ -233,6 +250,17 @@ class MarkController extends Controller
 
     public function manage($exam_id, $class_id, $section_id, $subject_id)
     {
+        // Vérifier les permissions pour les professeurs
+        $user = Auth::user();
+        if ($user->user_type === 'teacher') {
+            if (!\App\Helpers\TeacherAccess::canAccessClass($class_id)) {
+                return redirect()->route('marks.index')->with('flash_danger', '❌ Vous n\'avez pas accès à cette classe.');
+            }
+            if (!\App\Helpers\TeacherAccess::canAccessSubject($subject_id)) {
+                return redirect()->route('marks.index')->with('flash_danger', '❌ Vous n\'enseignez pas cette matière.');
+            }
+        }
+        
         $d = ['exam_id' => $exam_id, 'my_class_id' => $class_id, 'section_id' => $section_id, 'subject_id' => $subject_id, 'year' => $this->year];
 
         $d['m'] = $this->exam->getMark($d);
@@ -550,10 +578,29 @@ class MarkController extends Controller
 
     public function bulk($class_id = NULL, $section_id = NULL)
     {
-        $d['my_classes'] = $this->my_class->all();
+        $user = Auth::user();
+        
+        // Pour les professeurs, filtrer par leurs classes uniquement
+        if ($user->user_type === 'teacher') {
+            $classIds = \App\Helpers\TeacherAccess::getTeacherClassIds();
+            $d['my_classes'] = \App\Models\MyClass::whereIn('id', $classIds)
+                ->with(['academicSection', 'option'])
+                ->orderBy('name')
+                ->get();
+        } else {
+            $d['my_classes'] = $this->my_class->all();
+        }
+        
         $d['selected'] = false;
 
         if($class_id && $section_id){
+            // Vérifier les permissions pour les professeurs
+            if ($user->user_type === 'teacher') {
+                if (!\App\Helpers\TeacherAccess::canAccessClass($class_id)) {
+                    return redirect()->route('marks.bulk')->with('flash_danger', '❌ Vous n\'avez pas accès à cette classe.');
+                }
+            }
+            
             $d['sections'] = $this->my_class->getAllSections()->where('my_class_id', $class_id);
             $d['students'] = $st = $this->student->getRecord(['my_class_id' => $class_id, 'section_id' => $section_id])->get()->sortBy('user.name');
             if($st->count() < 1){
