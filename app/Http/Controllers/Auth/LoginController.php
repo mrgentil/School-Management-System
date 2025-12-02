@@ -62,8 +62,8 @@ class LoginController extends Controller
         $login = $request->input('login');
         $password = $request->input('password');
         
-        // Déterminer si c'est un email ou un nom
-        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+        // Déterminer si c'est un email ou un username
+        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         
         // Tentative de connexion
         return Auth::attempt(

@@ -117,9 +117,9 @@
                         </div>
                     </fieldset>
 
-                    {{-- Paramètres RDC pour le Bulletin --}}
+                    {{-- Paramètres pour le Bulletin --}}
                     <fieldset class="mb-4">
-                        <legend><strong><i class="icon-file-text2 mr-2"></i>Paramètres Bulletin RDC</strong></legend>
+                        <legend><strong><i class="icon-file-text2 mr-2"></i>Paramètres Bulletin</strong></legend>
                         <div class="form-group row">
                             <label class="col-lg-3 col-form-label font-weight-semibold">Province</label>
                             <div class="col-lg-9">

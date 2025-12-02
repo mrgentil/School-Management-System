@@ -7,7 +7,7 @@
         <div class="d-flex align-items-center">
             <i class="icon-info22 mr-3 icon-2x"></i>
             <div>
-                <h6 class="font-weight-bold mb-1">Correction en Lot des Notes (Système RDC)</h6>
+                <h6 class="font-weight-bold mb-1">Correction en Lot des Notes (Système académique)</h6>
                 <p class="mb-0">Recalcule automatiquement les moyennes de période, grades, positions et classements pour une classe entière.</p>
             </div>
         </div>
@@ -72,7 +72,7 @@
                 <hr>
 
                 <div class="row">
-                    {{-- Classe (format RDC : ex. "4ème Électronique A") --}}
+                    {{-- Classe --}}
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="my_class_id" class="col-form-label font-weight-bold">Classe :</label>

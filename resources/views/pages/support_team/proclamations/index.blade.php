@@ -1,16 +1,16 @@
 @extends('layouts.master')
-@section('page_title', 'Proclamations RDC')
+@section('page_title', 'Proclamations')
 
 @section('content')
 <div class="content-wrapper">
     <div class="content-header header-elements-md-inline">
         <div class="content-header-left col-md-6 col-12 mb-2">
-            <h3 class="content-header-title">🏆 Proclamations RDC</h3>
+            <h3 class="content-header-title">🏆 Proclamations</h3>
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Accueil</a></li>
-                        <li class="breadcrumb-item active">Proclamations RDC</li>
+                        <li class="breadcrumb-item active">Proclamations</li>
                     </ol>
                 </div>
             </div>
@@ -28,7 +28,7 @@
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <div class="alert-body">
                 <h4 class="alert-heading">
-                    <i class="icon-info22 mr-2"></i>Système de Proclamation RDC
+                    <i class="icon-info22 mr-2"></i>Système de Proclamation
                 </h4>
                 <p class="mb-2">
                     <strong>Périodes :</strong> Classement basé sur les devoirs, interrogations et TCA de chaque période (1, 2, 3, 4).

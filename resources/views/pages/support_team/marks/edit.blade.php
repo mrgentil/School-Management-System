@@ -14,7 +14,7 @@
     @if($grade_config)
         <div class="alert alert-success border-0 mb-3">
             <i class="icon-info22 mr-2"></i>
-            <strong>Configuration RDC:</strong> 
+            <strong>Configuration des cotes:</strong> 
             Cote Période: <span class="badge badge-primary">{{ $grade_config->period_max_score }}</span>
             | Cote Examen: <span class="badge badge-success">{{ $grade_config->exam_max_score }}</span>
             @if(isset($evaluation_type) && $evaluation_type === 'interrogation')
@@ -22,7 +22,7 @@
                 | <span class="badge badge-warning">Notée sur {{ $interrogation_max_score ?? 20 }}</span>
                 <br><small class="text-muted ml-4">
                     <i class="icon-info3 mr-1"></i>
-                    Les notes saisies sur {{ $interrogation_max_score ?? 20 }} seront converties automatiquement vers la cote RDC ({{ $grade_config->period_max_score }})
+                    Les notes saisies sur {{ $interrogation_max_score ?? 20 }} seront converties automatiquement vers la cote configurée ({{ $grade_config->period_max_score }})
                 </small>
             @elseif(isset($is_semester_exam) && $is_semester_exam)
                 | <strong>📚 Examen Semestre {{ $current_semester }}</strong>
@@ -33,7 +33,7 @@
     @else
         <div class="alert alert-warning border-0 mb-3">
             <i class="icon-warning22 mr-2"></i>
-            <strong>Attention:</strong> Aucune configuration de cotes RDC trouvée. Veuillez configurer les cotes pour cette classe/matière.
+            <strong>Attention:</strong> Aucune configuration de cotes configurées trouvée. Veuillez configurer les cotes pour cette classe/matière.
         </div>
     @endif
     
@@ -58,11 +58,11 @@
                         $periodColumn = 't' . $evaluation_period;
                         $periodScore = $mk->$periodColumn ?? 0;
                         $interrogationMax = $interrogation_max_score ?? 20;
-                        $rdcMaxScore = $grade_config ? $grade_config->period_max_score : 20;
-                        // Convertir la note de l'interrogation vers la cote RDC
+                        $configMaxScore = $grade_config ? $grade_config->period_max_score : 20;
+                        // Convertir la note de l'interrogation vers la cote configurée
                         $percentage = $interrogationMax > 0 ? ($periodScore / $interrogationMax) * 100 : 0;
                         $pointsOn20 = ($percentage / 100) * 20;
-                        $pointsOnRDC = ($percentage / 100) * $rdcMaxScore;
+                        $pointsOnConfig = ($percentage / 100) * $configMaxScore;
                     @endphp
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -80,7 +80,7 @@
                                 step="0.25"
                                 data-student-id="{{ $mk->id }}"
                                 data-max-score="{{ $interrogationMax }}"
-                                data-rdc-max="{{ $rdcMaxScore }}">
+                                data-config-max="{{ $configMaxScore }}">
                         </td>
                         <td class="text-center">
                             <span class="percentage-display badge badge-info" data-student-id="{{ $mk->id }}">
@@ -150,7 +150,7 @@
                 </tbody>
             </table>
         @else
-            {{-- Vue pour évaluations de période (système RDC complet) --}}
+            {{-- Vue pour évaluations de période (système académique complet) --}}
             <table class="table table-bordered table-striped">
                 <thead class="bg-primary text-white">
                 <tr>
@@ -221,7 +221,7 @@ $(document).ready(function() {
             const studentId = $(this).data('student-id');
             const score = parseFloat($(this).val()) || 0;
             const interrogationMax = parseFloat($(this).data('max-score')); // Cote de l'interrogation (ex: 10)
-            const rdcMax = parseFloat($(this).data('rdc-max')); // Cote RDC configurée (ex: 20)
+            const configMax = parseFloat($(this).data('config-max')); // Cote configurée (ex: 20)
             
             if (score > interrogationMax) {
                 $(this).val(interrogationMax);
@@ -231,13 +231,13 @@ $(document).ready(function() {
             // Calculer le pourcentage par rapport à la cote de l'interrogation
             const percentage = interrogationMax > 0 ? (score / interrogationMax) * 100 : 0;
             const pointsOn20 = (percentage / 100) * 20;
-            const pointsOnRDC = (percentage / 100) * rdcMax;
+            const pointsOnConfig = (percentage / 100) * configMax;
             
             $(`[data-student-id="${studentId}"].percentage-display`).text(percentage.toFixed(2) + '%');
             $(`[data-student-id="${studentId}"].points-display`).text(pointsOn20.toFixed(2) + '/20');
             
-            // Optionnel: afficher aussi la note convertie en cote RDC
-            console.log(`Étudiant ${studentId}: ${score}/${interrogationMax} = ${percentage.toFixed(2)}% = ${pointsOnRDC.toFixed(2)}/${rdcMax}`);
+            // Optionnel: afficher aussi la note convertie en cote configurée
+            console.log(`Étudiant ${studentId}: ${score}/${interrogationMax} = ${percentage.toFixed(2)}% = ${pointsOnConfig.toFixed(2)}/${configMax}`);
         });
         
         // Calcul initial
@@ -266,7 +266,7 @@ $(document).ready(function() {
     } 
     // Calcul automatique pour les évaluations de période (ancien système)
     else {
-        // Calcul automatique pour les périodes (système RDC)
+        // Calcul automatique pour les périodes (système académique)
         $('.period-input').on('input', function() {
             const row = $(this).closest('tr');
             const studentId = row.find('.period-percentage').data('student-id');
@@ -280,7 +280,7 @@ $(document).ready(function() {
                 return;
             }
             
-            // Calcul de la moyenne pondérée RDC
+            // Calcul de la moyenne pondérée
             const t1 = parseFloat(row.find('input[name^="t1_"]').val()) || 0;
             const t2 = parseFloat(row.find('input[name^="t2_"]').val()) || 0;
             const t3 = parseFloat(row.find('input[name^="t3_"]').val()) || 0;
@@ -290,7 +290,7 @@ $(document).ready(function() {
             const tex2 = parseFloat(row.find('input[name^="tex2_"]').val()) || 0;
             const tex3 = parseFloat(row.find('input[name^="tex3_"]').val()) || 0;
             
-            // Pondération RDC
+            // Pondération
             const testsAvg = (t1 + t2 + t3 + t4) / 4; // Moyenne des devoirs
             const tcaWeight = 0.3;
             const tex1Weight = 0.1;

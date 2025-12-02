@@ -156,22 +156,22 @@
                             </li>
                         @endif
 
-                        {{--Subject Grades Config (RDC System)--}}
+                        {{--Subject Grades Config--}}
                         @if(Qs::userIsSuperAdmin())
                             <li class="nav-item">
                                 <a href="{{ route('subject-grades-config.index') }}"
                                    class="nav-link {{ in_array(Route::currentRouteName(), ['subject-grades-config.index', 'subject-grades-config.show']) ? 'active' : '' }}">
-                                   🧮 Cotes par Matière (RDC)
+                                   🧮 Cotes par Matière
                                 </a>
                             </li>
                         @endif
 
-                        {{--Proclamations RDC--}}
+                        {{--Proclamations--}}
                         @if(Qs::userIsSuperAdmin())
                             <li class="nav-item">
                                 <a href="{{ route('proclamations.index') }}"
                                    class="nav-link {{ in_array(Route::currentRouteName(), ['proclamations.index', 'proclamations.period', 'proclamations.semester', 'proclamations.student']) ? 'active' : '' }}">
-                                   🏆 Proclamations RDC
+                                   🏆 Proclamations
                                 </a>
                             </li>
                         @endif

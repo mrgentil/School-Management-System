@@ -34,7 +34,7 @@
 
         <div class="card-body">
             <div class="alert alert-info">
-                <h6><i class="icon-info22 mr-2"></i>Comment utiliser la Feuille de Tabulation RDC :</h6>
+                <h6><i class="icon-info22 mr-2"></i>Comment utiliser la Feuille de Tabulation :</h6>
                 <ul class="mb-0">
                     <li><strong>Sélectionnez le type</strong> - Période (P1-P4) ou Semestre (S1-S2)</li>
                     <li><strong>Choisissez la période/semestre</strong> - Selon votre sélection</li>
@@ -42,7 +42,7 @@
                     <li><strong>Sélectionnez une section</strong> - Choisissez la section/division de la classe</li>
                     <li><strong>Cliquez sur "Afficher la Feuille"</strong> - Le tableau avec toutes les notes apparaîtra</li>
                 </ul>
-                <small class="text-muted"><strong>Système RDC :</strong> Affiche les moyennes calculées avec pondération (devoirs + interrogations + interro générale)</small>
+                <small class="text-muted"><strong>Système académique :</strong> Affiche les moyennes calculées avec pondération (devoirs + interrogations + interro générale)</small>
             </div>
             
         <form method="post" action="{{ route('marks.tabulation_select') }}">

@@ -306,7 +306,7 @@
             <tr>
                 <td class="header-left">
                     @if($flagBase64)
-                        <img src="{{ $flagBase64 }}" class="header-img" alt="Drapeau RDC">
+                        <img src="{{ $flagBase64 }}" class="header-img" alt="Drapeau">
                     @endif
                 </td>
                 <td class="header-center">

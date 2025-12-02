@@ -104,7 +104,7 @@
                         <div class="col-md-6">
                             {{-- Affichage de la configuration des cotes --}}
                             <div class="form-group">
-                                <label class="col-form-label font-weight-bold">Configuration RDC</label>
+                                <label class="col-form-label font-weight-bold">Configuration des cotes</label>
                                 <div id="subject-config" class="alert alert-info border-0 p-2" style="display:none;">
                                     <small>
                                         <strong>Cotes:</strong> 

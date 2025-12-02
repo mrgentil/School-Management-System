@@ -78,7 +78,7 @@
                             <div class="alert alert-info border-0 alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
 
-                                <span><strong>Système RDC :</strong> Créez une classe en sélectionnant le niveau (1ère, 2ème...), la division (A, B, C, D) et l'option si applicable. Le nom complet sera généré automatiquement (ex: "1ère A Biochimie").</span>
+                                <span><strong>Système académique :</strong> Créez une classe en sélectionnant le niveau (1ère, 2ème...), la division (A, B, C, D) et l'option si applicable. Le nom complet sera généré automatiquement (ex: "1ère A Biochimie").</span>
                             </div>
                         </div>
                     </div>
@@ -197,7 +197,7 @@
                         <div class="col-md-4">
                             <div class="card bg-light">
                                 <div class="card-header">
-                                    <h6 class="card-title">🇨🇩 Exemples de Classes RDC</h6>
+                                    <h6 class="card-title">🎓 Exemples de Classes</h6>
                                 </div>
                                 <div class="card-body">
                                     <ul class="list-unstyled mb-0">

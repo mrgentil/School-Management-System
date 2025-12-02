@@ -132,7 +132,7 @@
                         <div class="col-md-6">
                             <div class="card bg-light">
                                 <div class="card-header">
-                                    <h6 class="card-title"><i class="icon-info22 mr-2"></i>Barèmes Suggérés (Système RDC)</h6>
+                                    <h6 class="card-title"><i class="icon-info22 mr-2"></i>Barèmes Suggérés (Système académique)</h6>
                                 </div>
                                 <div class="card-body">
                                     <h6 class="text-primary">Barème Standard sur 20 :</h6>

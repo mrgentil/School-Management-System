@@ -12,7 +12,7 @@ class ProgressController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('parent');
+        $this->middleware('my_parent');
     }
 
     /**

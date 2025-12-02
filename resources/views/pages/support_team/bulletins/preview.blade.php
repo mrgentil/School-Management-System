@@ -21,13 +21,13 @@
     </div>
 </div>
 
-<div class="card bulletin-rdc">
+<div class="card bulletin-card">
     <div class="card-body p-3" style="font-family: 'Times New Roman', Times, serif; font-size: 11px;">
         
-        {{-- En-tête RDC --}}
+        {{-- En-tête --}}
         <div class="row align-items-center border-bottom pb-2 mb-2">
             <div class="col-2 text-center">
-                {{-- Drapeau RDC --}}
+                {{-- Drapeau --}}
                 <div style="width: 50px; height: 35px; border: 1px solid #000; margin: auto;">
                     <div style="background: #007FFF; height: 33.33%;"></div>
                     <div style="background: #F7D618; height: 33.33%;"></div>
@@ -82,7 +82,7 @@
             ANNEE SCOLAIRE {{ $year }}
         </div>
 
-        {{-- Tableau des notes format RDC --}}
+        {{-- Tableau des notes --}}
         @php
             $totalMax = 0;
             $totalObtained = 0;
@@ -197,7 +197,7 @@
             </div>
         </div>
 
-        {{-- Signatures RDC --}}
+        {{-- Signatures --}}
         <div class="row mt-3" style="font-size: 9px;">
             <div class="col-4 text-center">
                 <p class="font-weight-bold mb-4">Le Titulaire de Classe</p>
@@ -216,7 +216,7 @@
             </div>
         </div>
 
-        {{-- Pied de page RDC --}}
+        {{-- Pied de page --}}
         <div class="mt-3 pt-2" style="border-top: 1px solid #000; font-size: 8px;">
             <p class="mb-1">- L'élève ne pourra passer dans la classe supérieure s'il ne subit avec succès un examen de repêchage en ........................... (1)</p>
             <p class="mb-1">- L'élève passe dans la classe supérieure (1)</p>
@@ -251,13 +251,13 @@
 
 @section('styles')
 <style>
-    .bulletin-rdc {
+    .bulletin-card {
         background: white;
     }
     
     @media print {
         .no-print { display: none !important; }
-        .bulletin-rdc { 
+        .bulletin-card { 
             box-shadow: none !important; 
             border: none !important;
             margin: 0;

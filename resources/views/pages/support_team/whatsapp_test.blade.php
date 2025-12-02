@@ -37,7 +37,7 @@ WHATSAPP_PHONE_NUMBER_ID=votre_phone_number_id</pre>
                                 <label><strong>Numéro de téléphone</strong></label>
                                 <input type="text" name="phone" class="form-control" 
                                        placeholder="Ex: 243812345678 ou 0812345678" required>
-                                <small class="text-muted">Format: avec ou sans indicatif pays (243 pour RDC)</small>
+                                <small class="text-muted">Format: avec ou sans indicatif pays (ex: 243)</small>
                             </div>
                             <div class="form-group">
                                 <label><strong>Message</strong></label>

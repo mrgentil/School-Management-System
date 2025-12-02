@@ -17,7 +17,7 @@
                         <h6><i class="icon-info22 mr-2"></i>Instructions d'Import</h6>
                         <ul class="mb-0">
                             <li>Le fichier Excel doit contenir les colonnes : <code>nom_etudiant</code>, <code>numero_matricule</code>, <code>matiere</code></li>
-                            <li>Pour le système RDC : <code>periode_1</code>, <code>periode_2</code>, <code>periode_3</code>, <code>periode_4</code></li>
+                            <li>Pour le système académique : <code>periode_1</code>, <code>periode_2</code>, <code>periode_3</code>, <code>periode_4</code></li>
                             <li>Examens : <code>examen_semestre_1</code>, <code>examen_semestre_2</code></li>
                             <li>Notes sur 20 pour les périodes, sur 100 pour les anciens systèmes</li>
                         </ul>

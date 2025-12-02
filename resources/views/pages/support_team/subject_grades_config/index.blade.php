@@ -18,7 +18,7 @@
             <div class="d-flex align-items-center">
                 <i class="icon-info22 mr-3 icon-2x"></i>
                 <div>
-                    <strong>Configuration Système RDC</strong>
+                    <strong>Configuration Système académique</strong>
                     <p class="mb-0">
                         Configurez les cotes maximales pour chaque matière par classe. 
                         <strong>Période</strong> : devoirs et interrogations. 
