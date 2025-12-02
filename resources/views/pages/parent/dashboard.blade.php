@@ -196,7 +196,7 @@
                 </a>
             </div>
             <div class="col-md-3 col-6 mb-3">
-                <a href="{{ route('my_children') }}" class="btn btn-lg btn-outline-secondary w-100">
+                <a href="{{ route('parent.my_children') }}" class="btn btn-lg btn-outline-secondary w-100">
                     <i class="icon-users4 d-block mb-2" style="font-size: 24px;"></i>
                     Mes Enfants
                 </a>
