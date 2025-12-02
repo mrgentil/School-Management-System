@@ -9,6 +9,16 @@ use Illuminate\Support\Facades\Auth;
 
 Auth::routes();
 
+// Page de démonstration avec connexion rapide
+Route::get('/demo', function () {
+    return view('auth.demo');
+})->name('demo')->middleware('guest');
+
+// Route de connexion démo (sans CSRF)
+Route::get('/demo/login/{role}', [\App\Http\Controllers\Auth\DemoLoginController::class, 'login'])
+    ->name('demo.login')
+    ->middleware('guest');
+
 //Route::get('/test', 'TestController@index')->name('test');
 Route::get('/privacy-policy', [HomeController::class, 'privacy_policy'])->name('privacy_policy');
 Route::get('/terms-of-use', [HomeController::class, 'terms_of_use'])->name('terms_of_use');
@@ -568,7 +578,7 @@ Route::group(['middleware' => ['auth', 'teamSAT'], 'prefix' => 'teacher', 'as' =
 });
 
 /************************ PARENT ****************************/
-Route::group(['middleware' => 'my_parent', 'prefix' => 'parent', 'as' => 'parent.'], function(){
+Route::group(['middleware' => ['auth', 'my_parent'], 'prefix' => 'parent', 'as' => 'parent.'], function(){
 
     // Dashboard Parent
     Route::get('/dashboard', [\App\Http\Controllers\MyParent\DashboardController::class, 'index'])->name('dashboard');
@@ -605,7 +615,7 @@ Route::group(['middleware' => 'my_parent', 'prefix' => 'parent', 'as' => 'parent
 });
 
     /*************** Accountant *****************/
-Route::group(['middleware' => 'accountant', 'prefix' => 'accountant', 'as' => 'accountant.'], function(){
+Route::group(['middleware' => ['auth', 'accountant'], 'prefix' => 'accountant', 'as' => 'accountant.'], function(){
 
     // Dashboard
     Route::get('/dashboard', function() {
@@ -615,7 +625,7 @@ Route::group(['middleware' => 'accountant', 'prefix' => 'accountant', 'as' => 'a
 });
 
     /*************** Librarian *****************/
-Route::group(['middleware' => 'librarian', 'prefix' => 'librarian', 'as' => 'librarian.'], function(){
+Route::group(['middleware' => ['auth', 'librarian'], 'prefix' => 'librarian', 'as' => 'librarian.'], function(){
 
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Librarian\DashboardController::class, 'index'])->name('dashboard');

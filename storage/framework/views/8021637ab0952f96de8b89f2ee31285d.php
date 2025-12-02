@@ -1,6 +1,6 @@
-@extends('layouts.login_master')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
     <div class="page-content login-cover">
 
         <!-- Main content -->
@@ -10,8 +10,8 @@
             <div class="content d-flex justify-content-center align-items-center">
 
                 <!-- Login card -->
-                <form class="login-form " method="post" action="{{ route('login') }}">
-                    @csrf
+                <form class="login-form " method="post" action="<?php echo e(route('login')); ?>">
+                    <?php echo csrf_field(); ?>
                     <div class="card mb-0">
                         <div class="card-body">
                             <div class="text-center mb-3">
@@ -20,16 +20,17 @@
                                 <span class="d-block text-muted">Vos identifiants</span>
                             </div>
 
-                                @if ($errors->any())
+                                <?php if($errors->any()): ?>
                                 <div class="alert alert-danger alert-styled-left alert-dismissible">
                                     <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-                                    <span class="font-weight-semibold">Oops!</span> {{ implode('<br>', $errors->all()) }}
+                                    <span class="font-weight-semibold">Oops!</span> <?php echo e(implode('<br>', $errors->all())); ?>
+
                                 </div>
-                                @endif
+                                <?php endif; ?>
 
 
                             <div class="form-group ">
-                                <input type="text" class="form-control" name="login" value="{{ old('login') }}" placeholder="Email ou Nom d'utilisateur" required autofocus>
+                                <input type="text" class="form-control" name="login" value="<?php echo e(old('login')); ?>" placeholder="Email ou Nom d'utilisateur" required autofocus>
                             </div>
 
                             <div class="form-group ">
@@ -40,12 +41,12 @@
                             <div class="form-group d-flex align-items-center">
                                 <div class="form-check mb-0">
                                     <label class="form-check-label">
-                                        <input type="checkbox" name="remember" class="form-input-styled" {{ old('remember') ? 'checked' : '' }} data-fouc>
+                                        <input type="checkbox" name="remember" class="form-input-styled" <?php echo e(old('remember') ? 'checked' : ''); ?> data-fouc>
                                         Se souvenir
                                     </label>
                                 </div>
 
-                                <a href="{{ route('password.request') }}" class="ml-auto">Mot de passe oublié ?</a>
+                                <a href="<?php echo e(route('password.request')); ?>" class="ml-auto">Mot de passe oublié ?</a>
                             </div>
 
                             <div class="form-group">
@@ -53,7 +54,7 @@
                             </div>
 
                             <div class="form-group">
-                                <a href="{{ route('demo') }}" class="btn btn-outline-success btn-block">
+                                <a href="<?php echo e(route('demo')); ?>" class="btn btn-outline-success btn-block">
                                     <i class="icon-play3 mr-2"></i> Accès Démonstration
                                 </a>
                             </div>
@@ -69,4 +70,6 @@
         </div>
 
     </div>
-    @endsection
+    <?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.login_master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\eschool\resources\views/auth/login.blade.php ENDPATH**/ ?>

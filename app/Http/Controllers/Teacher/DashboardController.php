@@ -17,11 +17,6 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('teacher');
-    }
-
     public function index()
     {
         $teacher = Auth::user();

@@ -97,7 +97,7 @@
                             <h6 class="media-title mb-1">{{ $notice->title }}</h6>
                             <p class="mb-1">{{ Str::limit($notice->content, 120) }}</p>
                             <div class="text-muted small">
-                                <i class="icon-user mr-1"></i>{{ $notice->creator->name }} - 
+                                <i class="icon-user mr-1"></i>{{ $notice->creator?->name ?? 'Système' }} - 
                                 <i class="icon-calendar mr-1"></i>{{ $notice->created_at->diffForHumans() }}
                             </div>
                         </div>
